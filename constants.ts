@@ -1,0 +1,138 @@
+import { Project, ProjectCategory, Service } from './types';
+
+export const PROJECTS: Project[] = [
+  {
+    id: 'p1',
+    title: 'Nebel Haus',
+    category: ProjectCategory.BRAND,
+    date: '2023',
+    image: 'https://picsum.photos/800/600',
+    description: 'A complete identity system for a brutalist architecture firm in Zurich. Focusing on raw materials and negative space.',
+    tags: ['Architecture', 'Identity', 'Print'],
+    gridSpan: 'wide',
+  },
+  {
+    id: 'p2',
+    title: 'Velo Zürich',
+    category: ProjectCategory.WEB,
+    date: '2024',
+    image: 'https://picsum.photos/600/800',
+    description: 'Digital platform for urban cycling culture. Mobile-first booking system for repairs and rentals.',
+    clientUrl: 'https://example.com',
+    tags: ['UI/UX', 'App', 'Zurich'],
+    gridSpan: 'tall',
+  },
+  {
+    id: 'p3',
+    title: 'Alpen Glow',
+    category: ProjectCategory.PHOTO,
+    date: '2022',
+    image: 'https://picsum.photos/800/800',
+    description: 'Editorial photography series capturing the changing light gradients of the Swiss Alps.',
+    tags: ['Editorial', 'Nature', 'Light'],
+    gridSpan: 'medium',
+  },
+  {
+    id: 'p4',
+    title: 'Type Foundry A',
+    category: ProjectCategory.WEB,
+    date: '2023',
+    image: 'https://picsum.photos/700/700',
+    description: 'E-commerce experience for a boutique type foundry. Focusing on glyph inspection and licensing flows.',
+    tags: ['Typography', 'E-commerce'],
+    gridSpan: 'medium',
+  },
+  {
+    id: 'p5',
+    title: 'Studio M',
+    category: ProjectCategory.FILM,
+    date: '2024',
+    image: 'https://picsum.photos/900/600',
+    description: 'Brand film for a furniture maker. Slow motion, macro textures, and ambient sound design.',
+    tags: ['Motion', 'Sound'],
+    gridSpan: 'large',
+  },
+  {
+    id: 'p6',
+    title: 'Kunsthalle B',
+    category: ProjectCategory.PRINT,
+    date: '2023',
+    image: 'https://picsum.photos/600/900',
+    description: 'Exhibition poster series and wayfinding system. Using distinct Swiss grid systems.',
+    tags: ['Print', 'Exhibition'],
+    gridSpan: 'tall',
+  },
+  {
+    id: 'p7',
+    title: 'Future Finance',
+    category: ProjectCategory.BRAND,
+    date: '2024',
+    image: 'https://picsum.photos/800/500',
+    description: 'Rebranding a fintech startup. Making trust look modern and approachable.',
+    tags: ['Fintech', 'Trust'],
+    gridSpan: 'medium',
+  },
+  {
+    id: 'p8',
+    title: 'Echo Magazine',
+    category: ProjectCategory.PRINT,
+    date: '2022',
+    image: 'https://picsum.photos/500/500',
+    description: 'Quarterly art publication layout and art direction.',
+    tags: ['Layout', 'Print'],
+    gridSpan: 'small',
+  },
+  {
+    id: 'p9',
+    title: 'Ceramic Co.',
+    category: ProjectCategory.PHOTO,
+    date: '2023',
+    image: 'https://picsum.photos/700/500',
+    description: 'Product photography for handmade ceramics. Natural light and stone textures.',
+    tags: ['Product', 'Still Life'],
+    gridSpan: 'medium',
+  },
+];
+
+export const SERVICES: Service[] = [
+  {
+    id: 's1',
+    name: 'Website Essential',
+    // Lightning / Bolt
+    icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+    bullets: ['Astro + CMS Setup', 'Mobile First', 'SEO Basic'],
+    startPrice: 'CHF 2’000',
+  },
+  {
+    id: 's2',
+    name: 'Custom Digital',
+    // Diamond / Gem
+    icon: 'M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3.8 6h16.4M2 9h20M12 2v20',
+    bullets: ['React Interactions', 'Complex Data', 'Motion Design'],
+    startPrice: 'ab CHF 5’000',
+  },
+  {
+    id: 's3',
+    name: 'Brand System',
+    // Asterisk / Star
+    icon: 'M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07',
+    bullets: ['Logo & Typography', 'Color Strategy', 'Guidelines'],
+    startPrice: 'ab CHF 3’500',
+  },
+  {
+    id: 's4',
+    name: 'Content & Photo',
+    // Camera / Aperture
+    icon: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z M12 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+    bullets: ['Art Direction', 'Photography', 'Copywriting'],
+    startPrice: 'Tagesrate',
+  },
+  {
+    id: 's5',
+    name: 'Hosting & Care',
+    // Shield
+    icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+    bullets: ['Updates', 'Monitoring', 'Support'],
+    startPrice: 'CHF 10 / Mt',
+  },
+];

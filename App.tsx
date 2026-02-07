@@ -1,0 +1,153 @@
+import React, { useState, useEffect } from 'react';
+import { Navigation } from './components/Navigation';
+import { PortfolioSurface } from './components/PortfolioSurface';
+import { ServicesWheel } from './components/ServicesWheel';
+import { ProjectDetail } from './components/ProjectDetail';
+import { ThemeToggle } from './components/ThemeToggle';
+import { CookieConsent } from './components/CookieConsent';
+import { ContactModal } from './components/ContactModal';
+import { Project, Theme, TransitionRect } from './types';
+
+const App: React.FC = () => {
+  const [view, setView] = useState<'work' | 'services'>('work');
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [originRect, setOriginRect] = useState<TransitionRect | null>(null);
+  const [theme, setTheme] = useState<Theme>('light');
+  
+  // Contact Modal State
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [contactOrigin, setContactOrigin] = useState<TransitionRect | null>(null);
+
+  // Simple transition logic
+  const handleViewChange = (newView: 'work' | 'services') => {
+    setView(newView);
+    setSelectedProject(null); // Close modal on nav
+  };
+
+  const handleSelectProject = (project: Project, rect: TransitionRect) => {
+    setOriginRect(rect);
+    setSelectedProject(project);
+  };
+
+  const handleCloseProject = () => {
+    setSelectedProject(null);
+  };
+  
+  const handleOpenContact = (rect: TransitionRect) => {
+    setContactOrigin(rect);
+    setIsContactOpen(true);
+  };
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  // Update body bg color to match theme for overscroll areas
+  useEffect(() => {
+    document.body.style.backgroundColor = theme === 'light' ? '#FAFAF9' : '#1C1917';
+  }, [theme]);
+
+  return (
+    <div className="relative w-full h-screen overflow-hidden bg-stone-900">
+      
+      {/* --- AMBIENT BACKGROUND LAYERS (CROSS-FADE) --- */}
+      
+      {/* DARK MODE LAYER */}
+      <div 
+        className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-[2000ms] ease-in-out ${
+          theme === 'dark' ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <div className="absolute inset-0 bg-[#1C1917]" />
+        {/* Deep Aqua Aurora - More visible (opacity 0.3) */}
+        <div className="absolute top-[-20%] left-[-10%] w-[90vw] h-[90vh] bg-cyan-900/30 rounded-full blur-[100px] animate-aurora-1 mix-blend-screen" />
+        {/* Teal/Purple Aurora - More visible */}
+        <div className="absolute bottom-[-10%] right-[-10%] w-[80vw] h-[80vh] bg-teal-900/30 rounded-full blur-[80px] animate-aurora-2 mix-blend-screen" />
+        {/* Grain Overlay */}
+        <div className="absolute inset-0 opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      </div>
+
+      {/* LIGHT MODE LAYER */}
+      <div 
+        className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-[2000ms] ease-in-out ${
+          theme === 'light' ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <div className="absolute inset-0 bg-[#FAFAF9]" />
+        {/* Aqua Sky Hint - More visible */}
+        <div className="absolute top-[10%] right-[20%] w-[70vw] h-[70vw] bg-cyan-100/70 rounded-full blur-[120px] animate-cloud mix-blend-multiply" />
+        {/* White Cloud Fog */}
+        <div className="absolute bottom-[-20%] left-[-10%] w-[100vw] h-[100vh] bg-white rounded-full blur-[100px] animate-aurora-2 opacity-90" />
+        {/* Another Cloud Chunk */}
+        <div className="absolute top-[-20%] left-[10%] w-[60vw] h-[60vh] bg-stone-100/80 rounded-full blur-[80px] animate-aurora-1" />
+      </div>
+
+      {/* --- CONTENT LAYER --- */}
+      <div className="relative z-10 w-full h-full">
+        <Navigation 
+           currentView={view} 
+           onNavigate={handleViewChange} 
+           onOpenContact={handleOpenContact}
+           theme={theme} 
+        />
+        
+        {/* Work View (Surface) */}
+        <div 
+          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+            view === 'work' ? 'opacity-100 z-30 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+          }`}
+        >
+          <PortfolioSurface onSelectProject={handleSelectProject} theme={theme} />
+        </div>
+
+        {/* Services View (Wheel) */}
+        <div 
+          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+            view === 'services' ? 'opacity-100 z-30 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+          }`}
+        >
+          <ServicesWheel theme={theme} />
+        </div>
+      </div>
+
+      {/* Detail Modal */}
+      {selectedProject && originRect && (
+        <ProjectDetail 
+          project={selectedProject} 
+          originRect={originRect}
+          onClose={handleCloseProject} 
+          theme={theme}
+        />
+      )}
+
+      {/* Contact Modal */}
+      {isContactOpen && (
+        <ContactModal 
+          isOpen={isContactOpen}
+          onClose={() => setIsContactOpen(false)}
+          originRect={contactOrigin}
+          theme={theme}
+        />
+      )}
+
+      {/* Global "Availability" Badge */}
+      <div className="fixed bottom-6 right-6 z-40 hidden md:block mix-blend-difference text-white pointer-events-none">
+        <div className="flex items-center gap-2">
+           <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            </span>
+            <span className="text-[10px] uppercase tracking-widest font-medium text-white/90">Available for Q4</span>
+        </div>
+      </div>
+
+      {/* Theme Toggle */}
+      <ThemeToggle theme={theme} onToggle={toggleTheme} />
+      
+      {/* Creative Cookie Banner */}
+      <CookieConsent theme={theme} />
+    </div>
+  );
+};
+
+export default App;
