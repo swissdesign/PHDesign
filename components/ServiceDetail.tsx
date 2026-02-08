@@ -95,7 +95,8 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
   };
 
   const needsTopSpacing = isCoarsePointer || isMobile;
-  const topPaddingStyle = needsTopSpacing ? { paddingTop: '72px' } : undefined; // ~72px to clear menu/close
+  // Add generous headroom on touch devices so the close button and menu icon never collide
+  const topPaddingStyle = needsTopSpacing ? { paddingTop: '144px' } : undefined; // ~144px (~72px + extra 70px)
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-auto">
