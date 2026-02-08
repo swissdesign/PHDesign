@@ -136,6 +136,13 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
             <div className="hidden md:block h-3 w-px bg-current opacity-20" />
 
             <div className="flex flex-wrap gap-x-6 gap-y-2">
+                <a 
+                    href="/iam.html" 
+                    className={`hover:underline ${hoverTextAccent}`}
+                    onClick={onClose}
+                >
+                    iam
+                </a>
                 <a href="#" className={`hover:underline ${hoverTextAccent}`}>Impressum</a>
                 <a href="#" className={`hover:underline ${hoverTextAccent}`}>Datenschutz</a>
                 <a href="#" className={`hover:underline ${hoverTextAccent}`}>AGB</a>
