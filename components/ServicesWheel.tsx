@@ -36,9 +36,10 @@ const useCoarsePointer = () => {
 
 interface ServicesWheelProps {
   theme: Theme;
+  onModalToggle?: (open: boolean) => void;
 }
 
-export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme }) => {
+export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme, onModalToggle }) => {
   // Single source of truth for which service is active
   const [activeServiceIndex, setActiveServiceIndex] = useState(0);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -108,10 +109,12 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme }) => {
       height: rect.height,
     });
     setSelectedService(service);
+    onModalToggle?.(true);
   };
 
   const closeDetail = () => {
     setSelectedService(null);
+    onModalToggle?.(false);
   };
 
   // Styles
