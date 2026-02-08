@@ -31,6 +31,7 @@ export interface Service {
   id: string;
   name: string;
   icon: string; // Just using emoji/char for demo simplicity, typically SVG
+  teaser: string; // Short one-liner for hover/active previews
   bullets: string[];
   startPrice: string;
 }
