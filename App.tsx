@@ -13,6 +13,7 @@ const App: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [originRect, setOriginRect] = useState<TransitionRect | null>(null);
   const [theme, setTheme] = useState<Theme>('light');
+  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   
   // Contact Modal State
   const [isContactOpen, setIsContactOpen] = useState(false);
@@ -41,6 +42,8 @@ const App: React.FC = () => {
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
+
+  const isAnyModalOpen = Boolean(selectedProject || isContactOpen || isServiceModalOpen);
 
   // Update body bg color to match theme for overscroll areas
   useEffect(() => {
@@ -88,6 +91,8 @@ const App: React.FC = () => {
            currentView={view} 
            onNavigate={handleViewChange} 
            onOpenContact={handleOpenContact}
+           onSelectProject={handleSelectProject}
+           isAnyModalOpen={isAnyModalOpen}
            theme={theme} 
         />
         
@@ -106,7 +111,10 @@ const App: React.FC = () => {
             view === 'services' ? 'opacity-100 z-30 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
           }`}
         >
-          <ServicesWheel theme={theme} />
+          <ServicesWheel 
+            theme={theme} 
+            onModalToggle={setIsServiceModalOpen}
+          />
         </div>
       </div>
 

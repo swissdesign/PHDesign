@@ -17,6 +17,7 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
 
   // Detect mobile for robust fullscreen sizing
   const [isMobile, setIsMobile] = useState(false);
+  const [isCoarsePointer, setIsCoarsePointer] = useState(false);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -26,10 +27,27 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
     // Animation sequence
     const t1 = setTimeout(() => setIsExpanded(true), 20);
     const t2 = setTimeout(() => setShowContent(true), 400);
+    // Pointer coarse detection for tablets/phones
+    const mql = window.matchMedia('(pointer: coarse)');
+    const handlePointerChange = (e: MediaQueryListEvent) => setIsCoarsePointer(e.matches);
+    setIsCoarsePointer(mql.matches);
+    if (mql.addEventListener) {
+      mql.addEventListener('change', handlePointerChange);
+    } else {
+      // @ts-ignore Safari
+      mql.addListener(handlePointerChange);
+    }
+
     return () => { 
         clearTimeout(t1); 
         clearTimeout(t2); 
         window.removeEventListener('resize', handleResize);
+        if (mql.removeEventListener) {
+          mql.removeEventListener('change', handlePointerChange);
+        } else {
+          // @ts-ignore Safari
+          mql.removeListener(handlePointerChange);
+        }
     };
   }, []);
 
@@ -76,6 +94,12 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
       borderRadius: '0px'
   };
 
+  const needsTopSpacing = isCoarsePointer || isMobile;
+  // Headroom on touch devices so the close button sits away from nav/burger
+  const topPaddingStyle = needsTopSpacing 
+    ? { paddingTop: 'calc(env(safe-area-inset-top, 0px) + 96px)' } 
+    : undefined;
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-auto">
       {/* Backdrop */}
@@ -94,9 +118,10 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
         {/* Close Button */}
         <button 
           onClick={handleClose}
-          className={`absolute top-4 right-4 md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-500 ${
+          className={`absolute md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-500 ${
             theme === 'light' ? 'bg-stone-100 hover:bg-stone-200 text-stone-900' : 'bg-stone-800 hover:bg-stone-700 text-stone-100'
           } ${showContent ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
+          style={needsTopSpacing ? { top: 'calc(env(safe-area-inset-top, 0px) + 18px)', right: '18px', position: 'fixed' } : undefined}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -105,7 +130,10 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
         </button>
 
         {/* Content Container */}
-        <div className={`w-full h-full flex flex-col md:flex-row transition-opacity duration-500 delay-100 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
+        <div 
+          className={`w-full h-full flex flex-col md:flex-row transition-opacity duration-500 delay-100 ${showContent ? 'opacity-100' : 'opacity-0'}`}
+          style={topPaddingStyle}
+        >
           
           {/* Left Side: Service Icon & Title (Visual Header) */}
           {/* Compact padding on mobile to save vertical space for form */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Theme, TransitionRect } from '../types';
+import { Theme, TransitionRect, Project } from '../types';
 import { PROJECTS } from '../constants';
 
 interface MenuModalProps {
@@ -7,18 +7,21 @@ interface MenuModalProps {
   onClose: () => void;
   onNavigate: (view: 'work' | 'services') => void;
   onOpenContact: (rect: TransitionRect) => void;
+  onSelectProject: (project: Project, rect: TransitionRect) => void;
   originRect: TransitionRect | null;
   theme: Theme;
 }
 
-export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigate, onOpenContact, originRect, theme }) => {
+export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigate, onOpenContact, onSelectProject, originRect, theme }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
   const [currentLang, setCurrentLang] = useState('DE');
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
+      setIsClosing(false);
       setShouldRender(true);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -29,8 +32,10 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
     } else {
       setShowContent(false);
       setIsExpanded(false);
+      setIsClosing(true);
       const timer = setTimeout(() => {
         setShouldRender(false);
+        setIsClosing(false);
       }, 700);
       return () => clearTimeout(timer);
     }
@@ -131,6 +136,13 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
             <div className="hidden md:block h-3 w-px bg-current opacity-20" />
 
             <div className="flex flex-wrap gap-x-6 gap-y-2">
+                <a 
+                    href="/iam.html" 
+                    className={`hover:underline ${hoverTextAccent}`}
+                    onClick={onClose}
+                >
+                    iam
+                </a>
                 <a href="#" className={`hover:underline ${hoverTextAccent}`}>Impressum</a>
                 <a href="#" className={`hover:underline ${hoverTextAccent}`}>Datenschutz</a>
                 <a href="#" className={`hover:underline ${hoverTextAccent}`}>AGB</a>
@@ -185,7 +197,17 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
                   <div 
                     key={p.id} 
                     className={`flex-none w-[280px] md:w-[350px] snap-start rounded-lg overflow-hidden group cursor-pointer border ${borderClass} ${cardBg} ${hoverBorderAccent}`}
-                    onClick={() => handleNavClick('work')}
+                    onClick={(e) => {
+                      if (isClosing) return;
+                      const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+                      onSelectProject(p, {
+                        top: rect.top,
+                        left: rect.left,
+                        width: rect.width,
+                        height: rect.height,
+                      });
+                    }}
+                    aria-disabled={isClosing}
                   >
                     <div className="aspect-[16/9] overflow-hidden relative">
                       <img src={p.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={p.title} />
