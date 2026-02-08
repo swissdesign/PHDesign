@@ -1,25 +1,104 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { SERVICES } from '../constants';
 import { Theme, Service, TransitionRect } from '../types';
 import { ServiceDetail } from './ServiceDetail';
 
+// Detect coarse (touch-first) pointers so we can disable hover and favor swipe/scroll
+const useCoarsePointer = () => {
+  const [isCoarse, setIsCoarse] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(pointer: coarse)').matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const mql = window.matchMedia('(pointer: coarse)');
+    const listener = (event: MediaQueryListEvent) => setIsCoarse(event.matches);
+    // Older Safari only supports addListener
+    if (mql.addEventListener) {
+      mql.addEventListener('change', listener);
+    } else {
+      // @ts-ignore
+      mql.addListener(listener);
+    }
+    return () => {
+      if (mql.removeEventListener) {
+        mql.removeEventListener('change', listener);
+      } else {
+        // @ts-ignore
+        mql.removeListener(listener);
+      }
+    };
+  }, []);
+
+  return isCoarse;
+};
+
 interface ServicesWheelProps {
   theme: Theme;
+  onModalToggle?: (open: boolean) => void;
 }
 
-export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme }) => {
-  const [activeId, setActiveId] = useState<string>(SERVICES[0].id);
+export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme, onModalToggle }) => {
+  // Single source of truth for which service is active
+  const [activeServiceIndex, setActiveServiceIndex] = useState(0);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [originRect, setOriginRect] = useState<TransitionRect | null>(null);
+  const isCoarsePointer = useCoarsePointer();
 
-  const activeIndex = SERVICES.findIndex(s => s.id === activeId);
+  const activeId = SERVICES[activeServiceIndex]?.id ?? SERVICES[0].id;
+  
   const total = SERVICES.length;
   
   // Angle per item
   const anglePerSlice = 360 / total;
 
   // We want the active item to be at 180deg (Left side of wheel, facing the text).
-  const rotation = 180 - (activeIndex * anglePerSlice);
+  const rotation = 180 - (activeServiceIndex * anglePerSlice);
+
+  // Navigation helpers ----------------------------------------------------
+  const lastNavigationTs = useRef(0);
+  const NAV_COOLDOWN_MS = 320; // small debounce so a single swipe/scroll doesn't skip items
+
+  const clampIndex = useCallback(
+    (index: number) => Math.max(0, Math.min(total - 1, index)),
+    [total]
+  );
+
+  const stepActive = useCallback(
+    (direction: 1 | -1) => {
+      const now = Date.now();
+      if (now - lastNavigationTs.current < NAV_COOLDOWN_MS) return;
+      lastNavigationTs.current = now;
+      setActiveServiceIndex(prev => clampIndex(prev + direction));
+    },
+    [clampIndex]
+  );
+
+  // Wheel/trackpad scroll (desktop + trackpads)
+  const handleWheel = (e: React.WheelEvent) => {
+    // Ignore tiny jitters from precision wheels
+    if (Math.abs(e.deltaY) < 2) return;
+    const direction: 1 | -1 = e.deltaY > 0 ? 1 : -1;
+    stepActive(direction);
+  };
+
+  // Touch swipe (phones/tablets)
+  const touchStartY = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!isCoarsePointer) return;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isCoarsePointer || touchStartY.current === null) return;
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartY.current = null;
+    const SWIPE_THRESHOLD = 35; // tuned to avoid accidental slight moves
+    if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
+    // Swipe up (negative delta) moves forward; swipe down moves backward
+    stepActive(deltaY > 0 ? -1 : 1);
+  };
 
   const handleSelect = (service: Service, e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -30,10 +109,12 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme }) => {
       height: rect.height,
     });
     setSelectedService(service);
+    onModalToggle?.(true);
   };
 
   const closeDetail = () => {
     setSelectedService(null);
+    onModalToggle?.(false);
   };
 
   // Styles
@@ -46,8 +127,19 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme }) => {
   const activeIconClass = theme === 'light' ? 'text-cyan-800' : 'text-cyan-200';
   const activeLineClass = 'bg-gradient-to-r from-cyan-500 to-transparent'; 
 
+  // Teaser visibility rules
+  const teaserShouldShow = (index: number) => {
+    if (isCoarsePointer) return index === activeServiceIndex; // mobile/tablet shows active only
+    return index === activeServiceIndex; // desktop: hover sets activeServiceIndex already
+  };
+
   return (
-    <div className="w-full h-full flex flex-col md:flex-row items-center justify-center relative overflow-hidden">
+    <div 
+      className="w-full h-full flex flex-col md:flex-row items-center justify-center relative overflow-hidden"
+      onWheel={handleWheel}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       
       {/* LEFT SIDE: The List */}
       <div className="w-full md:w-1/2 h-full flex flex-col justify-center px-6 md:px-8 md:pl-20 z-30 relative pointer-events-none">
@@ -56,8 +148,9 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme }) => {
               <div 
                 key={service.id}
                 className="group relative cursor-pointer py-2 md:py-0"
-                onMouseEnter={() => setActiveId(service.id)}
-                onClick={(e) => handleSelect(service, e)}
+                // Hover only on precise pointers to avoid fake hover on touch
+                onMouseEnter={!isCoarsePointer ? () => setActiveServiceIndex(i) : undefined}
+                onClick={(e) => { setActiveServiceIndex(i); handleSelect(service, e); }}
               >
                 <div className="flex items-center gap-4 md:gap-6">
                   <span className={`text-xs font-mono transition-colors duration-300 ${activeId === service.id ? activeNumberClass : 'text-stone-300 opacity-20'}`}>
@@ -73,6 +166,16 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme }) => {
                   >
                     {service.name}
                   </h2>
+                </div>
+                {/* Teaser: reserved space with subtle reveal to avoid layout shift */}
+                <div className="pl-8 md:pl-[3.9rem] h-5 md:h-6 overflow-hidden">
+                  <span
+                    className={`block text-[11px] md:text-xs leading-tight text-cyan-600/90 transition-all duration-300 ease-out
+                      ${teaserShouldShow(i) ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}
+                    `}
+                  >
+                    {service.teaser}
+                  </span>
                 </div>
                 {/* Mobile-only visible details hint */}
                 <div className={`md:hidden pl-8 mt-1 overflow-hidden transition-all duration-300 ${activeId === service.id ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0'}`}>
