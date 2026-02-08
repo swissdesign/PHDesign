@@ -7,13 +7,15 @@ interface NavigationProps {
   onNavigate: (view: 'work' | 'services') => void;
   onOpenContact: (rect: TransitionRect) => void;
   onSelectProject: (project: Project, rect: TransitionRect) => void;
+  isAnyModalOpen: boolean;
   theme: Theme;
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, onOpenContact, onSelectProject, theme }) => {
+export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, onOpenContact, onSelectProject, isAnyModalOpen, theme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuOriginRect, setMenuOriginRect] = useState<TransitionRect | null>(null);
   const [isMenuTransitioning, setIsMenuTransitioning] = useState(false);
+  const [isCoarsePointer, setIsCoarsePointer] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const MENU_CLOSE_DELAY = 720; // aligns with MenuModal close animation (700ms) with slight buffer
@@ -31,6 +33,27 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
       setIsMenuOpen(true);
     }
   };
+
+  // Detect coarse pointers (mobile/tablet) to hide burger when modals are open
+  useEffect(() => {
+    const mql = window.matchMedia('(pointer: coarse)');
+    const handleChange = (e: MediaQueryListEvent) => setIsCoarsePointer(e.matches);
+    setIsCoarsePointer(mql.matches);
+    if (mql.addEventListener) {
+      mql.addEventListener('change', handleChange);
+    } else {
+      // @ts-ignore Safari
+      mql.addListener(handleChange);
+    }
+    return () => {
+      if (mql.removeEventListener) {
+        mql.removeEventListener('change', handleChange);
+      } else {
+        // @ts-ignore Safari
+        mql.removeListener(handleChange);
+      }
+    };
+  }, []);
 
   const handleMenuClose = () => {
     if (isMenuTransitioning) return;
@@ -109,7 +132,9 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
             <button
               ref={menuButtonRef}
               onClick={handleMenuClick}
-              className={`group relative w-12 h-12 flex items-center justify-center focus:outline-none transition-all duration-300 active:scale-90 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}
+              className={`group relative w-12 h-12 flex items-center justify-center focus:outline-none transition-all duration-300 active:scale-90 ${
+                (isMenuOpen || (isAnyModalOpen && isCoarsePointer)) ? 'opacity-0 pointer-events-none' : 'opacity-100'
+              }`}
               aria-label="Menu"
             >
               {/* Asymmetric Two-Line Icon */}

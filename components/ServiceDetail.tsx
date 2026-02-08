@@ -95,8 +95,10 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
   };
 
   const needsTopSpacing = isCoarsePointer || isMobile;
-  // Add generous headroom on touch devices so the close button and menu icon never collide
-  const topPaddingStyle = needsTopSpacing ? { paddingTop: '144px' } : undefined; // ~144px (~72px + extra 70px)
+  // Headroom on touch devices so the close button sits away from nav/burger
+  const topPaddingStyle = needsTopSpacing 
+    ? { paddingTop: 'calc(env(safe-area-inset-top, 0px) + 96px)' } 
+    : undefined;
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-auto">
@@ -116,9 +118,10 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
         {/* Close Button */}
         <button 
           onClick={handleClose}
-          className={`absolute top-4 right-4 md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-500 ${
+          className={`absolute md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-500 ${
             theme === 'light' ? 'bg-stone-100 hover:bg-stone-200 text-stone-900' : 'bg-stone-800 hover:bg-stone-700 text-stone-100'
           } ${showContent ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
+          style={needsTopSpacing ? { top: 'calc(env(safe-area-inset-top, 0px) + 18px)', right: '18px', position: 'fixed' } : undefined}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <line x1="18" y1="6" x2="6" y2="18"></line>
