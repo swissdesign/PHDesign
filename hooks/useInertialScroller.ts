@@ -1,6 +1,10 @@
 import { RefObject, useCallback, useEffect, useRef } from 'react';
 
-type Axis = 'x' | 'y';
+type Axis = 'x' | 'y' | 'both';
+
+type AxisBounds = { min: number; max: number };
+type PanBounds = { x: AxisBounds; y: AxisBounds };
+type PanPosition = { x: number; y: number };
 
 interface InertiaOptions {
   enabled: boolean;
@@ -9,300 +13,359 @@ interface InertiaOptions {
   maxVelocity?: number;
   minVelocity?: number;
   stopWhen?: boolean;
-  snapPoints?: number[];
-  bounds?: { min: number; max: number };
-  // Position helpers for transform-based movement
-  getPosition: () => number;
-  setPosition: (next: number) => void;
+  bounds?: PanBounds;
+  getPosition: () => PanPosition;
+  setPosition: (next: PanPosition) => void;
   onMove?: (deltaAbs: number) => void;
-  onPointerDown?: () => void;
+  onInteractionStart?: () => void;
+  onPanStart?: () => void;
   onStop?: () => void;
   prefersReducedMotion?: boolean;
 }
 
 interface InertialScroller {
   stop: () => void;
+  setPosition: (next: PanPosition) => void;
 }
 
-const WHEEL_LOCK_RATIO = 1.15;
+const DRAG_DEADZONE_PX = 6;
+const EDGE_DAMPING = 0.35;
 const WHEEL_MIN = 2;
-const DRAG_LOCK_RATIO = 1.2;
-const DRAG_LOCK_PX = 6;
+
+const clamp = (value: number, min: number, max: number): number =>
+  Math.min(max, Math.max(min, value));
 
 /**
- * Lightweight inertial scroll handler for transform / scrollLeft controlled surfaces.
- * Handles wheel + pointer with a horizontal-lock to avoid stealing page scroll.
+ * 2D inertial drag panner for transform-based surfaces.
+ * Tune feel: `friction`, `maxVelocity`, `minVelocity`.
  */
 export const useInertialScroller = (
   ref: RefObject<HTMLElement>,
   {
     enabled,
-    axis = 'x',
+    axis = 'both',
     friction = 0.94,
-    maxVelocity = 60,
-    minVelocity = 0.35,
+    maxVelocity = 55,
+    minVelocity = 0.4,
     stopWhen = false,
-    snapPoints,
     bounds,
     getPosition,
     setPosition,
     onMove,
-    onPointerDown,
+    onInteractionStart,
+    onPanStart,
     onStop,
     prefersReducedMotion = false,
   }: InertiaOptions,
 ): InertialScroller => {
-  const velocityRef = useRef(0);
+  const velocityRef = useRef<PanPosition>({ x: 0, y: 0 });
   const animRef = useRef<number | null>(null);
+  const boundsRef = useRef(bounds);
+  const getPositionRef = useRef(getPosition);
+  const setPositionRef = useRef(setPosition);
+  const onMoveRef = useRef(onMove);
+  const onInteractionStartRef = useRef(onInteractionStart);
+  const onPanStartRef = useRef(onPanStart);
+  const onStopRef = useRef(onStop);
+  const stopWhenRef = useRef(stopWhen);
+  const prefersReducedMotionRef = useRef(prefersReducedMotion);
+  const frictionRef = useRef(friction);
+  const maxVelocityRef = useRef(maxVelocity);
+  const minVelocityRef = useRef(minVelocity);
   const pointerState = useRef<{
     id: number | null;
-    startPrimary: number;
-    startCross: number;
-    lastPrimary: number;
-    lastCross: number;
+    startX: number;
+    startY: number;
+    lastX: number;
+    lastY: number;
     lastTime: number;
     hasCapture: boolean;
+    panningActive: boolean;
   }>({
     id: null,
-    startPrimary: 0,
-    startCross: 0,
-    lastPrimary: 0,
-    lastCross: 0,
+    startX: 0,
+    startY: 0,
+    lastX: 0,
+    lastY: 0,
     lastTime: 0,
     hasCapture: false,
+    panningActive: false,
   });
-  const lockedHorizontal = useRef(false);
 
-  const getPrimary = (event: PointerEvent): number =>
-    axis === 'x' ? event.clientX : event.clientY;
-  const getCross = (event: PointerEvent): number =>
-    axis === 'x' ? event.clientY : event.clientX;
+  const allowX = axis === 'x' || axis === 'both';
+  const allowY = axis === 'y' || axis === 'both';
+
+  useEffect(() => {
+    boundsRef.current = bounds;
+  }, [bounds]);
+  useEffect(() => {
+    getPositionRef.current = getPosition;
+  }, [getPosition]);
+  useEffect(() => {
+    setPositionRef.current = setPosition;
+  }, [setPosition]);
+  useEffect(() => {
+    onMoveRef.current = onMove;
+  }, [onMove]);
+  useEffect(() => {
+    onInteractionStartRef.current = onInteractionStart;
+  }, [onInteractionStart]);
+  useEffect(() => {
+    onPanStartRef.current = onPanStart;
+  }, [onPanStart]);
+  useEffect(() => {
+    onStopRef.current = onStop;
+  }, [onStop]);
+  useEffect(() => {
+    stopWhenRef.current = stopWhen;
+  }, [stopWhen]);
+  useEffect(() => {
+    prefersReducedMotionRef.current = prefersReducedMotion;
+  }, [prefersReducedMotion]);
+  useEffect(() => {
+    frictionRef.current = friction;
+  }, [friction]);
+  useEffect(() => {
+    maxVelocityRef.current = maxVelocity;
+  }, [maxVelocity]);
+  useEffect(() => {
+    minVelocityRef.current = minVelocity;
+  }, [minVelocity]);
+
+  const clampPosition = useCallback(
+    (next: PanPosition): PanPosition => {
+      const liveBounds = boundsRef.current;
+      if (!liveBounds) return next;
+      return {
+        x: clamp(next.x, liveBounds.x.min, liveBounds.x.max),
+        y: clamp(next.y, liveBounds.y.min, liveBounds.y.max),
+      };
+    },
+    [],
+  );
 
   const stop = useCallback(() => {
     if (animRef.current !== null) {
       cancelAnimationFrame(animRef.current);
       animRef.current = null;
     }
-    velocityRef.current = 0;
+    velocityRef.current = { x: 0, y: 0 };
   }, []);
 
-  const applyDelta = (delta: number) => {
-    const nextRaw = getPosition() + delta;
-    const next = bounds
-      ? Math.min(bounds.max, Math.max(bounds.min, nextRaw))
-      : nextRaw;
-    // If we hit bounds, bleed velocity so we don't jitter
-    if (bounds && (next === bounds.min || next === bounds.max)) {
-      velocityRef.current *= 0.35;
+  const setPositionClamped = useCallback(
+    (next: PanPosition) => {
+      setPositionRef.current(clampPosition(next));
+    },
+    [clampPosition],
+  );
+
+  const applyDelta = (deltaX: number, deltaY: number) => {
+    const current = getPositionRef.current();
+    const appliedX = allowX ? deltaX : 0;
+    const appliedY = allowY ? deltaY : 0;
+    const rawNext = {
+      x: current.x + appliedX,
+      y: current.y + appliedY,
+    };
+    const next = clampPosition(rawNext);
+
+    if (boundsRef.current) {
+      if (next.x !== rawNext.x) velocityRef.current.x *= EDGE_DAMPING;
+      if (next.y !== rawNext.y) velocityRef.current.y *= EDGE_DAMPING;
     }
-    setPosition(next);
-    onMove?.(Math.abs(delta));
+
+    setPositionRef.current(next);
+    onMoveRef.current?.(Math.hypot(appliedX, appliedY));
   };
 
-  const snapToNearest = () => {
-    if (!snapPoints || snapPoints.length === 0) return;
-    const current = getPosition();
-    const nearest = snapPoints.reduce((closest, point) => {
-      return Math.abs(point - current) < Math.abs(closest - current)
-        ? point
-        : closest;
-    }, snapPoints[0]);
-    if (prefersReducedMotion) {
-      setPosition(nearest);
-      return;
-    }
-    requestAnimationFrame(() => setPosition(nearest));
-  };
-
-  // rAF loop for inertia decay
   const tick = () => {
-    if (stopWhen) {
+    if (stopWhenRef.current) {
       stop();
-      onStop?.();
+      onStopRef.current?.();
       return;
     }
-    let v = velocityRef.current;
-    if (Math.abs(v) < minVelocity) {
+
+    const { x: vx, y: vy } = velocityRef.current;
+    if (
+      Math.abs(vx) < minVelocityRef.current &&
+      Math.abs(vy) < minVelocityRef.current
+    ) {
       stop();
-      snapToNearest();
-      onStop?.();
+      onStopRef.current?.();
       return;
     }
-    applyDelta(v);
-    v *= friction;
-    v = Math.max(-maxVelocity, Math.min(maxVelocity, v));
-    velocityRef.current = v;
+
+    applyDelta(vx, vy);
+
+    velocityRef.current = {
+      x: clamp(vx * frictionRef.current, -maxVelocityRef.current, maxVelocityRef.current),
+      y: clamp(vy * frictionRef.current, -maxVelocityRef.current, maxVelocityRef.current),
+    };
+
     animRef.current = requestAnimationFrame(tick);
   };
 
-  // Wheel handler
   useEffect(() => {
     const el = ref.current;
     if (!enabled || !el) return;
 
     const handleWheel = (e: WheelEvent) => {
-      if (stopWhen) return;
+      if (stopWhenRef.current || !allowX) return;
 
-      if (axis !== 'x') {
-        const delta = e.deltaY;
-        velocityRef.current = delta;
-        applyDelta(delta);
-        if (!prefersReducedMotion && animRef.current === null) {
-          animRef.current = requestAnimationFrame(tick);
-        }
-        return;
-      }
+      // Keep wheel native by default. Optional horizontal pan on Shift+wheel.
+      if (!e.shiftKey || Math.abs(e.deltaY) <= WHEEL_MIN) return;
+      if (e.cancelable) e.preventDefault();
 
-      const absDeltaX = Math.abs(e.deltaX);
-      const absDeltaY = Math.abs(e.deltaY);
-      const horizontalIntent =
-        absDeltaX > absDeltaY * WHEEL_LOCK_RATIO ||
-        absDeltaX > WHEEL_MIN ||
-        (e.shiftKey && absDeltaY > WHEEL_MIN);
+      const deltaX = e.deltaY;
+      applyDelta(deltaX, 0);
+      velocityRef.current.x = clamp(
+        deltaX,
+        -maxVelocityRef.current,
+        maxVelocityRef.current,
+      );
+      velocityRef.current.y = 0;
 
-      if (!horizontalIntent) return;
-
-      const horizontalDelta =
-        absDeltaX > WHEEL_MIN ? e.deltaX : e.shiftKey ? e.deltaY : 0;
-
-      if (horizontalDelta === 0) return;
-
-      // For true diagonal trackpad gestures, keep browser vertical scroll active.
-      const usingShiftTranslation = e.shiftKey && absDeltaX <= WHEEL_MIN;
-      const shouldPreventDefault = usingShiftTranslation || absDeltaY <= WHEEL_MIN;
-      if (shouldPreventDefault && e.cancelable) {
-        e.preventDefault();
-      }
-
-      velocityRef.current = horizontalDelta;
-      applyDelta(horizontalDelta);
-
-      if (!prefersReducedMotion) {
-        if (animRef.current === null) {
-          animRef.current = requestAnimationFrame(tick);
-        }
-      } else {
-        snapToNearest();
+      if (!prefersReducedMotionRef.current && animRef.current === null) {
+        animRef.current = requestAnimationFrame(tick);
       }
     };
 
-    // passive:false is required so we can preventDefault only after horizontal intent is detected.
-    const opts: AddEventListenerOptions = { passive: axis !== 'x' };
-    el.addEventListener('wheel', handleWheel, opts);
+    el.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
-      el.removeEventListener('wheel', handleWheel, opts as EventListenerOptions);
+      el.removeEventListener('wheel', handleWheel);
     };
-  }, [enabled, axis, prefersReducedMotion, stopWhen, friction, stop]);
+  }, [enabled, allowX]);
 
-  // Pointer handlers
   useEffect(() => {
     const el = ref.current;
     if (!enabled || !el) return;
 
-    const onPointerDownInternal = (e: PointerEvent) => {
-      if (stopWhen) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (stopWhenRef.current) return;
       if (e.pointerType === 'mouse' && e.button !== 0) return;
-      const primary = getPrimary(e);
-      const cross = getCross(e);
+
       pointerState.current = {
         id: e.pointerId,
-        startPrimary: primary,
-        startCross: cross,
-        lastPrimary: primary,
-        lastCross: cross,
+        startX: e.clientX,
+        startY: e.clientY,
+        lastX: e.clientX,
+        lastY: e.clientY,
         lastTime: performance.now(),
         hasCapture: false,
+        panningActive: false,
       };
-      lockedHorizontal.current = false;
-      stop(); // stop any existing inertia
+      stop();
+      onInteractionStartRef.current?.();
     };
 
     const onPointerMove = (e: PointerEvent) => {
       if (pointerState.current.id !== e.pointerId) return;
-      const currentPrimary = getPrimary(e);
-      const currentCross = getCross(e);
-      const dx = currentPrimary - pointerState.current.startPrimary;
-      const dy = currentCross - pointerState.current.startCross;
 
-      if (!lockedHorizontal.current) {
-        if (Math.abs(dx) > Math.abs(dy) * DRAG_LOCK_RATIO && Math.abs(dx) > DRAG_LOCK_PX) {
-          lockedHorizontal.current = true;
-          if (!pointerState.current.hasCapture) {
-            try {
-              el.setPointerCapture(e.pointerId);
-              pointerState.current.hasCapture = true;
-            } catch {
-              pointerState.current.hasCapture = false;
-            }
+      const totalDx = e.clientX - pointerState.current.startX;
+      const totalDy = e.clientY - pointerState.current.startY;
+
+      if (!pointerState.current.panningActive) {
+        const dragDistance =
+          axis === 'both'
+            ? Math.hypot(totalDx, totalDy)
+            : axis === 'x'
+              ? Math.abs(totalDx)
+              : Math.abs(totalDy);
+        if (dragDistance <= DRAG_DEADZONE_PX) return;
+
+        pointerState.current.panningActive = true;
+        if (!pointerState.current.hasCapture) {
+          try {
+            el.setPointerCapture(e.pointerId);
+            pointerState.current.hasCapture = true;
+          } catch {
+            pointerState.current.hasCapture = false;
           }
-          pointerState.current.lastPrimary = currentPrimary;
-          pointerState.current.lastCross = currentCross;
-          pointerState.current.lastTime = performance.now();
-          onPointerDown?.();
-        } else {
-          // Not locked yet, so vertical page scroll remains native.
-          return;
         }
+        pointerState.current.lastX = e.clientX;
+        pointerState.current.lastY = e.clientY;
+        pointerState.current.lastTime = performance.now();
+        onPanStartRef.current?.();
       }
 
-      // Prevent vertical page scroll only after horizontal lock.
       if (e.cancelable) e.preventDefault();
 
       const now = performance.now();
       const dt = Math.max(1, now - pointerState.current.lastTime);
-      const delta = currentPrimary - pointerState.current.lastPrimary;
+      const deltaX = e.clientX - pointerState.current.lastX;
+      const deltaY = e.clientY - pointerState.current.lastY;
 
-      applyDelta(delta);
-      velocityRef.current = delta / dt * 16; // normalize to 60fps tick
-      velocityRef.current = Math.max(-maxVelocity, Math.min(maxVelocity, velocityRef.current));
+      applyDelta(deltaX, deltaY);
+      velocityRef.current = {
+        x: clamp(
+          (allowX ? deltaX : 0) / dt * 16,
+          -maxVelocityRef.current,
+          maxVelocityRef.current,
+        ),
+        y: clamp(
+          (allowY ? deltaY : 0) / dt * 16,
+          -maxVelocityRef.current,
+          maxVelocityRef.current,
+        ),
+      };
 
-      pointerState.current.lastPrimary = currentPrimary;
-      pointerState.current.lastCross = currentCross;
+      pointerState.current.lastX = e.clientX;
+      pointerState.current.lastY = e.clientY;
       pointerState.current.lastTime = now;
     };
 
-    const onPointerUp = (e: PointerEvent) => {
+    const finishPointer = (e: PointerEvent, shouldStartInertia: boolean) => {
       if (pointerState.current.id !== e.pointerId) return;
+
       if (pointerState.current.hasCapture) {
         try {
           el.releasePointerCapture(e.pointerId);
         } catch {
-          // no-op: capture may already be released by browser
+          // Pointer capture may already be released by the browser.
         }
       }
-      const wasLocked = lockedHorizontal.current;
+
+      const wasPanning = pointerState.current.panningActive;
       pointerState.current.id = null;
       pointerState.current.hasCapture = false;
-      lockedHorizontal.current = false;
+      pointerState.current.panningActive = false;
 
-      if (wasLocked && !prefersReducedMotion && Math.abs(velocityRef.current) > minVelocity) {
+      if (!wasPanning) return;
+
+      if (
+        shouldStartInertia &&
+        !prefersReducedMotionRef.current &&
+        (Math.abs(velocityRef.current.x) > minVelocityRef.current ||
+          Math.abs(velocityRef.current.y) > minVelocityRef.current)
+      ) {
         animRef.current = requestAnimationFrame(tick);
       } else {
-        velocityRef.current = 0;
-        if (wasLocked) snapToNearest();
-        onStop?.();
+        stop();
+        onStopRef.current?.();
       }
     };
 
-    const onPointerCancel = onPointerUp;
+    const onPointerUp = (e: PointerEvent) => finishPointer(e, true);
+    const onPointerCancel = (e: PointerEvent) => finishPointer(e, false);
 
-    el.addEventListener('pointerdown', onPointerDownInternal);
+    el.addEventListener('pointerdown', onPointerDown);
     el.addEventListener('pointermove', onPointerMove, { passive: false });
     el.addEventListener('pointerup', onPointerUp);
     el.addEventListener('pointercancel', onPointerCancel);
 
     return () => {
-      el.removeEventListener('pointerdown', onPointerDownInternal);
+      el.removeEventListener('pointerdown', onPointerDown);
       el.removeEventListener('pointermove', onPointerMove);
       el.removeEventListener('pointerup', onPointerUp);
       el.removeEventListener('pointercancel', onPointerCancel);
     };
-  }, [enabled, stopWhen, prefersReducedMotion, maxVelocity, minVelocity, stop]);
+  }, [enabled, axis, allowX, allowY, stop]);
 
-  // Stop inertia when requested externally
   useEffect(() => {
     if (stopWhen) stop();
   }, [stopWhen, stop]);
 
-  return { stop };
+  useEffect(() => () => stop(), [stop]);
+
+  return { stop, setPosition: setPositionClamped };
 };
