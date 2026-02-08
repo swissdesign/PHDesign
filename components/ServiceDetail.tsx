@@ -17,6 +17,7 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
 
   // Detect mobile for robust fullscreen sizing
   const [isMobile, setIsMobile] = useState(false);
+  const [isCoarsePointer, setIsCoarsePointer] = useState(false);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -26,10 +27,27 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
     // Animation sequence
     const t1 = setTimeout(() => setIsExpanded(true), 20);
     const t2 = setTimeout(() => setShowContent(true), 400);
+    // Pointer coarse detection for tablets/phones
+    const mql = window.matchMedia('(pointer: coarse)');
+    const handlePointerChange = (e: MediaQueryListEvent) => setIsCoarsePointer(e.matches);
+    setIsCoarsePointer(mql.matches);
+    if (mql.addEventListener) {
+      mql.addEventListener('change', handlePointerChange);
+    } else {
+      // @ts-ignore Safari
+      mql.addListener(handlePointerChange);
+    }
+
     return () => { 
         clearTimeout(t1); 
         clearTimeout(t2); 
         window.removeEventListener('resize', handleResize);
+        if (mql.removeEventListener) {
+          mql.removeEventListener('change', handlePointerChange);
+        } else {
+          // @ts-ignore Safari
+          mql.removeListener(handlePointerChange);
+        }
     };
   }, []);
 
@@ -76,6 +94,9 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
       borderRadius: '0px'
   };
 
+  const needsTopSpacing = isCoarsePointer || isMobile;
+  const topPaddingStyle = needsTopSpacing ? { paddingTop: '72px' } : undefined; // ~72px to clear menu/close
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-auto">
       {/* Backdrop */}
@@ -105,7 +126,10 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
         </button>
 
         {/* Content Container */}
-        <div className={`w-full h-full flex flex-col md:flex-row transition-opacity duration-500 delay-100 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
+        <div 
+          className={`w-full h-full flex flex-col md:flex-row transition-opacity duration-500 delay-100 ${showContent ? 'opacity-100' : 'opacity-0'}`}
+          style={topPaddingStyle}
+        >
           
           {/* Left Side: Service Icon & Title (Visual Header) */}
           {/* Compact padding on mobile to save vertical space for form */}
