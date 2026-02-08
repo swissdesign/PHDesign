@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { PROJECTS } from '../constants';
 import { Project, Theme, TransitionRect } from '../types';
 import { useInertialScroller } from '../hooks/useInertialScroller';
@@ -20,13 +20,19 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
   const positionRef = useRef(position);
   const reducedMotion = usePrefersReducedMotion();
   const [bounds, setBounds] = useState<{ min: number; max: number }>({ min: -2200, max: 300 });
+  const [viewportWidth, setViewportWidth] = useState(0);
+
+  const SURFACE_WIDTH = 2840;
+  const GRID_COLS = 12;
+  const GRID_GAP = 80; // Tailwind gap-20
+  const GRID_PADDING = 80; // Tailwind p-20
 
   useEffect(() => {
     // compute loose horizontal bounds based on surface width
-    const SURFACE_WIDTH = 2840;
     const margin = 220;
     const updateBounds = () => {
       const winW = window.innerWidth;
+      setViewportWidth(winW);
       const min = -(SURFACE_WIDTH - winW) - margin;
       const max = margin;
       setBounds({ min, max });
@@ -40,15 +46,31 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
     positionRef.current = position;
   }, [position]);
 
+  const snapPoints = useMemo(() => {
+    if (!viewportWidth) return [];
+    const cellWidth =
+      (SURFACE_WIDTH - GRID_PADDING * 2 - GRID_GAP * (GRID_COLS - 1)) / GRID_COLS;
+
+    const points = new Set<number>();
+    for (let column = 0; column < GRID_COLS; column += 1) {
+      const tileCenter = GRID_PADDING + column * (cellWidth + GRID_GAP) + cellWidth / 2;
+      const targetX = viewportWidth / 2 - tileCenter;
+      const clamped = Math.min(bounds.max, Math.max(bounds.min, targetX));
+      points.add(Math.round(clamped));
+    }
+    return Array.from(points).sort((a, b) => a - b);
+  }, [bounds.max, bounds.min, viewportWidth]);
+
   // Inertial horizontal controller
   const scrollerRef = containerRef;
-  useInertialScroller(scrollerRef, {
+  const { stop } = useInertialScroller(scrollerRef, {
     enabled: !isAnyModalOpen,
     axis: 'x',
     friction: 0.94,
     maxVelocity: 55,
     minVelocity: 0.4,
     bounds,
+    snapPoints,
     getPosition: () => positionRef.current.x,
     setPosition: (next) => setPosition(prev => ({ ...prev, x: next })),
     onMove: (deltaAbs) => {
@@ -62,6 +84,13 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
     prefersReducedMotion: reducedMotion,
     stopWhen: isAnyModalOpen,
   });
+
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      stop();
+      setIsDragging(false);
+    }
+  }, [isAnyModalOpen, stop]);
 
   const renderGridItems = () => {
     const items = [];
@@ -144,16 +173,15 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
   return (
     <div 
       ref={containerRef}
-      // touch-none prevents browser scrolling, select-none prevents text selection
-      // style={{ touchAction: 'none' }} ensures mobile robustness against CSS loading timing
-      style={{ touchAction: 'none' }}
-      className="absolute inset-0 w-full h-full overflow-hidden cursor-move touch-none select-none"
+      // Keep vertical page scroll and pinch zoom native on touch devices.
+      style={{ touchAction: 'pan-y pinch-zoom' }}
+      className="absolute inset-0 w-full h-full overflow-hidden cursor-move select-none"
     >
       <div 
         className="absolute top-0 left-0 will-change-transform origin-center"
         style={{
           transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
-          width: '2840px', // Roughly covers enough space for the grid
+          width: `${SURFACE_WIDTH}px`, // Roughly covers enough space for the grid
           transition: isDragging 
             ? 'none' 
             : 'transform 1.4s cubic-bezier(0.19, 1, 0.22, 1)', 

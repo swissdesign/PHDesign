@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef } from 'react';
+import { RefObject, useCallback, useEffect, useRef } from 'react';
 
 type Axis = 'x' | 'y';
 
@@ -23,6 +23,11 @@ interface InertiaOptions {
 interface InertialScroller {
   stop: () => void;
 }
+
+const WHEEL_LOCK_RATIO = 1.15;
+const WHEEL_MIN = 2;
+const DRAG_LOCK_RATIO = 1.2;
+const DRAG_LOCK_PX = 6;
 
 /**
  * Lightweight inertial scroll handler for transform / scrollLeft controlled surfaces.
@@ -49,26 +54,37 @@ export const useInertialScroller = (
 ): InertialScroller => {
   const velocityRef = useRef(0);
   const animRef = useRef<number | null>(null);
-  const lastWheelTs = useRef(0);
   const pointerState = useRef<{
     id: number | null;
-    startX: number;
-    startY: number;
+    startPrimary: number;
+    startCross: number;
+    lastPrimary: number;
+    lastCross: number;
     lastTime: number;
-  }>({ id: null, startX: 0, startY: 0, lastTime: 0 });
+    hasCapture: boolean;
+  }>({
+    id: null,
+    startPrimary: 0,
+    startCross: 0,
+    lastPrimary: 0,
+    lastCross: 0,
+    lastTime: 0,
+    hasCapture: false,
+  });
   const lockedHorizontal = useRef(false);
-  const hasMoved = useRef(false);
 
-  const axisKey = axis === 'x' ? 'clientX' : 'clientY';
-  const crossAxisKey = axis === 'x' ? 'clientY' : 'clientX';
+  const getPrimary = (event: PointerEvent): number =>
+    axis === 'x' ? event.clientX : event.clientY;
+  const getCross = (event: PointerEvent): number =>
+    axis === 'x' ? event.clientY : event.clientX;
 
-  const stop = () => {
+  const stop = useCallback(() => {
     if (animRef.current !== null) {
       cancelAnimationFrame(animRef.current);
       animRef.current = null;
     }
     velocityRef.current = 0;
-  };
+  }, []);
 
   const applyDelta = (delta: number) => {
     const nextRaw = getPosition() + delta;
@@ -83,29 +99,32 @@ export const useInertialScroller = (
     onMove?.(Math.abs(delta));
   };
 
+  const snapToNearest = () => {
+    if (!snapPoints || snapPoints.length === 0) return;
+    const current = getPosition();
+    const nearest = snapPoints.reduce((closest, point) => {
+      return Math.abs(point - current) < Math.abs(closest - current)
+        ? point
+        : closest;
+    }, snapPoints[0]);
+    if (prefersReducedMotion) {
+      setPosition(nearest);
+      return;
+    }
+    requestAnimationFrame(() => setPosition(nearest));
+  };
+
   // rAF loop for inertia decay
   const tick = () => {
     if (stopWhen) {
       stop();
+      onStop?.();
       return;
     }
     let v = velocityRef.current;
     if (Math.abs(v) < minVelocity) {
       stop();
-      if (snapPoints && snapPoints.length) {
-        const current = getPosition();
-        const nearest = snapPoints.reduce((closest, point) => {
-          return Math.abs(point - current) < Math.abs(closest - current)
-            ? point
-            : closest;
-        }, snapPoints[0]);
-        if (prefersReducedMotion) {
-          setPosition(nearest);
-        } else {
-          // quick snap
-          requestAnimationFrame(() => setPosition(nearest));
-        }
-      }
+      snapToNearest();
       onStop?.();
       return;
     }
@@ -120,39 +139,60 @@ export const useInertialScroller = (
   useEffect(() => {
     const el = ref.current;
     if (!enabled || !el) return;
+
     const handleWheel = (e: WheelEvent) => {
       if (stopWhen) return;
-      const primaryDelta =
-        axis === 'x'
-          ? Math.abs(e.deltaX) > Math.abs(e.deltaY)
-            ? e.deltaX
-            : e.deltaY
-          : e.deltaY;
 
-      if (!prefersReducedMotion) {
-        // Prevent accidental vertical page scroll when we clearly intend horizontal
-        if (axis === 'x' && Math.abs(primaryDelta) > Math.abs(e.deltaY) * 0.6) {
-          e.preventDefault();
+      if (axis !== 'x') {
+        const delta = e.deltaY;
+        velocityRef.current = delta;
+        applyDelta(delta);
+        if (!prefersReducedMotion && animRef.current === null) {
+          animRef.current = requestAnimationFrame(tick);
         }
+        return;
       }
 
-      velocityRef.current = primaryDelta;
-      applyDelta(primaryDelta);
-      lastWheelTs.current = performance.now();
+      const absDeltaX = Math.abs(e.deltaX);
+      const absDeltaY = Math.abs(e.deltaY);
+      const horizontalIntent =
+        absDeltaX > absDeltaY * WHEEL_LOCK_RATIO ||
+        absDeltaX > WHEEL_MIN ||
+        (e.shiftKey && absDeltaY > WHEEL_MIN);
+
+      if (!horizontalIntent) return;
+
+      const horizontalDelta =
+        absDeltaX > WHEEL_MIN ? e.deltaX : e.shiftKey ? e.deltaY : 0;
+
+      if (horizontalDelta === 0) return;
+
+      // For true diagonal trackpad gestures, keep browser vertical scroll active.
+      const usingShiftTranslation = e.shiftKey && absDeltaX <= WHEEL_MIN;
+      const shouldPreventDefault = usingShiftTranslation || absDeltaY <= WHEEL_MIN;
+      if (shouldPreventDefault && e.cancelable) {
+        e.preventDefault();
+      }
+
+      velocityRef.current = horizontalDelta;
+      applyDelta(horizontalDelta);
 
       if (!prefersReducedMotion) {
         if (animRef.current === null) {
           animRef.current = requestAnimationFrame(tick);
         }
+      } else {
+        snapToNearest();
       }
     };
 
-    const opts: AddEventListenerOptions = { passive: prefersReducedMotion };
+    // passive:false is required so we can preventDefault only after horizontal intent is detected.
+    const opts: AddEventListenerOptions = { passive: axis !== 'x' };
     el.addEventListener('wheel', handleWheel, opts);
     return () => {
       el.removeEventListener('wheel', handleWheel, opts as EventListenerOptions);
     };
-  }, [enabled, axis, prefersReducedMotion, stopWhen, friction]);
+  }, [enabled, axis, prefersReducedMotion, stopWhen, friction, stop]);
 
   // Pointer handlers
   useEffect(() => {
@@ -162,58 +202,84 @@ export const useInertialScroller = (
     const onPointerDownInternal = (e: PointerEvent) => {
       if (stopWhen) return;
       if (e.pointerType === 'mouse' && e.button !== 0) return;
-      el.setPointerCapture(e.pointerId);
+      const primary = getPrimary(e);
+      const cross = getCross(e);
       pointerState.current = {
         id: e.pointerId,
-        startX: (e as any)[axisKey],
-        startY: (e as any)[crossAxisKey],
+        startPrimary: primary,
+        startCross: cross,
+        lastPrimary: primary,
+        lastCross: cross,
         lastTime: performance.now(),
+        hasCapture: false,
       };
       lockedHorizontal.current = false;
-      hasMoved.current = false;
       stop(); // stop any existing inertia
-      onPointerDown?.();
     };
 
     const onPointerMove = (e: PointerEvent) => {
       if (pointerState.current.id !== e.pointerId) return;
-      const currentAxis = (e as any)[axisKey];
-      const cross = (e as any)[crossAxisKey];
-      const dx = currentAxis - pointerState.current.startX;
-      const dy = cross - pointerState.current.startY;
+      const currentPrimary = getPrimary(e);
+      const currentCross = getCross(e);
+      const dx = currentPrimary - pointerState.current.startPrimary;
+      const dy = currentCross - pointerState.current.startCross;
 
       if (!lockedHorizontal.current) {
-        if (Math.abs(dx) > Math.abs(dy) * 1.2 && Math.abs(dx) > 6) {
+        if (Math.abs(dx) > Math.abs(dy) * DRAG_LOCK_RATIO && Math.abs(dx) > DRAG_LOCK_PX) {
           lockedHorizontal.current = true;
+          if (!pointerState.current.hasCapture) {
+            try {
+              el.setPointerCapture(e.pointerId);
+              pointerState.current.hasCapture = true;
+            } catch {
+              pointerState.current.hasCapture = false;
+            }
+          }
+          pointerState.current.lastPrimary = currentPrimary;
+          pointerState.current.lastCross = currentCross;
+          pointerState.current.lastTime = performance.now();
+          onPointerDown?.();
+        } else {
+          // Not locked yet, so vertical page scroll remains native.
+          return;
         }
       }
 
-      if (!lockedHorizontal.current) return;
-
-      // prevent vertical scroll only once locked
+      // Prevent vertical page scroll only after horizontal lock.
       if (e.cancelable) e.preventDefault();
 
       const now = performance.now();
       const dt = Math.max(1, now - pointerState.current.lastTime);
-      const delta = dx; // movement since start
+      const delta = currentPrimary - pointerState.current.lastPrimary;
 
       applyDelta(delta);
-      velocityRef.current = (delta) / dt * 16; // normalize to 60fps tick
+      velocityRef.current = delta / dt * 16; // normalize to 60fps tick
       velocityRef.current = Math.max(-maxVelocity, Math.min(maxVelocity, velocityRef.current));
 
-      pointerState.current.startX = currentAxis;
-      pointerState.current.startY = cross;
+      pointerState.current.lastPrimary = currentPrimary;
+      pointerState.current.lastCross = currentCross;
       pointerState.current.lastTime = now;
-      hasMoved.current = hasMoved.current || Math.abs(delta) > 3;
     };
 
     const onPointerUp = (e: PointerEvent) => {
       if (pointerState.current.id !== e.pointerId) return;
-      el.releasePointerCapture(e.pointerId);
+      if (pointerState.current.hasCapture) {
+        try {
+          el.releasePointerCapture(e.pointerId);
+        } catch {
+          // no-op: capture may already be released by browser
+        }
+      }
+      const wasLocked = lockedHorizontal.current;
       pointerState.current.id = null;
-      if (!prefersReducedMotion && Math.abs(velocityRef.current) > minVelocity) {
+      pointerState.current.hasCapture = false;
+      lockedHorizontal.current = false;
+
+      if (wasLocked && !prefersReducedMotion && Math.abs(velocityRef.current) > minVelocity) {
         animRef.current = requestAnimationFrame(tick);
       } else {
+        velocityRef.current = 0;
+        if (wasLocked) snapToNearest();
         onStop?.();
       }
     };
@@ -221,7 +287,7 @@ export const useInertialScroller = (
     const onPointerCancel = onPointerUp;
 
     el.addEventListener('pointerdown', onPointerDownInternal);
-    el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointermove', onPointerMove, { passive: false });
     el.addEventListener('pointerup', onPointerUp);
     el.addEventListener('pointercancel', onPointerCancel);
 
@@ -231,12 +297,12 @@ export const useInertialScroller = (
       el.removeEventListener('pointerup', onPointerUp);
       el.removeEventListener('pointercancel', onPointerCancel);
     };
-  }, [enabled, stopWhen, prefersReducedMotion, maxVelocity, minVelocity]);
+  }, [enabled, stopWhen, prefersReducedMotion, maxVelocity, minVelocity, stop]);
 
   // Stop inertia when requested externally
   useEffect(() => {
     if (stopWhen) stop();
-  }, [stopWhen]);
+  }, [stopWhen, stop]);
 
   return { stop };
 };
