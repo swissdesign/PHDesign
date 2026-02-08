@@ -1,123 +1,67 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { PROJECTS } from '../constants';
 import { Project, Theme, TransitionRect } from '../types';
+import { useInertialScroller } from '../hooks/useInertialScroller';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 interface PortfolioSurfaceProps {
   onSelectProject: (p: Project, rect: TransitionRect) => void;
   theme: Theme;
+  isAnyModalOpen?: boolean;
 }
 
-export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProject, theme }) => {
+export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProject, theme, isAnyModalOpen = false }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Camera state
   const [position, setPosition] = useState({ x: -600, y: -400 });
   const [isDragging, setIsDragging] = useState(false);
   const [hasMoved, setHasMoved] = useState(false);
-  
-  // Refs for drag math to avoid closure staleness and heavy state churn during calculation
-  const dragStartRef = useRef({ x: 0, y: 0 });
-  const startPosRef = useRef({ x: 0, y: 0 });
+  const positionRef = useRef(position);
+  const reducedMotion = usePrefersReducedMotion();
+  const [bounds, setBounds] = useState<{ min: number; max: number }>({ min: -2200, max: 300 });
 
-  // Physics constants for the "Airy 5x5" view
-  const SNAP_CONFIG = {
-    colWidth: 150,
-    gap: 80,
-    padding: 80,
-  };
+  useEffect(() => {
+    // compute loose horizontal bounds based on surface width
+    const SURFACE_WIDTH = 2840;
+    const margin = 220;
+    const updateBounds = () => {
+      const winW = window.innerWidth;
+      const min = -(SURFACE_WIDTH - winW) - margin;
+      const max = margin;
+      setBounds({ min, max });
+    };
+    updateBounds();
+    window.addEventListener('resize', updateBounds);
+    return () => window.removeEventListener('resize', updateBounds);
+  }, []);
 
-  const snapToGrid = (currentX: number, currentY: number) => {
-    const { colWidth, gap, padding } = SNAP_CONFIG;
-    const stride = colWidth + gap;
-    const startOffset = padding + (colWidth / 2); 
+  useEffect(() => {
+    positionRef.current = position;
+  }, [position]);
 
-    const winW = window.innerWidth;
-    const winH = window.innerHeight;
-
-    const gridCenterX = (winW / 2) - currentX;
-    const gridCenterY = (winH / 2) - currentY;
-
-    const rawColIndex = Math.round((gridCenterX - startOffset) / stride);
-    const rawRowIndex = Math.round((gridCenterY - startOffset) / stride);
-
-    const totalItems = PROJECTS.length * 15; // Adjusted repetitions
-    const cols = 12; 
-    const rows = Math.ceil(totalItems / cols);
-
-    const colIndex = Math.max(0, Math.min(rawColIndex, cols - 1));
-    const rowIndex = Math.max(0, Math.min(rawRowIndex, rows - 1));
-
-    const snapX = (winW / 2) - (startOffset + colIndex * stride);
-    const snapY = (winH / 2) - (startOffset + rowIndex * stride);
-
-    setPosition({ x: snapX, y: snapY });
-  };
-
-  // Drag Handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    // Critical: Prevent default to stop text selection and native drag behaviors
-    e.preventDefault();
-    setIsDragging(true);
-    setHasMoved(false);
-    
-    dragStartRef.current = { x: e.clientX, y: e.clientY };
-    startPosRef.current = { x: position.x, y: position.y };
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    
-    const dx = e.clientX - dragStartRef.current.x;
-    const dy = e.clientY - dragStartRef.current.y;
-    
-    // Threshold for "click" vs "drag"
-    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-      setHasMoved(true);
-    }
-
-    setPosition({ 
-      x: startPosRef.current.x + dx, 
-      y: startPosRef.current.y + dy 
-    });
-  };
-
-  const handleMouseUp = () => {
-    if (isDragging) {
-      setIsDragging(false);
-      snapToGrid(position.x, position.y);
-    }
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    // e.preventDefault(); // Don't prevent default here or clicks might not fire on some devices
-    setIsDragging(true);
-    setHasMoved(false);
-    
-    const touch = e.touches[0];
-    dragStartRef.current = { x: touch.clientX, y: touch.clientY };
-    startPosRef.current = { x: position.x, y: position.y };
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    // Critical: Prevent default to stop scrolling the page
-    // Note: Touch events in React are passive by default, but e.preventDefault() usually works if the container has touch-action: none
-    // If not, we rely on CSS touch-action: none.
-    
-    const touch = e.touches[0];
-    const dx = touch.clientX - dragStartRef.current.x;
-    const dy = touch.clientY - dragStartRef.current.y;
-    
-    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-      setHasMoved(true);
-    }
-
-    setPosition({ 
-      x: startPosRef.current.x + dx, 
-      y: startPosRef.current.y + dy 
-    });
-  };
+  // Inertial horizontal controller
+  const scrollerRef = containerRef;
+  useInertialScroller(scrollerRef, {
+    enabled: !isAnyModalOpen,
+    axis: 'x',
+    friction: 0.94,
+    maxVelocity: 55,
+    minVelocity: 0.4,
+    bounds,
+    getPosition: () => positionRef.current.x,
+    setPosition: (next) => setPosition(prev => ({ ...prev, x: next })),
+    onMove: (deltaAbs) => {
+      if (deltaAbs > 3) setHasMoved(true);
+    },
+    onPointerDown: () => {
+      setIsDragging(true);
+      setHasMoved(false);
+    },
+    onStop: () => setIsDragging(false),
+    prefersReducedMotion: reducedMotion,
+    stopWhen: isAnyModalOpen,
+  });
 
   const renderGridItems = () => {
     const items = [];
@@ -204,13 +148,6 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
       // style={{ touchAction: 'none' }} ensures mobile robustness against CSS loading timing
       style={{ touchAction: 'none' }}
       className="absolute inset-0 w-full h-full overflow-hidden cursor-move touch-none select-none"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleMouseUp}
     >
       <div 
         className="absolute top-0 left-0 will-change-transform origin-center"

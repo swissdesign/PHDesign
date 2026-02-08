@@ -102,7 +102,11 @@ const App: React.FC = () => {
             view === 'work' ? 'opacity-100 z-30 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
           }`}
         >
-          <PortfolioSurface onSelectProject={handleSelectProject} theme={theme} />
+          <PortfolioSurface 
+            onSelectProject={handleSelectProject} 
+            theme={theme} 
+            isAnyModalOpen={isAnyModalOpen}
+          />
         </div>
 
         {/* Services View (Wheel) */}
