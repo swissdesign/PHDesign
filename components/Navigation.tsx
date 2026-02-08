@@ -1,20 +1,25 @@
 import React, { useState, useRef } from 'react';
-import { Theme, TransitionRect } from '../types';
+import { Project, Theme, TransitionRect } from '../types';
 import { MenuModal } from './MenuModal';
 
 interface NavigationProps {
   currentView: 'work' | 'services';
   onNavigate: (view: 'work' | 'services') => void;
   onOpenContact: (rect: TransitionRect) => void;
+  onSelectProject: (project: Project, rect: TransitionRect) => void;
   theme: Theme;
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, onOpenContact, theme }) => {
+export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, onOpenContact, onSelectProject, theme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuOriginRect, setMenuOriginRect] = useState<TransitionRect | null>(null);
+  const [isMenuTransitioning, setIsMenuTransitioning] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
+  const MENU_CLOSE_DELAY = 720; // aligns with MenuModal close animation (700ms) with slight buffer
+
   const handleMenuClick = () => {
+    if (isMenuTransitioning) return;
     if (menuButtonRef.current) {
       const rect = menuButtonRef.current.getBoundingClientRect();
       setMenuOriginRect({
@@ -25,6 +30,24 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
       });
       setIsMenuOpen(true);
     }
+  };
+
+  const handleMenuClose = () => {
+    if (isMenuTransitioning) return;
+    setIsMenuOpen(false);
+    setIsMenuTransitioning(true);
+    setTimeout(() => setIsMenuTransitioning(false), MENU_CLOSE_DELAY);
+  };
+
+  const handleMenuProjectSelect = (project: Project, rect: TransitionRect) => {
+    if (isMenuTransitioning) return; // lock to avoid race/double open
+    setIsMenuTransitioning(true);
+    setIsMenuOpen(false);
+    setTimeout(() => {
+      onNavigate('work');
+      onSelectProject(project, rect);
+      setIsMenuTransitioning(false);
+    }, MENU_CLOSE_DELAY);
   };
 
   // Format date: "Samstag, 07. Februar 2025"
@@ -107,9 +130,10 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
       {/* Menu Modal Overlay */}
       <MenuModal 
         isOpen={isMenuOpen} 
-        onClose={() => setIsMenuOpen(false)} 
+        onClose={handleMenuClose} 
         onNavigate={onNavigate}
         onOpenContact={onOpenContact}
+        onSelectProject={handleMenuProjectSelect}
         originRect={menuOriginRect}
         theme={theme}
       />
