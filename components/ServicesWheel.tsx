@@ -124,6 +124,12 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme }) => {
   const activeIconClass = theme === 'light' ? 'text-cyan-800' : 'text-cyan-200';
   const activeLineClass = 'bg-gradient-to-r from-cyan-500 to-transparent'; 
 
+  // Teaser visibility rules
+  const teaserShouldShow = (index: number) => {
+    if (isCoarsePointer) return index === activeServiceIndex; // mobile/tablet shows active only
+    return index === activeServiceIndex; // desktop: hover sets activeServiceIndex already
+  };
+
   return (
     <div 
       className="w-full h-full flex flex-col md:flex-row items-center justify-center relative overflow-hidden"
@@ -157,6 +163,16 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme }) => {
                   >
                     {service.name}
                   </h2>
+                </div>
+                {/* Teaser: reserved space with subtle reveal to avoid layout shift */}
+                <div className="pl-8 md:pl-[3.9rem] h-5 md:h-6 overflow-hidden">
+                  <span
+                    className={`block text-[11px] md:text-xs leading-tight text-cyan-600/90 transition-all duration-300 ease-out
+                      ${teaserShouldShow(i) ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}
+                    `}
+                  >
+                    {service.teaser}
+                  </span>
                 </div>
                 {/* Mobile-only visible details hint */}
                 <div className={`md:hidden pl-8 mt-1 overflow-hidden transition-all duration-300 ${activeId === service.id ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0'}`}>

@@ -100,6 +100,7 @@ export const SERVICES: Service[] = [
     name: 'Website Essential',
     // Lightning / Bolt
     icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+    teaser: 'Launch-ready site built fast with a calm, premium polish.',
     bullets: ['Astro + CMS Setup', 'Mobile First', 'SEO Basic'],
     startPrice: 'CHF 2’000',
   },
@@ -108,6 +109,7 @@ export const SERVICES: Service[] = [
     name: 'Custom Digital',
     // Diamond / Gem
     icon: 'M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3.8 6h16.4M2 9h20M12 2v20',
+    teaser: 'Complex product flows with motion, data and crisp UX craft.',
     bullets: ['React Interactions', 'Complex Data', 'Motion Design'],
     startPrice: 'ab CHF 5’000',
   },
@@ -116,6 +118,7 @@ export const SERVICES: Service[] = [
     name: 'Brand System',
     // Asterisk / Star
     icon: 'M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07',
+    teaser: 'A consistent visual language—type, color, marks—ready to scale.',
     bullets: ['Logo & Typography', 'Color Strategy', 'Guidelines'],
     startPrice: 'ab CHF 3’500',
   },
@@ -124,6 +127,7 @@ export const SERVICES: Service[] = [
     name: 'Content & Photo',
     // Camera / Aperture
     icon: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z M12 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+    teaser: 'Editorial storytelling—art direction, photography and words aligned.',
     bullets: ['Art Direction', 'Photography', 'Copywriting'],
     startPrice: 'Tagesrate',
   },
@@ -132,6 +136,7 @@ export const SERVICES: Service[] = [
     name: 'Hosting & Care',
     // Shield
     icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+    teaser: 'Secure hosting, updates and a human to call when it matters.',
     bullets: ['Updates', 'Monitoring', 'Support'],
     startPrice: 'CHF 10 / Mt',
   },
