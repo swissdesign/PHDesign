@@ -88,6 +88,7 @@ const App: React.FC = () => {
            currentView={view} 
            onNavigate={handleViewChange} 
            onOpenContact={handleOpenContact}
+           onSelectProject={handleSelectProject}
            theme={theme} 
         />
         
