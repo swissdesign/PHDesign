@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+  <body style="font-family: Inter, Arial, sans-serif; line-height:1.5; color:#111;">
+    <h2 style="margin:0 0 12px 0;">New inquiry</h2>
+    <p style="margin:0 0 8px 0;"><strong>Name:</strong> <?= name ?></p>
+    <p style="margin:0 0 8px 0;"><strong>Email:</strong> <?= email ?></p>
+    <p style="margin:0 0 8px 0;"><strong>Language:</strong> <?= lang ?></p>
+    <? if (service_id) { ?><p style="margin:0 0 8px 0;"><strong>Service:</strong> <?= service_id ?></p><? } ?>
+    <? if (budget) { ?><p style="margin:0 0 8px 0;"><strong>Budget:</strong> <?= budget ?></p><? } ?>
+    <hr style="border:none;border-top:1px solid #ddd;margin:16px 0;" />
+    <pre style="white-space:pre-wrap;font-family:inherit; background:#f7f7f7; padding:12px; border-radius:8px;"><?= message ?></pre>
+  </body>
+</html>

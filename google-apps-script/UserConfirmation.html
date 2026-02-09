@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <body style="font-family: Inter, Arial, sans-serif; line-height:1.5; color:#111;">
+    <? if (lang === 'en') { ?>
+      <p>Hi <?= name ?>,</p>
+      <p>Thanks for your message. I’ll reply as soon as possible.</p>
+      <p>— Pascal</p>
+    <? } else if (lang === 'fr') { ?>
+      <p>Bonjour <?= name ?>,</p>
+      <p>Merci pour votre message. Je vous repondrai des que possible.</p>
+      <p>— Pascal</p>
+    <? } else if (lang === 'it') { ?>
+      <p>Ciao <?= name ?>,</p>
+      <p>Grazie per il tuo messaggio. Ti rispondero al piu presto.</p>
+      <p>— Pascal</p>
+    <? } else { ?>
+      <p>Hoi <?= name ?>,</p>
+      <p>Danke fuer deine Nachricht. Ich melde mich so schnell wie moeglich.</p>
+      <p>— Pascal</p>
+    <? } ?>
+  </body>
+</html>
