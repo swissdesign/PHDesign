@@ -14,10 +14,36 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
   const [position, setPosition] = useState({ x: -600, y: -400 });
   const [isDragging, setIsDragging] = useState(false);
   const [hasMoved, setHasMoved] = useState(false);
+  const [isCoarsePointer, setIsCoarsePointer] = useState(false);
   
   // Refs for drag math to avoid closure staleness and heavy state churn during calculation
   const dragStartRef = useRef({ x: 0, y: 0 });
   const startPosRef = useRef({ x: 0, y: 0 });
+  const currentPosRef = useRef(position);
+
+  useEffect(() => {
+    currentPosRef.current = position;
+  }, [position]);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(pointer: coarse)');
+    const onChange = (e: MediaQueryListEvent) => setIsCoarsePointer(e.matches);
+    setIsCoarsePointer(mql.matches);
+    if (mql.addEventListener) {
+      mql.addEventListener('change', onChange);
+    } else {
+      // @ts-ignore Safari
+      mql.addListener(onChange);
+    }
+    return () => {
+      if (mql.removeEventListener) {
+        mql.removeEventListener('change', onChange);
+      } else {
+        // @ts-ignore Safari
+        mql.removeListener(onChange);
+      }
+    };
+  }, []);
 
   // Physics constants for the "Airy 5x5" view
   const SNAP_CONFIG = {
@@ -61,7 +87,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
     setHasMoved(false);
     
     dragStartRef.current = { x: e.clientX, y: e.clientY };
-    startPosRef.current = { x: position.x, y: position.y };
+    startPosRef.current = { x: currentPosRef.current.x, y: currentPosRef.current.y };
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -76,16 +102,18 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
       setHasMoved(true);
     }
 
-    setPosition({ 
+    const nextPos = { 
       x: startPosRef.current.x + dx, 
       y: startPosRef.current.y + dy 
-    });
+    };
+    currentPosRef.current = nextPos;
+    setPosition(nextPos);
   };
 
   const handleMouseUp = () => {
     if (isDragging) {
       setIsDragging(false);
-      snapToGrid(position.x, position.y);
+      snapToGrid(currentPosRef.current.x, currentPosRef.current.y);
     }
   };
 
@@ -96,7 +124,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
     
     const touch = e.touches[0];
     dragStartRef.current = { x: touch.clientX, y: touch.clientY };
-    startPosRef.current = { x: position.x, y: position.y };
+    startPosRef.current = { x: currentPosRef.current.x, y: currentPosRef.current.y };
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -108,15 +136,20 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
     const touch = e.touches[0];
     const dx = touch.clientX - dragStartRef.current.x;
     const dy = touch.clientY - dragStartRef.current.y;
+    const TOUCH_DRAG_RESISTANCE = 0.92; // slightly heavier touch feel without changing behavior
+    const weightedDx = dx * TOUCH_DRAG_RESISTANCE;
+    const weightedDy = dy * TOUCH_DRAG_RESISTANCE;
     
-    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+    if (Math.abs(weightedDx) > 5 || Math.abs(weightedDy) > 5) {
       setHasMoved(true);
     }
 
-    setPosition({ 
-      x: startPosRef.current.x + dx, 
-      y: startPosRef.current.y + dy 
-    });
+    const nextPos = { 
+      x: startPosRef.current.x + weightedDx, 
+      y: startPosRef.current.y + weightedDy 
+    };
+    currentPosRef.current = nextPos;
+    setPosition(nextPos);
   };
 
   const renderGridItems = () => {
@@ -219,7 +252,9 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
           width: '2840px', // Roughly covers enough space for the grid
           transition: isDragging 
             ? 'none' 
-            : 'transform 1.4s cubic-bezier(0.19, 1, 0.22, 1)', 
+            : isCoarsePointer
+              ? 'transform 1.65s cubic-bezier(0.16, 1, 0.22, 1)'
+              : 'transform 1.45s cubic-bezier(0.19, 1, 0.22, 1)', 
         }}
       >
         <div className="grid grid-cols-12 gap-20 p-20 perspective-1000">

@@ -93,6 +93,7 @@ const App: React.FC = () => {
            onOpenContact={handleOpenContact}
            onSelectProject={handleSelectProject}
            isAnyModalOpen={isAnyModalOpen}
+           isServiceDetailOpen={isServiceModalOpen}
            theme={theme} 
         />
         

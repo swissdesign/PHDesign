@@ -8,14 +8,16 @@ interface NavigationProps {
   onOpenContact: (rect: TransitionRect) => void;
   onSelectProject: (project: Project, rect: TransitionRect) => void;
   isAnyModalOpen: boolean;
+  isServiceDetailOpen: boolean;
   theme: Theme;
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, onOpenContact, onSelectProject, isAnyModalOpen, theme }) => {
+export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, onOpenContact, onSelectProject, isAnyModalOpen, isServiceDetailOpen, theme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuOriginRect, setMenuOriginRect] = useState<TransitionRect | null>(null);
   const [isMenuTransitioning, setIsMenuTransitioning] = useState(false);
   const [isCoarsePointer, setIsCoarsePointer] = useState(false);
+  const [isTabletOrBelow, setIsTabletOrBelow] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const MENU_CLOSE_DELAY = 720; // aligns with MenuModal close animation (700ms) with slight buffer
@@ -36,21 +38,36 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
 
   // Detect coarse pointers (mobile/tablet) to hide burger when modals are open
   useEffect(() => {
-    const mql = window.matchMedia('(pointer: coarse)');
-    const handleChange = (e: MediaQueryListEvent) => setIsCoarsePointer(e.matches);
-    setIsCoarsePointer(mql.matches);
-    if (mql.addEventListener) {
-      mql.addEventListener('change', handleChange);
+    const coarseMql = window.matchMedia('(pointer: coarse)');
+    const tabletMql = window.matchMedia('(max-width: 1024px)');
+    const handleCoarseChange = (e: MediaQueryListEvent) => setIsCoarsePointer(e.matches);
+    const handleTabletChange = (e: MediaQueryListEvent) => setIsTabletOrBelow(e.matches);
+    setIsCoarsePointer(coarseMql.matches);
+    setIsTabletOrBelow(tabletMql.matches);
+    if (coarseMql.addEventListener) {
+      coarseMql.addEventListener('change', handleCoarseChange);
     } else {
       // @ts-ignore Safari
-      mql.addListener(handleChange);
+      coarseMql.addListener(handleCoarseChange);
+    }
+    if (tabletMql.addEventListener) {
+      tabletMql.addEventListener('change', handleTabletChange);
+    } else {
+      // @ts-ignore Safari
+      tabletMql.addListener(handleTabletChange);
     }
     return () => {
-      if (mql.removeEventListener) {
-        mql.removeEventListener('change', handleChange);
+      if (coarseMql.removeEventListener) {
+        coarseMql.removeEventListener('change', handleCoarseChange);
       } else {
         // @ts-ignore Safari
-        mql.removeListener(handleChange);
+        coarseMql.removeListener(handleCoarseChange);
+      }
+      if (tabletMql.removeEventListener) {
+        tabletMql.removeEventListener('change', handleTabletChange);
+      } else {
+        // @ts-ignore Safari
+        tabletMql.removeListener(handleTabletChange);
       }
     };
   }, []);
@@ -96,6 +113,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
   const gradientClass = theme === 'light' 
     ? 'from-[#FAFAF9]/90 via-[#FAFAF9]/40 to-transparent' 
     : 'from-[#1C1917]/90 via-[#1C1917]/40 to-transparent';
+  const shouldHideMenuButton = isMenuOpen || (isAnyModalOpen && isCoarsePointer) || (isServiceDetailOpen && isTabletOrBelow);
 
   return (
     <>
@@ -133,7 +151,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
               ref={menuButtonRef}
               onClick={handleMenuClick}
               className={`group relative w-12 h-12 flex items-center justify-center focus:outline-none transition-all duration-300 active:scale-90 ${
-                (isMenuOpen || (isAnyModalOpen && isCoarsePointer)) ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                shouldHideMenuButton ? 'opacity-0 pointer-events-none' : 'opacity-100'
               }`}
               aria-label="Menu"
             >
