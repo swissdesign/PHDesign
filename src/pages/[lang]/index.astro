@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import App from '../../components/react/App';
+import { getAll } from '../../lib/sheets';
+import type { Lang } from '../../lib/i18n';
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  const langs = ['de', 'en', 'fr', 'it'];
+  return langs.map((lang) => ({ params: { lang } }));
+}
+
+const lang = (Astro.params.lang ?? 'de') as Lang;
+
+const { projects, services, categories } = await getAll();
+---
+
+<BaseLayout lang={lang}>
+  <div id="app-mount">
+    <App
+      client:load
+      lang={lang}
+      projects={projects}
+      services={services}
+      categories={categories}
+    />
+  </div>
+</BaseLayout>

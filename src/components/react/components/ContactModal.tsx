@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Theme, TransitionRect } from '../types';
-import { SERVICES } from '../constants';
+import type { Service, Theme, TransitionRect } from '../types';
 
 interface ContactModalProps {
   isOpen: boolean;
   onClose: () => void;
   originRect: TransitionRect | null;
+  services: Service[];
   theme: Theme;
 }
 
-export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, originRect, theme }) => {
+export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, originRect, services, theme }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -175,7 +175,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
                       className={`w-full bg-transparent border-b py-3 pr-8 appearance-none outline-none cursor-pointer rounded-none transition-colors ${inputClass}`}
                     >
                       <option value="" disabled className="bg-stone-100 text-stone-500">Select a Service...</option>
-                      {SERVICES.map(s => (
+                      {services.map(s => (
                         <option key={s.id} value={s.name} className="text-black">{s.name}</option>
                       ))}
                       <option value="other" className="text-black">Other / General Inquiry</option>

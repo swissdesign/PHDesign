@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Theme, TransitionRect, Project } from '../types';
-import { PROJECTS } from '../constants';
+import type { Theme, TransitionRect, Project } from '../types';
 
 interface MenuModalProps {
   isOpen: boolean;
@@ -8,11 +7,12 @@ interface MenuModalProps {
   onNavigate: (view: 'work' | 'services') => void;
   onOpenContact: (rect: TransitionRect) => void;
   onSelectProject: (project: Project, rect: TransitionRect) => void;
+  projects: Project[];
   originRect: TransitionRect | null;
   theme: Theme;
 }
 
-export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigate, onOpenContact, onSelectProject, originRect, theme }) => {
+export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigate, onOpenContact, onSelectProject, projects, originRect, theme }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
@@ -63,7 +63,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
     ? 'hover:shadow-[0_20px_40px_-10px_rgba(8,145,178,0.15)]' 
     : 'hover:shadow-[0_20px_40px_-10px_rgba(34,211,238,0.1)]';
 
-  const latestProjects = PROJECTS.slice(0, 3);
+  const latestProjects = projects.slice(0, 3);
 
   const handleNavClick = (view: 'work' | 'services') => {
     onNavigate(view);

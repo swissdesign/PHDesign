@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { LANGS, normalizeLang } from '../../../lib/i18n';
+import { getAll } from '../../../lib/sheets';
+import type { Project } from '../../../components/react/types';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const allPaths = await Promise.all(
+    LANGS.map(async (lang) => {
+      const { projects } = await getAll(lang);
+      return projects.map((project) => ({
+        params: { lang, slug: project.slug || project.id },
+        props: { project, lang },
+      }));
+    })
+  );
+  return allPaths.flat();
+}
+
+const lang = normalizeLang(Astro.params.lang);
+const project = Astro.props.project as Project;
+
+if (!project) {
+  throw new Error('Missing project payload for SEO page');
+}
+
+const slug = project.slug || project.id;
+const title = `${project.title} | Work | P. Heiniger Design`;
+const description = project.description || 'Selected project by P. Heiniger Design.';
+const canonicalPath = `/${lang}/work/${slug}`;
+const modalPath = `/${lang}?project=${encodeURIComponent(slug)}`;
+---
+
+<BaseLayout lang={lang} title={title}>
+  <Fragment slot="head">
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalPath} />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={project.image} />
+    <meta property="og:url" content={canonicalPath} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={project.image} />
+  </Fragment>
+
+  <main class="mx-auto min-h-screen max-w-4xl px-6 py-20 text-stone-900">
+    <article class="space-y-8">
+      <header class="space-y-4">
+        <p class="text-xs uppercase tracking-[0.2em] text-cyan-700">{project.category}</p>
+        <h1 class="text-4xl font-light tracking-tight md:text-6xl">{project.title}</h1>
+        {project.date && <p class="text-sm text-stone-500">{project.date}</p>}
+      </header>
+
+      <img src={project.image} alt={project.title} class="h-auto w-full rounded-xl object-cover" loading="eager" />
+
+      {project.description && <p class="max-w-3xl text-lg leading-relaxed text-stone-700">{project.description}</p>}
+
+      {project.tags.length > 0 && (
+        <ul class="flex flex-wrap gap-2">
+          {project.tags.map((tag) => (
+            <li class="rounded-full border border-stone-200 px-3 py-1 text-xs uppercase tracking-wider text-stone-600">{tag}</li>
+          ))}
+        </ul>
+      )}
+
+      <p class="text-sm text-stone-600">
+        Open the interactive version:
+        <a href={modalPath} class="ml-2 underline decoration-cyan-700 decoration-2 underline-offset-4">
+          {modalPath}
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <script is:inline define:vars={{ modalPath }}>
+    const ua = navigator.userAgent.toLowerCase();
+    const isBot = /(bot|crawler|spider|crawling|google|bing|yandex|duckduck|baidu|slurp)/.test(ua);
+    if (!isBot) {
+      window.location.replace(modalPath);
+    }
+  </script>
+</BaseLayout>

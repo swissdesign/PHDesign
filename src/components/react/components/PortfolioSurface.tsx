@@ -1,13 +1,22 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { PROJECTS } from '../constants';
-import { Project, Theme, TransitionRect } from '../types';
+import type { Project, Theme, TransitionRect } from '../types';
+import type { Lang } from '../../../lib/i18n';
 
 interface PortfolioSurfaceProps {
+  projects: Project[];
+  lang?: Lang;
   onSelectProject: (p: Project, rect: TransitionRect) => void;
   theme: Theme;
 }
 
-export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProject, theme }) => {
+const getLocalizedTitle = (project: Project, lang: Lang): string => {
+  if (lang === 'en') return project.title_en || project.title;
+  if (lang === 'fr') return project.title_fr || project.title;
+  if (lang === 'it') return project.title_it || project.title;
+  return project.title_de || project.title;
+};
+
+export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ projects, lang = 'de', onSelectProject, theme }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Camera state
@@ -53,6 +62,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
   };
 
   const snapToGrid = (currentX: number, currentY: number) => {
+    if (projects.length === 0) return;
     const { colWidth, gap, padding } = SNAP_CONFIG;
     const stride = colWidth + gap;
     const startOffset = padding + (colWidth / 2); 
@@ -66,7 +76,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
     const rawColIndex = Math.round((gridCenterX - startOffset) / stride);
     const rawRowIndex = Math.round((gridCenterY - startOffset) / stride);
 
-    const totalItems = PROJECTS.length * 15; // Adjusted repetitions
+    const totalItems = projects.length * 15; // Adjusted repetitions
     const cols = 12; 
     const rows = Math.ceil(totalItems / cols);
 
@@ -153,6 +163,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
   };
 
   const renderGridItems = () => {
+    if (projects.length === 0) return [];
     const items = [];
     const repetitions = 15; // Slightly reduced for performance
     
@@ -163,7 +174,8 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
     const categoryTextColor = theme === 'light' ? 'text-cyan-700' : 'text-cyan-300';
 
     for (let i = 0; i < repetitions; i++) {
-      PROJECTS.forEach((project, index) => {
+      projects.forEach((project, index) => {
+        const title = getLocalizedTitle(project, lang);
         const key = `${project.id}-${i}-${index}`;
         items.push(
           <div
@@ -199,7 +211,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
                 <div className="w-full h-full overflow-hidden flex items-center justify-center">
                   <img 
                     src={project.image} 
-                    alt={project.title}
+                    alt={title}
                     draggable={false} // Prevent native drag
                     onDragStart={(e) => e.preventDefault()}
                     className={`w-full h-full object-cover transition-transform duration-[1500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] opacity-90 group-hover:opacity-100 select-none
@@ -216,7 +228,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ onSelectProj
                 <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0 z-10">
                   <div className={`transition-transform duration-[1500ms] ${theme === 'dark' ? 'rotate-[-45deg] origin-bottom-left translate-x-4 -translate-y-2' : ''}`}>
                     <span className={`${categoryTextColor} text-[7px] font-semibold uppercase tracking-widest mb-0.5 block opacity-100`}>{project.category}</span>
-                    <h3 className="text-white text-[10px] font-medium leading-tight">{project.title}</h3>
+                    <h3 className="text-white text-[10px] font-medium leading-tight">{title}</h3>
                   </div>
                 </div>
               </div>

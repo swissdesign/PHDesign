@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Project, Theme, TransitionRect } from '../types';
+import type { Project, Theme, TransitionRect } from '../types';
 
 interface ProjectDetailProps {
   project: Project;

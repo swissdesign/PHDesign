@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Project, Theme, TransitionRect } from '../types';
+import type { Project, Theme, TransitionRect } from '../types';
 import { MenuModal } from './MenuModal';
 
 interface NavigationProps {
@@ -7,12 +7,13 @@ interface NavigationProps {
   onNavigate: (view: 'work' | 'services') => void;
   onOpenContact: (rect: TransitionRect) => void;
   onSelectProject: (project: Project, rect: TransitionRect) => void;
+  projects: Project[];
   isAnyModalOpen: boolean;
   isServiceDetailOpen: boolean;
   theme: Theme;
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, onOpenContact, onSelectProject, isAnyModalOpen, isServiceDetailOpen, theme }) => {
+export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, onOpenContact, onSelectProject, projects, isAnyModalOpen, isServiceDetailOpen, theme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuOriginRect, setMenuOriginRect] = useState<TransitionRect | null>(null);
   const [isMenuTransitioning, setIsMenuTransitioning] = useState(false);
@@ -177,6 +178,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
         onNavigate={onNavigate}
         onOpenContact={onOpenContact}
         onSelectProject={handleMenuProjectSelect}
+        projects={projects}
         originRect={menuOriginRect}
         theme={theme}
       />

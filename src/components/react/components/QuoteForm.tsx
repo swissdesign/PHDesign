@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Theme } from '../types';
+import type { Theme } from '../types';
 
 interface QuoteFormProps {
   theme?: Theme; // Optional prop to adapt colors

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { Navigation } from './components/Navigation';
 import { PortfolioSurface } from './components/PortfolioSurface';
 import { ServicesWheel } from './components/ServicesWheel';
@@ -6,9 +7,46 @@ import { ProjectDetail } from './components/ProjectDetail';
 import { ThemeToggle } from './components/ThemeToggle';
 import { CookieConsent } from './components/CookieConsent';
 import { ContactModal } from './components/ContactModal';
-import { Project, Theme, TransitionRect } from './types';
+import type { Project, Theme, TransitionRect } from './types';
+import type { Lang } from '../../lib/i18n';
 
-const App: React.FC = () => {
+interface AppProps {
+  lang?: Lang;
+  projects: Project[];
+  services: any[];
+  categories: any[];
+}
+
+const getProjectSlug = (project: Project): string => project.slug || project.id;
+
+const getFallbackRect = (): TransitionRect => {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  return {
+    top: h * 0.15,
+    left: w * 0.15,
+    width: w * 0.7,
+    height: h * 0.7,
+  };
+};
+
+const updateProjectQuery = (slug: string | null, mode: 'push' | 'replace' = 'push') => {
+  if (typeof window === 'undefined') return;
+  const url = new URL(window.location.href);
+  if (slug) {
+    url.searchParams.set('project', slug);
+  } else {
+    url.searchParams.delete('project');
+  }
+  const next = `${url.pathname}${url.search}${url.hash}`;
+  if (mode === 'push') {
+    window.history.pushState({}, '', next);
+  } else {
+    window.history.replaceState({}, '', next);
+  }
+};
+
+const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }) => {
   const [view, setView] = useState<'work' | 'services'>('work');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [originRect, setOriginRect] = useState<TransitionRect | null>(null);
@@ -23,15 +61,22 @@ const App: React.FC = () => {
   const handleViewChange = (newView: 'work' | 'services') => {
     setView(newView);
     setSelectedProject(null); // Close modal on nav
+    updateProjectQuery(null, 'replace');
   };
 
   const handleSelectProject = (project: Project, rect: TransitionRect) => {
     setOriginRect(rect);
     setSelectedProject(project);
+    const slug = getProjectSlug(project);
+    if (typeof window !== 'undefined') {
+      const current = new URLSearchParams(window.location.search).get('project');
+      updateProjectQuery(slug, current === slug ? 'replace' : 'push');
+    }
   };
 
   const handleCloseProject = () => {
     setSelectedProject(null);
+    updateProjectQuery(null, 'replace');
   };
   
   const handleOpenContact = (rect: TransitionRect) => {
@@ -45,16 +90,40 @@ const App: React.FC = () => {
 
   const isAnyModalOpen = Boolean(selectedProject || isContactOpen || isServiceModalOpen);
 
+
   // Update body bg color to match theme for overscroll areas
   useEffect(() => {
     document.body.style.backgroundColor = theme === 'light' ? '#FAFAF9' : '#1C1917';
   }, [theme]);
 
+  const syncProjectFromUrl = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const slug = new URLSearchParams(window.location.search).get('project');
+    if (!slug) {
+      setSelectedProject(null);
+      return;
+    }
+
+    const projectFromSlug = projects.find((p) => getProjectSlug(p) === slug);
+    if (!projectFromSlug) return;
+
+    setView('work');
+    setSelectedProject(projectFromSlug);
+    setOriginRect((prev) => prev ?? getFallbackRect());
+  }, [projects]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    syncProjectFromUrl();
+    window.addEventListener('popstate', syncProjectFromUrl);
+    return () => window.removeEventListener('popstate', syncProjectFromUrl);
+  }, [syncProjectFromUrl]);
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-stone-900">
       
       {/* --- AMBIENT BACKGROUND LAYERS (CROSS-FADE) --- */}
-      
+
       {/* DARK MODE LAYER */}
       <div 
         className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-[2000ms] ease-in-out ${
@@ -92,6 +161,7 @@ const App: React.FC = () => {
            onNavigate={handleViewChange} 
            onOpenContact={handleOpenContact}
            onSelectProject={handleSelectProject}
+           projects={projects}
            isAnyModalOpen={isAnyModalOpen}
            isServiceDetailOpen={isServiceModalOpen}
            theme={theme} 
@@ -103,7 +173,12 @@ const App: React.FC = () => {
             view === 'work' ? 'opacity-100 z-30 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
           }`}
         >
-          <PortfolioSurface onSelectProject={handleSelectProject} theme={theme} />
+          <PortfolioSurface
+            projects={projects}
+            lang={lang}
+            onSelectProject={handleSelectProject}
+            theme={theme}
+          />
         </div>
 
         {/* Services View (Wheel) */}
@@ -113,6 +188,8 @@ const App: React.FC = () => {
           }`}
         >
           <ServicesWheel 
+            services={services}
+            categories={categories}
             theme={theme} 
             onModalToggle={setIsServiceModalOpen}
           />
@@ -135,6 +212,7 @@ const App: React.FC = () => {
           isOpen={isContactOpen}
           onClose={() => setIsContactOpen(false)}
           originRect={contactOrigin}
+          services={services}
           theme={theme}
         />
       )}

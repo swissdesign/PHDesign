@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Service, Theme, TransitionRect } from '../types';
+import type { Service, Theme, TransitionRect } from '../types';
 import { QuoteForm } from './QuoteForm';
 
 interface ServiceDetailProps {

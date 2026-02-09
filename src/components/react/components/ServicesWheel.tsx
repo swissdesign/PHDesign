@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { SERVICES } from '../constants';
-import { Theme, Service, TransitionRect } from '../types';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Category, Theme, Service, TransitionRect } from '../types';
 import { ServiceDetail } from './ServiceDetail';
 
 // Detect coarse (touch-first) pointers so we can disable hover and favor swipe/scroll
@@ -35,23 +34,30 @@ const useCoarsePointer = () => {
 };
 
 interface ServicesWheelProps {
+  services: Service[];
+  categories?: Category[];
   theme: Theme;
   onModalToggle?: (open: boolean) => void;
 }
 
-export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme, onModalToggle }) => {
+export const ServicesWheel: React.FC<ServicesWheelProps> = ({ services, categories, theme, onModalToggle }) => {
   // Single source of truth for which service is active
   const [activeServiceIndex, setActiveServiceIndex] = useState(0);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [originRect, setOriginRect] = useState<TransitionRect | null>(null);
   const isCoarsePointer = useCoarsePointer();
+  const categoryNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    (categories ?? []).forEach((category) => map.set(category.id, category.name));
+    return map;
+  }, [categories]);
 
-  const activeId = SERVICES[activeServiceIndex]?.id ?? SERVICES[0].id;
+  const activeId = services[activeServiceIndex]?.id ?? services[0]?.id ?? '';
   
-  const total = SERVICES.length;
+  const total = services.length;
   
   // Angle per item
-  const anglePerSlice = 360 / total;
+  const anglePerSlice = total > 0 ? 360 / total : 0;
 
   // We want the active item to be at 180deg (Left side of wheel, facing the text).
   const rotation = 180 - (activeServiceIndex * anglePerSlice);
@@ -144,7 +150,7 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme, onModalTogg
       {/* LEFT SIDE: The List */}
       <div className="w-full md:w-1/2 h-full flex flex-col justify-center px-6 md:px-8 md:pl-20 z-30 relative pointer-events-none">
          <div className="space-y-4 md:space-y-6 max-w-lg pointer-events-auto">
-            {SERVICES.map((service, i) => (
+            {services.map((service, i) => (
               <div 
                 key={service.id}
                 className="group relative cursor-pointer py-2 md:py-0"
@@ -174,7 +180,7 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme, onModalTogg
                       ${teaserShouldShow(i) ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}
                     `}
                   >
-                    {service.teaser}
+                    {service.teaser || (service.categoryId ? categoryNameById.get(service.categoryId) : '')}
                   </span>
                 </div>
                 {/* Mobile-only visible details hint */}
@@ -205,7 +211,7 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ theme, onModalTogg
             className="absolute inset-0 rounded-full transition-transform duration-[1500ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
             style={{ transform: `rotate(${rotation}deg)` }}
          >
-            {SERVICES.map((service, i) => {
+            {services.map((service, i) => {
                const angle = i * anglePerSlice;
                return (
                  <div
