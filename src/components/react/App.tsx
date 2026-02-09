@@ -162,6 +162,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
            onOpenContact={handleOpenContact}
            onSelectProject={handleSelectProject}
            projects={projects}
+           lang={lang}
            isAnyModalOpen={isAnyModalOpen}
            isServiceDetailOpen={isServiceModalOpen}
            theme={theme} 
@@ -190,6 +191,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
           <ServicesWheel 
             services={services}
             categories={categories}
+            lang={lang}
             theme={theme} 
             onModalToggle={setIsServiceModalOpen}
           />
@@ -202,6 +204,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
           project={selectedProject} 
           originRect={originRect}
           onClose={handleCloseProject} 
+          lang={lang}
           theme={theme}
         />
       )}

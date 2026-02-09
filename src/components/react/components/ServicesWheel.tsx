@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Category, Theme, Service, TransitionRect } from '../types';
+import type { Theme, TransitionRect } from '../types';
+import type { Lang } from '../../../lib/i18n';
+import { pickLang, pickLangArray } from '../utils/pickLang';
 import { ServiceDetail } from './ServiceDetail';
 
 // Detect coarse (touch-first) pointers so we can disable hover and favor swipe/scroll
@@ -34,27 +36,91 @@ const useCoarsePointer = () => {
 };
 
 interface ServicesWheelProps {
-  services: Service[];
-  categories?: Category[];
+  services: any[];
+  categories?: any[];
+  lang?: Lang;
   theme: Theme;
   onModalToggle?: (open: boolean) => void;
 }
 
-export const ServicesWheel: React.FC<ServicesWheelProps> = ({ services, categories, theme, onModalToggle }) => {
+type LocalService = {
+  id: string;
+  name: string;
+  teaser: string;
+  icon: string;
+  bullets: string[];
+  startPrice: string;
+  description: string;
+  categoryLabel: string;
+  raw: Record<string, unknown>;
+};
+
+const DEFAULT_ICON = 'M12 2v20M2 12h20';
+
+export const ServicesWheel: React.FC<ServicesWheelProps> = ({ services, categories, lang = 'de', theme, onModalToggle }) => {
   // Single source of truth for which service is active
   const [activeServiceIndex, setActiveServiceIndex] = useState(0);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] = useState<LocalService | null>(null);
   const [originRect, setOriginRect] = useState<TransitionRect | null>(null);
   const isCoarsePointer = useCoarsePointer();
   const categoryNameById = useMemo(() => {
     const map = new Map<string, string>();
-    (categories ?? []).forEach((category) => map.set(category.id, category.name));
+    (categories ?? []).forEach((category, idx) => {
+      const row = (category ?? {}) as Record<string, unknown>;
+      const name = pickLang(row, 'name', lang) || String(row.name ?? '').trim();
+      const id = String(row.id ?? row.slug ?? `category-${idx}`);
+      if (id) map.set(id, name);
+      if (typeof row.slug === 'string' && row.slug.trim()) map.set(row.slug, name);
+    });
     return map;
-  }, [categories]);
+  }, [categories, lang]);
 
-  const activeId = services[activeServiceIndex]?.id ?? services[0]?.id ?? '';
+  const normalizedServices = useMemo<LocalService[]>(() => {
+    return (services ?? []).map((service, idx) => {
+      const row = (service ?? {}) as Record<string, unknown>;
+      const id = String(row.id ?? row.slug ?? row.service_id ?? `service-${idx}`);
+      const name = pickLang(row, 'title', lang) || pickLang(row, 'name', lang) || String(row.name ?? row.title ?? `Service ${idx + 1}`);
+      const description = pickLang(row, 'description', lang);
+      const teaser = pickLang(row, 'teaser', lang) || description;
+      const bullets =
+        pickLangArray(row, 'bullets', lang).length > 0
+          ? pickLangArray(row, 'bullets', lang)
+          : pickLangArray(row, 'features', lang).length > 0
+            ? pickLangArray(row, 'features', lang)
+            : pickLangArray(row, 'includes', lang);
+      const startPrice =
+        pickLang(row, 'startPrice', lang) ||
+        pickLang(row, 'start_price', lang) ||
+        pickLang(row, 'price', lang) ||
+        String(row.startPrice ?? row.start_price ?? row.price ?? '').trim();
+      const icon = String(row.icon ?? '').trim() || DEFAULT_ICON;
+      const categoryId = String(row.category_id ?? row.categoryId ?? row.category ?? '').trim();
+      const categoryLabel = categoryId ? categoryNameById.get(categoryId) || categoryId : '';
+
+      return {
+        id,
+        name,
+        teaser,
+        icon,
+        bullets,
+        startPrice,
+        description,
+        categoryLabel,
+        raw: row,
+      };
+    });
+  }, [services, lang, categoryNameById]);
+
+  useEffect(() => {
+    setActiveServiceIndex((prev) => {
+      if (normalizedServices.length === 0) return 0;
+      return Math.min(prev, normalizedServices.length - 1);
+    });
+  }, [normalizedServices.length]);
+
+  const activeId = normalizedServices[activeServiceIndex]?.id ?? normalizedServices[0]?.id ?? '';
   
-  const total = services.length;
+  const total = normalizedServices.length;
   
   // Angle per item
   const anglePerSlice = total > 0 ? 360 / total : 0;
@@ -106,7 +172,7 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ services, categori
     stepActive(deltaY > 0 ? -1 : 1);
   };
 
-  const handleSelect = (service: Service, e: React.MouseEvent) => {
+  const handleSelect = (service: LocalService, e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setOriginRect({
       top: rect.top,
@@ -150,9 +216,9 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ services, categori
       {/* LEFT SIDE: The List */}
       <div className="w-full md:w-1/2 h-full flex flex-col justify-center px-6 md:px-8 md:pl-20 z-30 relative pointer-events-none">
          <div className="space-y-4 md:space-y-6 max-w-lg pointer-events-auto">
-            {services.map((service, i) => (
+            {normalizedServices.map((service, i) => (
               <div 
-                key={service.id}
+                key={service.id || `service-list-${i}`}
                 className="group relative cursor-pointer py-2 md:py-0"
                 // Hover only on precise pointers to avoid fake hover on touch
                 onMouseEnter={!isCoarsePointer ? () => setActiveServiceIndex(i) : undefined}
@@ -180,7 +246,7 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ services, categori
                       ${teaserShouldShow(i) ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}
                     `}
                   >
-                    {service.teaser || (service.categoryId ? categoryNameById.get(service.categoryId) : '')}
+                    {service.teaser || service.categoryLabel}
                   </span>
                 </div>
                 {/* Mobile-only visible details hint */}
@@ -211,11 +277,11 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ services, categori
             className="absolute inset-0 rounded-full transition-transform duration-[1500ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
             style={{ transform: `rotate(${rotation}deg)` }}
          >
-            {services.map((service, i) => {
+            {normalizedServices.map((service, i) => {
                const angle = i * anglePerSlice;
                return (
                  <div
-                   key={service.id}
+                   key={service.id || `service-orbit-${i}`}
                    className="absolute top-1/2 left-1/2 w-0 h-0 flex items-center justify-center"
                    // Restored translate(35vh) to push icons out for the "in front" effect
                    style={{ transform: `rotate(${angle}deg) translate(35vh) rotate(-${angle}deg)` }} 
@@ -262,6 +328,7 @@ export const ServicesWheel: React.FC<ServicesWheelProps> = ({ services, categori
           service={selectedService}
           originRect={originRect}
           onClose={closeDetail}
+          lang={lang}
           theme={theme}
         />
       )}

@@ -1,23 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import type { Project, Theme, TransitionRect } from '../types';
+import type { Lang } from '../../../lib/i18n';
+import { pickLang, pickLangArray, toTextArray } from '../utils/pickLang';
 
 interface ProjectDetailProps {
   project: Project;
   originRect: TransitionRect;
   onClose: () => void;
+  lang?: Lang;
   theme: Theme;
 }
 
-export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRect, onClose, theme }) => {
+const DEFAULT_PROJECT_IMAGE = 'https://picsum.photos/1200/900';
+
+export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRect, onClose, lang = 'de', theme }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+
+  const projectTitle = pickLang(project, 'title', lang) || project.title || 'Untitled Project';
+  const projectDescription = pickLang(project, 'description', lang) || project.description || '';
+  const projectCategory = pickLang(project, 'category', lang) || String(project.category ?? '').trim();
+  const projectDate = String(project.date ?? '').trim();
+  const projectImage = String(project.image ?? '').trim() || DEFAULT_PROJECT_IMAGE;
+  const projectTagsFromSheet = pickLangArray(project, 'tags', lang);
+  const projectTags = projectTagsFromSheet.length > 0 ? projectTagsFromSheet : toTextArray(project.tags);
+  const projectId = String(project.id ?? project.slug ?? '').trim();
   
   const galleryImages = [
-    project.image, 
-    project.image + '?grayscale', 
-    project.image + '?blur', 
-    project.image
+    projectImage, 
+    `${projectImage}?grayscale`, 
+    `${projectImage}?blur`, 
+    projectImage
   ];
 
   useEffect(() => {
@@ -122,7 +136,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
                 <div key={index} className="w-full h-full snap-start relative">
                   <img 
                     src={imgSrc} 
-                    alt={`${project.title} view ${index + 1}`} 
+                    alt={`${projectTitle} view ${index + 1}`} 
                     className={`w-full h-full object-cover transition-transform duration-[2s] ease-out ${isExpanded ? 'scale-100' : 'scale-110'}`}
                   />
                   {/* Pagination Dots */}
@@ -139,7 +153,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
             </div>
 
             <div className={`absolute bottom-6 left-6 px-3 py-1 text-xs uppercase tracking-wider transition-opacity duration-500 pointer-events-none z-20 backdrop-blur ${showContent ? 'opacity-100' : 'opacity-0'} ${theme === 'light' ? 'bg-white/80 text-black' : 'bg-black/80 text-white'}`}>
-              {project.category}
+              {projectCategory}
             </div>
             
             {/* Blue accented scroll indicator */}
@@ -154,11 +168,11 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
           >
             <div className={`w-full h-full overflow-y-auto p-8 md:p-12 flex flex-col transition-opacity duration-300 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
               <div className="flex-1">
-                <span className="text-xs text-stone-400 font-mono mb-4 block">{project.id.toUpperCase()} — {project.date}</span>
-                <h2 className={`text-3xl md:text-5xl font-light tracking-tight mb-8 ${textClass}`}>{project.title}</h2>
+                <span className="text-xs text-stone-400 font-mono mb-4 block">{projectId.toUpperCase()} — {projectDate}</span>
+                <h2 className={`text-3xl md:text-5xl font-light tracking-tight mb-8 ${textClass}`}>{projectTitle}</h2>
                 
                 <div className={`space-y-6 text-sm md:text-lg leading-relaxed font-light max-w-md ${subTextClass}`}>
-                  <p>{project.description}</p>
+                  {projectDescription && <p>{projectDescription}</p>}
                   <p>
                     Wir haben uns darauf konzentriert, die Essenz der Marke herauszuarbeiten. 
                     Weniger Lärm, mehr Signal. Das Ergebnis ist eine Plattform, die Ruhe ausstrahlt.
@@ -180,9 +194,9 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
               <div className={`mt-12 pt-6 border-t ${borderClass}`}>
                 <h4 className="text-[10px] uppercase tracking-widest text-stone-400 mb-3">Deliverables</h4>
                 <div className="flex flex-wrap gap-2">
-                  {project.tags.map(tag => (
+                  {(projectTags ?? []).map((tag, idx) => (
                     <span 
-                      key={tag} 
+                      key={`${tag}-${idx}`} 
                       className={`px-3 py-1 text-xs rounded-full border transition-colors ${tagClass}`}
                     >
                       {tag}

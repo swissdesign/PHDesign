@@ -16,18 +16,18 @@ export type SheetsAllResponse = {
   categories: any[];
 };
 
-export async function getAll(): Promise<SheetsAllResponse> {
+export async function getAll(_lang?: string): Promise<SheetsAllResponse> {
   return fetchJson(`${API}?resource=all`);
 }
 
-export async function getProjects(): Promise<any[]> {
+export async function getProjects(_lang?: string): Promise<any[]> {
   return fetchJson(`${API}?resource=projects`);
 }
 
-export async function getServices(): Promise<any[]> {
+export async function getServices(_lang?: string): Promise<any[]> {
   return fetchJson(`${API}?resource=services`);
 }
 
-export async function getCategories(): Promise<any[]> {
+export async function getCategories(_lang?: string): Promise<any[]> {
   return fetchJson(`${API}?resource=categories`);
 }

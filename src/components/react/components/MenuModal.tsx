@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Theme, TransitionRect, Project } from '../types';
+import type { Lang } from '../../../lib/i18n';
+import { pickLang } from '../utils/pickLang';
 
 interface MenuModalProps {
   isOpen: boolean;
@@ -8,11 +10,15 @@ interface MenuModalProps {
   onOpenContact: (rect: TransitionRect) => void;
   onSelectProject: (project: Project, rect: TransitionRect) => void;
   projects: Project[];
+  lang?: Lang;
   originRect: TransitionRect | null;
   theme: Theme;
 }
 
-export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigate, onOpenContact, onSelectProject, projects, originRect, theme }) => {
+const getProjectKey = (project: Project, index: number) =>
+  String(project.id || project.slug || project.title || `project-${index}`);
+
+export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigate, onOpenContact, onSelectProject, projects, lang = 'de', originRect, theme }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
@@ -63,7 +69,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
     ? 'hover:shadow-[0_20px_40px_-10px_rgba(8,145,178,0.15)]' 
     : 'hover:shadow-[0_20px_40px_-10px_rgba(34,211,238,0.1)]';
 
-  const latestProjects = projects.slice(0, 3);
+  const latestProjects = (projects ?? []).filter(Boolean).slice(0, 3);
 
   const handleNavClick = (view: 'work' | 'services') => {
     onNavigate(view);
@@ -193,9 +199,12 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
             <section>
               <h3 className={`text-xs uppercase tracking-widest mb-6 ${subTextClass}`}>Latest Projects</h3>
               <div className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
-                {latestProjects.map(p => (
+                {latestProjects.map((p, idx) => {
+                  const title = pickLang(p, 'title', lang) || p.title || 'Project';
+                  const category = pickLang(p, 'category', lang) || String(p.category ?? '');
+                  return (
                   <div 
-                    key={p.id} 
+                    key={`${getProjectKey(p, idx)}-${idx}`} 
                     className={`flex-none w-[280px] md:w-[350px] snap-start rounded-lg overflow-hidden group cursor-pointer border ${borderClass} ${cardBg} ${hoverBorderAccent}`}
                     onClick={(e) => {
                       if (isClosing) return;
@@ -210,16 +219,17 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
                     aria-disabled={isClosing}
                   >
                     <div className="aspect-[16/9] overflow-hidden relative">
-                      <img src={p.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={p.title} />
+                      <img src={p.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={title} />
                       {/* Random blue line overlay on hover */}
                       <div className={`absolute bottom-0 left-0 h-1 bg-cyan-500 transition-all duration-500 w-0 group-hover:w-full`} />
                     </div>
                     <div className="p-4">
-                      <h4 className={`text-sm font-medium ${textClass} group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors`}>{p.title}</h4>
-                      <p className={`text-xs mt-1 ${subTextClass}`}>{p.category}</p>
+                      <h4 className={`text-sm font-medium ${textClass} group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors`}>{title}</h4>
+                      <p className={`text-xs mt-1 ${subTextClass}`}>{category}</p>
                     </div>
                   </div>
-                ))}
+                );
+                })}
               </div>
             </section>
 

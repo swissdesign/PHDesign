@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import type { Service, Theme, TransitionRect } from '../types';
+import type { Theme, TransitionRect } from '../types';
+import type { Lang } from '../../../lib/i18n';
+import { pickLang, pickLangArray } from '../utils/pickLang';
 import { QuoteForm } from './QuoteForm';
 
 interface ServiceDetailProps {
-  service: Service;
+  service: Record<string, unknown>;
   originRect: TransitionRect;
   onClose: () => void;
+  lang?: Lang;
   theme: Theme;
 }
 
-export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRect, onClose, theme }) => {
+const DEFAULT_ICON = 'M12 2v20M2 12h20';
+
+export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRect, onClose, lang = 'de', theme }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -100,6 +105,24 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
     ? { paddingTop: 'calc(env(safe-area-inset-top, 0px) + 96px)' } 
     : undefined;
 
+  const serviceName =
+    pickLang(service, 'title', lang) ||
+    pickLang(service, 'name', lang) ||
+    String(service.name ?? 'Service').trim();
+  const serviceDescription = pickLang(service, 'description', lang) || String(service.description ?? '').trim();
+  const serviceStartPrice =
+    pickLang(service, 'startPrice', lang) ||
+    pickLang(service, 'start_price', lang) ||
+    pickLang(service, 'price', lang) ||
+    String(service.startPrice ?? service.start_price ?? service.price ?? '').trim();
+  const serviceIcon = String(service.icon ?? '').trim() || DEFAULT_ICON;
+  const serviceBullets =
+    pickLangArray(service, 'bullets', lang).length > 0
+      ? pickLangArray(service, 'bullets', lang)
+      : pickLangArray(service, 'features', lang).length > 0
+        ? pickLangArray(service, 'features', lang)
+        : pickLangArray(service, 'includes', lang);
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-auto">
       {/* Backdrop */}
@@ -149,18 +172,18 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
                         strokeLinejoin="round"
                         className={`w-full h-full ${textClass}`}
                     >
-                        <path d={service.icon} />
+                        <path d={serviceIcon} />
                     </svg>
                 </div>
                 <div>
                     <span className={`text-[10px] uppercase tracking-widest block mb-1 md:mb-2 opacity-50 ${textClass}`}>Service Details</span>
-                    <h2 className={`text-2xl md:text-4xl font-light leading-tight ${textClass}`}>{service.name}</h2>
+                    <h2 className={`text-2xl md:text-4xl font-light leading-tight ${textClass}`}>{serviceName}</h2>
                 </div>
             </div>
             
             <div className={`hidden md:block mt-6 pt-6 border-t w-full ${theme === 'light' ? 'border-stone-200' : 'border-stone-700'}`}>
                 <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>Investment</span>
-                <span className={`text-lg font-medium ${textClass}`}>{service.startPrice}</span>
+                <span className={`text-lg font-medium ${textClass}`}>{serviceStartPrice}</span>
             </div>
           </div>
 
@@ -196,18 +219,25 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
             <div className={`absolute inset-x-6 md:inset-x-12 top-24 md:top-32 bottom-6 md:bottom-8 transition-all duration-500 overflow-y-auto ${mode === 'info' ? 'translate-x-0 opacity-100 z-10' : '-translate-x-10 opacity-0 z-0 pointer-events-none'}`}>
               <div className={`md:hidden mb-6 pb-6 border-b ${theme === 'light' ? 'border-stone-100' : 'border-stone-800'}`}>
                  <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>Investment</span>
-                 <span className={`text-lg font-medium ${textClass}`}>{service.startPrice}</span>
+                 <span className={`text-lg font-medium ${textClass}`}>{serviceStartPrice}</span>
               </div>
+
+              {serviceDescription && (
+                <p className={`mb-6 leading-relaxed ${subTextClass}`}>{serviceDescription}</p>
+              )}
 
               <h3 className={`text-lg font-medium mb-6 ${textClass}`}>What's included</h3>
               <ul className="space-y-4 mb-8">
-                {service.bullets.map((bullet, i) => (
-                  <li key={i} className={`flex items-start gap-3 ${subTextClass}`}>
+                {(serviceBullets ?? []).map((bullet, i) => (
+                  <li key={`${bullet}-${i}`} className={`flex items-start gap-3 ${subTextClass}`}>
                     <span className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${bulletDotClass}`} />
                     <span className="leading-relaxed">{bullet}</span>
                   </li>
                 ))}
               </ul>
+              {serviceBullets.length === 0 && (
+                <p className={`mb-8 text-sm italic ${subTextClass}`}>Details coming soon.</p>
+              )}
               <div className="mt-auto pt-6">
                  <button 
                    onClick={() => setMode('booking')}

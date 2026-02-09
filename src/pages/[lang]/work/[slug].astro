@@ -9,7 +9,7 @@ export const prerender = true;
 export async function getStaticPaths() {
   const allPaths = await Promise.all(
     LANGS.map(async (lang) => {
-      const { projects } = await getAll(lang);
+      const { projects } = await getAll();
       return projects.map((project) => ({
         params: { lang, slug: project.slug || project.id },
         props: { project, lang },
@@ -27,8 +27,49 @@ if (!project) {
 }
 
 const slug = project.slug || project.id;
-const title = `${project.title} | Work | P. Heiniger Design`;
-const description = project.description || 'Selected project by P. Heiniger Design.';
+const asRecord = (value: unknown): Record<string, unknown> => {
+  if (value && typeof value === 'object') return value as Record<string, unknown>;
+  return {};
+};
+
+const pickLang = (row: unknown, baseKey: string, currentLang: string): string => {
+  const data = asRecord(row);
+  const localized = data[`${baseKey}_${currentLang}`];
+  if (typeof localized === 'string' && localized.trim()) return localized.trim();
+  const fallbackDe = data[`${baseKey}_de`];
+  if (typeof fallbackDe === 'string' && fallbackDe.trim()) return fallbackDe.trim();
+  const fallback = data[baseKey];
+  if (typeof fallback === 'string' && fallback.trim()) return fallback.trim();
+  return '';
+};
+
+const toTextArray = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item ?? '').trim()).filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    return value
+      .split(/\r?\n+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+};
+
+const projectTitle = pickLang(project, 'title', lang) || project.title || 'Untitled Project';
+const projectDescription =
+  pickLang(project, 'description', lang) ||
+  project.description ||
+  'Selected project by P. Heiniger Design.';
+const projectCategory = pickLang(project, 'category', lang) || String(project.category ?? '').trim();
+const projectDate = String(project.date ?? '').trim();
+const projectImage = String(project.image ?? '').trim();
+const projectTags = [
+  ...toTextArray(asRecord(project)[`tags_${lang}`]),
+  ...toTextArray(asRecord(project).tags),
+].filter((tag, index, array) => array.indexOf(tag) === index);
+const title = `${projectTitle} | Work | P. Heiniger Design`;
+const description = projectDescription;
 const canonicalPath = `/${lang}/work/${slug}`;
 const modalPath = `/${lang}?project=${encodeURIComponent(slug)}`;
 ---
@@ -40,29 +81,31 @@ const modalPath = `/${lang}?project=${encodeURIComponent(slug)}`;
     <meta property="og:type" content="article" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={project.image} />
+    <meta property="og:image" content={projectImage} />
     <meta property="og:url" content={canonicalPath} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={project.image} />
+    <meta name="twitter:image" content={projectImage} />
   </Fragment>
 
   <main class="mx-auto min-h-screen max-w-4xl px-6 py-20 text-stone-900">
     <article class="space-y-8">
       <header class="space-y-4">
-        <p class="text-xs uppercase tracking-[0.2em] text-cyan-700">{project.category}</p>
-        <h1 class="text-4xl font-light tracking-tight md:text-6xl">{project.title}</h1>
-        {project.date && <p class="text-sm text-stone-500">{project.date}</p>}
+        <p class="text-xs uppercase tracking-[0.2em] text-cyan-700">{projectCategory}</p>
+        <h1 class="text-4xl font-light tracking-tight md:text-6xl">{projectTitle}</h1>
+        {projectDate && <p class="text-sm text-stone-500">{projectDate}</p>}
       </header>
 
-      <img src={project.image} alt={project.title} class="h-auto w-full rounded-xl object-cover" loading="eager" />
+      {projectImage && (
+        <img src={projectImage} alt={projectTitle} class="h-auto w-full rounded-xl object-cover" loading="eager" />
+      )}
 
-      {project.description && <p class="max-w-3xl text-lg leading-relaxed text-stone-700">{project.description}</p>}
+      {projectDescription && <p class="max-w-3xl text-lg leading-relaxed text-stone-700">{projectDescription}</p>}
 
-      {project.tags.length > 0 && (
+      {projectTags.length > 0 && (
         <ul class="flex flex-wrap gap-2">
-          {project.tags.map((tag) => (
+          {projectTags.map((tag) => (
             <li class="rounded-full border border-stone-200 px-3 py-1 text-xs uppercase tracking-wider text-stone-600">{tag}</li>
           ))}
         </ul>

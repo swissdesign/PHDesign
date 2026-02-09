@@ -175,9 +175,16 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
                       className={`w-full bg-transparent border-b py-3 pr-8 appearance-none outline-none cursor-pointer rounded-none transition-colors ${inputClass}`}
                     >
                       <option value="" disabled className="bg-stone-100 text-stone-500">Select a Service...</option>
-                      {services.map(s => (
-                        <option key={s.id} value={s.name} className="text-black">{s.name}</option>
-                      ))}
+                      {(services ?? []).map((s, index) => {
+                        const row = (s ?? {}) as Record<string, unknown>;
+                        const label = String(row.name ?? row.title ?? row.slug ?? `Service ${index + 1}`);
+                        const key = String(row.id ?? row.slug ?? label ?? `service-${index}`);
+                        return (
+                          <option key={`${key}-${index}`} value={label} className="text-black">
+                            {label}
+                          </option>
+                        );
+                      })}
                       <option value="other" className="text-black">Other / General Inquiry</option>
                     </select>
                     {/* Custom Arrow */}
