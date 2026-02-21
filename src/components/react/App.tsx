@@ -220,17 +220,6 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
         />
       )}
 
-      {/* Global "Availability" Badge */}
-      <div className="fixed bottom-6 right-6 z-40 hidden md:block mix-blend-difference text-white pointer-events-none">
-        <div className="flex items-center gap-2">
-           <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-            </span>
-            <span className="text-[10px] uppercase tracking-widest font-medium text-white/90">Available for Q4</span>
-        </div>
-      </div>
-
       {/* Theme Toggle */}
       <ThemeToggle theme={theme} onToggle={toggleTheme} />
       
