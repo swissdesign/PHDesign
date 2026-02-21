@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "check:submodules": "test -f vendor/sponsor-dock/docs/integration.md || (echo 'Missing sponsor-dock submodule. Run: git submodule update --init --recursive' && exit 1)",
-    "build": "npm run check:submodules && astro build",
+    "build": "astro build",
     "preview": "astro preview"
   },
   "dependencies": {
