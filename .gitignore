@@ -19,3 +19,19 @@ dist/
 *.code-workspace
 .env.local
 .env
+.vercel/
+.vercel/output/
+.astro/
+.env
+.env.*
+!.env.example
+
+# Secrets / local env
+.env
+.env.*
+!.env.example
+
+# Build artifacts
+.astro/
+.vercel/
+.vercel/output/
