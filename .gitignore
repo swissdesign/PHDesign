@@ -16,3 +16,6 @@ pnpm-debug.log*
 dist/
 .vite/
 .DS_Store
+*.code-workspace
+.env.local
+.env
