@@ -5,6 +5,6 @@ export const siteManifest = {
     collapsedHeight: 64,
     expandedHeight: 240,
     revealDelayMs: 2500,
-    sessionTtlMinutes: 45
-  }
+    sessionTtlMinutes: 45,
+  },
 } as const;
