@@ -1,0 +1,3 @@
+[submodule "vendor/sponsor-dock"]
+	path = vendor/sponsor-dock
+	url = git@github.com:swissdesign/Sponsor-Doc-Network.git
