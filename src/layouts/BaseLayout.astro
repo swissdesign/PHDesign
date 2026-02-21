@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import SponsorDock from "@swissdesign/sponsor-dock/SponsorDock.astro";
+import { siteManifest } from "../site.manifest";
 
 interface Props {
   lang?: string;
@@ -24,6 +26,15 @@ const { lang = 'de', title = 'P. Heiniger Design' } = Astro.props;
     <slot name="head" />
   </head>
   <body>
-    <slot />
+    <div id="app">
+      <slot />
+    </div>
+    <SponsorDock {...siteManifest.sponsorDock} />
   </body>
 </html>
+
+<style is:global>
+  #app {
+    padding-bottom: calc(var(--dockSpace, 0px) + env(safe-area-inset-bottom));
+  }
+</style>

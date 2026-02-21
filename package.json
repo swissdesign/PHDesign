@@ -9,6 +9,7 @@
     "preview": "astro preview"
   },
   "dependencies": {
+    "@swissdesign/sponsor-dock": "^0.1.0",
     "d3-shape": "^3.2.0",
     "dotenv": "^17.3.1",
     "googleapis": "^171.4.0",
