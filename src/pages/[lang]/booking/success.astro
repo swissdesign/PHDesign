@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { normalizeLang } from '../../../lib/i18n';
+
+const lang = normalizeLang(Astro.params.lang);
+const bookingId = Astro.url.searchParams.get('booking_id');
+
+const title = lang === 'en' ? 'Booking Confirmed' : 'Buchung Bestätigt';
+const description = lang === 'en' ? 'Thank you for your deposit. Your booking has been received and confirmed.' : 'Vielen Dank für deine Anzahlung. Deine Buchung ist eingegangen und bestätigt worden.';
+---
+
+<BaseLayout lang={lang}>
+  <div class="min-h-screen flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-700">
+    <div class="max-w-md mx-auto space-y-6">
+      <div class="text-6xl mb-8">✨</div>
+      <h1 class="text-3xl md:text-5xl font-light tracking-tight text-stone-900 dark:text-stone-100">
+        {title}
+      </h1>
+      <p class="text-stone-500 dark:text-stone-400 text-lg md:text-xl leading-relaxed">
+        {description}
+      </p>
+      
+      {bookingId && (
+        <div class="pt-8">
+            <span class="text-xs uppercase tracking-widest text-stone-400 dark:text-stone-500 block mb-2">Booking Reference</span>
+            <code class="px-4 py-2 bg-stone-100 dark:bg-stone-800 rounded text-sm text-stone-600 dark:text-stone-300 font-mono">
+                {bookingId}
+            </code>
+        </div>
+      )}
+
+      <div class="pt-12">
+        <a href={`/${lang}`} class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-cyan-600 dark:text-cyan-400 hover:opacity-70 transition-opacity">
+          ← {lang === 'en' ? 'Back to Home' : 'Zurück zur Startseite'}
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

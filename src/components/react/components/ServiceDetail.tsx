@@ -43,16 +43,16 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
       mql.addListener(handlePointerChange);
     }
 
-    return () => { 
-        clearTimeout(t1); 
-        clearTimeout(t2); 
-        window.removeEventListener('resize', handleResize);
-        if (mql.removeEventListener) {
-          mql.removeEventListener('change', handlePointerChange);
-        } else {
-          // @ts-ignore Safari
-          mql.removeListener(handlePointerChange);
-        }
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener('resize', handleResize);
+      if (mql.removeEventListener) {
+        mql.removeEventListener('change', handlePointerChange);
+      } else {
+        // @ts-ignore Safari
+        mql.removeListener(handlePointerChange);
+      }
     };
   }, []);
 
@@ -66,7 +66,7 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
   const bgClass = theme === 'light' ? 'bg-white' : 'bg-[#1C1917]';
   const textClass = theme === 'light' ? 'text-stone-900' : 'text-stone-100';
   const subTextClass = theme === 'light' ? 'text-stone-500' : 'text-stone-400';
-  
+
   // Accents
   const activeTabClass = theme === 'light' ? 'border-cyan-900 text-cyan-900' : 'border-cyan-200 text-cyan-200';
   const bulletDotClass = theme === 'light' ? 'bg-cyan-800' : 'bg-cyan-200';
@@ -75,34 +75,34 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
   // Dynamic Style for Expansion
   // Mobile: Full screen (inset 0), no radius. Desktop: Centered, rounded.
   const expandedStyle = isMobile ? {
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100dvh', // Use dvh for robust mobile height
-      transform: 'none',
-      borderRadius: '0px'
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100dvh', // Use dvh for robust mobile height
+    transform: 'none',
+    borderRadius: '0px'
   } : {
-      top: '10%',
-      left: '50%',
-      width: 'min(90%, 800px)',
-      height: 'min(80%, 700px)',
-      transform: 'translateX(-50%)',
-      borderRadius: '24px'
+    top: '10%',
+    left: '50%',
+    width: 'min(90%, 800px)',
+    height: 'min(80%, 700px)',
+    transform: 'translateX(-50%)',
+    borderRadius: '24px'
   };
 
   const initialStyle = {
-      top: `${originRect.top}px`,
-      left: `${originRect.left}px`,
-      width: `${originRect.width}px`,
-      height: `${originRect.height}px`,
-      transform: 'none',
-      borderRadius: '0px'
+    top: `${originRect.top}px`,
+    left: `${originRect.left}px`,
+    width: `${originRect.width}px`,
+    height: `${originRect.height}px`,
+    transform: 'none',
+    borderRadius: '0px'
   };
 
   const needsTopSpacing = isCoarsePointer || isMobile;
   // Headroom on touch devices so the close button sits away from nav/burger
-  const topPaddingStyle = needsTopSpacing 
-    ? { paddingTop: 'calc(env(safe-area-inset-top, 0px) + 96px)' } 
+  const topPaddingStyle = needsTopSpacing
+    ? { paddingTop: 'calc(env(safe-area-inset-top, 0px) + 96px)' }
     : undefined;
 
   const serviceName =
@@ -126,24 +126,22 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-auto">
       {/* Backdrop */}
-      <div 
-        className={`absolute inset-0 backdrop-blur-md transition-opacity duration-700 ease-in-out ${
-          isExpanded && !isClosing ? 'opacity-100' : 'opacity-0'
-        } ${theme === 'light' ? 'bg-[#FAFAF9]/80' : 'bg-black/80'}`}
+      <div
+        className={`absolute inset-0 backdrop-blur-md transition-opacity duration-700 ease-in-out ${isExpanded && !isClosing ? 'opacity-100' : 'opacity-0'
+          } ${theme === 'light' ? 'bg-[#FAFAF9]/80' : 'bg-black/80'}`}
         onClick={handleClose}
       />
 
       {/* Card */}
-      <div 
+      <div
         className={`fixed md:relative shadow-2xl overflow-hidden transition-all duration-700 cubic-bezier(0.76, 0, 0.24, 1) ${bgClass}`}
         style={isExpanded ? expandedStyle : initialStyle}
       >
         {/* Close Button */}
-        <button 
+        <button
           onClick={handleClose}
-          className={`absolute md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-500 ${
-            theme === 'light' ? 'bg-stone-100 hover:bg-stone-200 text-stone-900' : 'bg-stone-800 hover:bg-stone-700 text-stone-100'
-          } ${showContent ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
+          className={`absolute md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-500 ${theme === 'light' ? 'bg-stone-100 hover:bg-stone-200 text-stone-900' : 'bg-stone-800 hover:bg-stone-700 text-stone-100'
+            } ${showContent ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
           style={needsTopSpacing ? { top: 'calc(env(safe-area-inset-top, 0px) + 18px)', right: '18px', position: 'fixed' } : undefined}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -153,63 +151,61 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
         </button>
 
         {/* Content Container */}
-        <div 
+        <div
           className={`w-full h-full flex flex-col md:flex-row transition-opacity duration-500 delay-100 ${showContent ? 'opacity-100' : 'opacity-0'}`}
           style={topPaddingStyle}
         >
-          
+
           {/* Left Side: Service Icon & Title (Visual Header) */}
           {/* Compact padding on mobile to save vertical space for form */}
           <div className={`w-full md:w-1/3 p-6 md:p-12 flex flex-row md:flex-col items-center md:items-start justify-between md:justify-between shrink-0 ${theme === 'light' ? 'bg-stone-50' : 'bg-stone-800/50'}`}>
             <div className="flex items-center md:block gap-4">
-                <div className="w-12 h-12 md:w-24 md:h-24 md:mb-6 shrink-0">
-                    <svg 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="1" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                        className={`w-full h-full ${textClass}`}
-                    >
-                        <path d={serviceIcon} />
-                    </svg>
-                </div>
-                <div>
-                    <span className={`text-[10px] uppercase tracking-widest block mb-1 md:mb-2 opacity-50 ${textClass}`}>Service Details</span>
-                    <h2 className={`text-2xl md:text-4xl font-light leading-tight ${textClass}`}>{serviceName}</h2>
-                </div>
+              <div className="w-12 h-12 md:w-24 md:h-24 md:mb-6 shrink-0">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={`w-full h-full ${textClass}`}
+                >
+                  <path d={serviceIcon} />
+                </svg>
+              </div>
+              <div>
+                <span className={`text-[10px] uppercase tracking-widest block mb-1 md:mb-2 opacity-50 ${textClass}`}>Service Details</span>
+                <h2 className={`text-2xl md:text-4xl font-light leading-tight ${textClass}`}>{serviceName}</h2>
+              </div>
             </div>
-            
+
             <div className={`hidden md:block mt-6 pt-6 border-t w-full ${theme === 'light' ? 'border-stone-200' : 'border-stone-700'}`}>
-                <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>Investment</span>
-                <span className={`text-lg font-medium ${textClass}`}>{serviceStartPrice}</span>
+              <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>Investment</span>
+              <span className={`text-lg font-medium ${textClass}`}>{serviceStartPrice}</span>
             </div>
           </div>
 
           {/* Right Side: Toggleable Content (Info or Booking) */}
           {/* Use flex-1 and h-full to ensure QuoteForm can expand */}
           <div className="w-full md:w-2/3 p-6 md:p-12 flex flex-col relative overflow-hidden flex-1">
-            
+
             {/* Mode Switcher */}
             <div className="flex gap-6 mb-4 md:mb-8 border-b border-stone-200 dark:border-stone-800 pb-2 md:pb-4 shrink-0">
-              <button 
+              <button
                 onClick={() => setMode('info')}
-                className={`text-xs uppercase tracking-widest pb-2 md:pb-4 -mb-2 md:-mb-4 border-b-2 transition-colors ${
-                  mode === 'info' 
-                    ? activeTabClass 
+                className={`text-xs uppercase tracking-widest pb-2 md:pb-4 -mb-2 md:-mb-4 border-b-2 transition-colors ${mode === 'info'
+                    ? activeTabClass
                     : 'border-transparent text-stone-400 hover:text-stone-500'
-                }`}
+                  }`}
               >
                 Overview
               </button>
-              <button 
+              <button
                 onClick={() => setMode('booking')}
-                className={`text-xs uppercase tracking-widest pb-2 md:pb-4 -mb-2 md:-mb-4 border-b-2 transition-colors ${
-                  mode === 'booking' 
-                    ? activeTabClass 
+                className={`text-xs uppercase tracking-widest pb-2 md:pb-4 -mb-2 md:-mb-4 border-b-2 transition-colors ${mode === 'booking'
+                    ? activeTabClass
                     : 'border-transparent text-stone-400 hover:text-stone-500'
-                }`}
+                  }`}
               >
                 Booking Request
               </button>
@@ -218,8 +214,8 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
             {/* Info View */}
             <div className={`absolute inset-x-6 md:inset-x-12 top-24 md:top-32 bottom-6 md:bottom-8 transition-all duration-500 overflow-y-auto ${mode === 'info' ? 'translate-x-0 opacity-100 z-10' : '-translate-x-10 opacity-0 z-0 pointer-events-none'}`}>
               <div className={`md:hidden mb-6 pb-6 border-b ${theme === 'light' ? 'border-stone-100' : 'border-stone-800'}`}>
-                 <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>Investment</span>
-                 <span className={`text-lg font-medium ${textClass}`}>{serviceStartPrice}</span>
+                <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>Investment</span>
+                <span className={`text-lg font-medium ${textClass}`}>{serviceStartPrice}</span>
               </div>
 
               {serviceDescription && (
@@ -239,19 +235,23 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
                 <p className={`mb-8 text-sm italic ${subTextClass}`}>Details coming soon.</p>
               )}
               <div className="mt-auto pt-6">
-                 <button 
-                   onClick={() => setMode('booking')}
-                   className={`w-full md:w-auto px-6 py-4 md:py-3 rounded-full text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg ${buttonClass}`}
-                 >
-                   Start Project
-                 </button>
+                <button
+                  onClick={() => setMode('booking')}
+                  className={`w-full md:w-auto px-6 py-4 md:py-3 rounded-full text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg ${buttonClass}`}
+                >
+                  Start Project
+                </button>
               </div>
             </div>
 
             {/* Booking View */}
             {/* Absolute positioning with flex layout inside ensures full height usage */}
             <div className={`absolute inset-x-6 md:inset-x-12 top-24 md:top-32 bottom-6 md:bottom-8 transition-all duration-500 ${mode === 'booking' ? 'translate-x-0 opacity-100 z-10' : 'translate-x-10 opacity-0 z-0 pointer-events-none'}`}>
-               <QuoteForm theme={theme} />
+              <QuoteForm
+                theme={theme}
+                serviceId={String(service.id || service.slug || '')}
+                lang={lang}
+              />
             </div>
 
           </div>
