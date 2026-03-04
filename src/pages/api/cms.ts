@@ -1,16 +1,26 @@
 import type { APIRoute } from 'astro';
-import { getServices } from '../../server/modules/cms';
+import { getServices, getProjects, getCategories } from '../../server/modules/cms';
 
 export const GET: APIRoute = async ({ request }) => {
     try {
         const url = new URL(request.url);
         const lang = url.searchParams.get('lang') || 'de';
+        let payload: any = {};
+        const resource = url.searchParams.get('resource') || 'services';
 
-        const services = await getServices(lang);
+        if (resource === 'services' || resource === 'all') {
+            payload.services = await getServices(lang);
+        }
+        if (resource === 'projects' || resource === 'all') {
+            payload.projects = await getProjects();
+        }
+        if (resource === 'categories' || resource === 'all') {
+            payload.categories = await getCategories();
+        }
 
         return new Response(JSON.stringify({
             ok: true,
-            services
+            ...(resource === 'all' ? payload : { [resource]: payload[resource] })
         }), {
             status: 200,
             headers: {

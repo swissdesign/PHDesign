@@ -74,3 +74,18 @@ export async function getServices(lang: string = 'de') {
         };
     });
 }
+
+// Ensure the payload matches identically to the legacy Google Apps Script output
+
+export async function getProjects() {
+    if (!env.GOOGLE_CMS_SHEET_ID) throw new Error('GOOGLE_CMS_SHEET_ID missing');
+    const rows = await getRows<any>(env.GOOGLE_CMS_SHEET_ID, 'projects');
+    return rows.filter(row => row.isPublished === true || row.isPublished === 'TRUE');
+}
+
+export async function getCategories() {
+    if (!env.GOOGLE_CMS_SHEET_ID) throw new Error('GOOGLE_CMS_SHEET_ID missing');
+    const rows = await getRows<any>(env.GOOGLE_CMS_SHEET_ID, 'categories');
+    return rows.filter(row => row.isPublished === true || row.isPublished === 'TRUE');
+}
+

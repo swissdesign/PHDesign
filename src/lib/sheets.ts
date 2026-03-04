@@ -1,14 +1,4 @@
-const API = import.meta.env.PUBLIC_SHEETS_API_URL;
-
-if (!API) {
-  throw new Error("Missing PUBLIC_SHEETS_API_URL");
-}
-
-async function fetchJson(url: string) {
-  const res = await fetch(url, { redirect: "follow" });
-  if (!res.ok) throw new Error(`Sheets API failed ${res.status}: ${url}`);
-  return res.json();
-}
+import { getServices as getCmsServices, getProjects as getCmsProjects, getCategories as getCmsCategories } from '../server/modules/cms';
 
 export type SheetsAllResponse = {
   projects: any[];
@@ -16,18 +6,24 @@ export type SheetsAllResponse = {
   categories: any[];
 };
 
-export async function getAll(_lang?: string): Promise<SheetsAllResponse> {
-  return fetchJson(`${API}?resource=all`);
+export async function getAll(lang: string = 'de'): Promise<SheetsAllResponse> {
+  const [projects, services, categories] = await Promise.all([
+    getCmsProjects(),
+    getCmsServices(lang),
+    getCmsCategories()
+  ]);
+
+  return { projects, services, categories };
 }
 
-export async function getProjects(_lang?: string): Promise<any[]> {
-  return fetchJson(`${API}?resource=projects`);
+export async function getProjects(): Promise<any[]> {
+  return getCmsProjects();
 }
 
-export async function getServices(_lang?: string): Promise<any[]> {
-  return fetchJson(`${API}?resource=services`);
+export async function getServices(lang: string = 'de'): Promise<any[]> {
+  return getCmsServices(lang);
 }
 
-export async function getCategories(_lang?: string): Promise<any[]> {
-  return fetchJson(`${API}?resource=categories`);
+export async function getCategories(): Promise<any[]> {
+  return getCmsCategories();
 }
