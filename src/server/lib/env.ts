@@ -13,4 +13,5 @@ export const env = {
     PAYREXX_INSTANCE: import.meta.env?.PAYREXX_INSTANCE ?? process.env.PAYREXX_INSTANCE,
     PAYREXX_API_KEY: import.meta.env?.PAYREXX_API_KEY ?? process.env.PAYREXX_API_KEY,
     PAYREXX_WEBHOOK_SECRET: import.meta.env?.PAYREXX_WEBHOOK_SECRET ?? process.env.PAYREXX_WEBHOOK_SECRET,
+    OPS_ADMIN_SECRET: import.meta.env?.OPS_ADMIN_SECRET ?? process.env.OPS_ADMIN_SECRET,
 };
