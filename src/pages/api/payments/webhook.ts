@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { verifyWebhookSignature } from '../../../server/modules/payments';
 import { appendRow, updateRow } from '../../../server/adapters/googleSheets';
 import { env } from '../../../server/lib/env';
+import { log } from '../../../server/lib/log';
 
 export const POST: APIRoute = async ({ request }) => {
     try {
@@ -48,7 +49,7 @@ export const POST: APIRoute = async ({ request }) => {
         });
 
     } catch (error: any) {
-        console.error('Webhook API Error:', error);
+        log.error('payments-webhook', 'Webhook signature or processing failed', error);
         return new Response(JSON.stringify({
             ok: false,
             error: error.message || 'Internal Server Error'

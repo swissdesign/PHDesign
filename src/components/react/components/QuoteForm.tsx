@@ -13,7 +13,8 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ theme = 'light', serviceId
     q1: '',
     q2: '',
     q3: '',
-    email: ''
+    email: '',
+    _honey: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDone, setIsDone] = useState(false);
@@ -51,7 +52,8 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ theme = 'light', serviceId
       lang,
       name: formData.email.split('@')[0] || 'Unknown User',
       email: formData.email,
-      notes: `Goal: ${formData.q1}\nSuccess: ${formData.q2}\nBudget: ${formData.q3}`
+      notes: `Goal: ${formData.q1}\nSuccess: ${formData.q2}\nBudget: ${formData.q3}`,
+      _honey: formData._honey
     };
 
     try {
@@ -169,6 +171,15 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ theme = 'light', serviceId
                     value={formData.email}
                     onChange={e => handleChange('email', e.target.value)}
                     autoFocus
+                  />
+                  <input
+                    type="text"
+                    name="_honey"
+                    style={{ display: 'none' }}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formData._honey}
+                    onChange={e => handleChange('_honey', e.target.value)}
                   />
                 </div>
               </>
