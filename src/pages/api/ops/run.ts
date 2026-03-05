@@ -65,6 +65,51 @@ export const POST: APIRoute = async ({ request }) => {
                 }), { status: 200, headers: { 'Content-Type': 'application/json' } });
             }
 
+            case 'INIT_LEADS_DB': {
+                if (!env.GOOGLE_LEADS_SHEET_ID) {
+                    return new Response(JSON.stringify({ ok: false, error: 'GOOGLE_LEADS_SHEET_ID not configured.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+                }
+
+                // Superset of all headers used by Contact, Booking, and Payment Events
+                const unifiedHeaders = [
+                    'created_at',
+                    'source',
+                    'booking_id',
+                    'service_id',
+                    'service_title_snapshot',
+                    'lang',
+                    'name',
+                    'email',
+                    'phone',
+                    'preferred_start_date',
+                    'notes',
+                    'price_chf_snapshot',
+                    'deposit_pct_snapshot',
+                    'deposit_amount_chf_snapshot',
+                    'payment_provider',
+                    'payment_status',
+                    'payrexx_reference',
+                    'status',
+                    'provider',
+                    'event_type',
+                    'raw_payload',
+                    'signature_valid',
+                    'processed'
+                ];
+
+                const { setHeaders } = await import('../../../server/adapters/googleSheets');
+
+                // Initialize headers for all expected sheets
+                await setHeaders(env.GOOGLE_LEADS_SHEET_ID, 'Leads', unifiedHeaders);
+                await setHeaders(env.GOOGLE_LEADS_SHEET_ID, 'Bookings', unifiedHeaders);
+                await setHeaders(env.GOOGLE_LEADS_SHEET_ID, 'PaymentEvents', unifiedHeaders);
+
+                return new Response(JSON.stringify({
+                    ok: true,
+                    data: { message: 'Initialized Leads DB headers successfully.', headers: unifiedHeaders }
+                }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+            }
+
             default: {
                 return new Response(JSON.stringify({ ok: false, error: `actionId '${actionId}' is not allowed or not recognized.` }), { status: 400, headers: { 'Content-Type': 'application/json' } });
             }

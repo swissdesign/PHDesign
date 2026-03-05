@@ -100,3 +100,15 @@ export async function updateRow(
         }
     });
 }
+
+export async function setHeaders(spreadsheetId: string, range: string, headers: string[]) {
+    const sheets = getSheets();
+    await sheets.spreadsheets.values.update({
+        spreadsheetId,
+        range: `${range}!A1`, // Starting at A1 will overwrite the first row horizontally
+        valueInputOption: 'USER_ENTERED',
+        requestBody: {
+            values: [headers]
+        }
+    });
+}
