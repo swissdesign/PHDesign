@@ -21,7 +21,9 @@ export interface Project {
   title: string;
   category: string;
   date: string;
-  image: string; // Placeholder for Google Drive ID resolution
+  image: string; // Raw Google Drive ID or URL
+  optimizedSrc?: string;
+  optimizedSrcSet?: string;
   description: string;
   clientUrl?: string;
   tags: string[];

@@ -3,6 +3,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { LANGS, normalizeLang } from '../../../lib/i18n';
 import { getAll } from '../../../lib/sheets';
 import type { Project } from '../../../components/react/types';
+import { getImage } from 'astro:assets';
 
 export const prerender = true;
 
@@ -20,10 +21,26 @@ export async function getStaticPaths() {
 }
 
 const lang = normalizeLang(Astro.params.lang);
-const project = Astro.props.project as Project;
+let project = Astro.props.project as Project;
 
 if (!project) {
   throw new Error('Missing project payload for SEO page');
+}
+
+if (project.image) {
+  const rawDriveUrl = project.image.startsWith('http') ? project.image : `https://drive.google.com/uc?export=view&id=${project.image}`;
+  try {
+    const optimized = await getImage({ src: rawDriveUrl, format: 'webp', width: 1200 });
+    const attributes = 'attributes' in optimized ? (optimized as any).attributes : {};
+    project = {
+      ...project,
+      image: rawDriveUrl,
+      optimizedSrc: optimized.src,
+      optimizedSrcSet: attributes.srcset || optimized.srcSet?.attribute || optimized.srcSet || ''
+    };
+  } catch {
+    project.image = rawDriveUrl;
+  }
 }
 
 const slug = project.slug || project.id;
