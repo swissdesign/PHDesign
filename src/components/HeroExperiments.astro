@@ -1,0 +1,253 @@
+---
+import type { HeroExperimentRow } from '../server/modules/cms';
+
+export interface Props {
+  items: HeroExperimentRow[];
+  lang?: string;
+}
+
+const { items = [], lang = 'de' } = Astro.props;
+
+// Fallback checking
+const hasItems = items.length > 0;
+const isEn = lang === 'en';
+
+const supportLine = isEn ? "Curiosity over doubt." : "Neugier statt Zweifel.";
+
+// Strip to exactly what the client needs to render safely
+const clientItems = items.map(item => ({
+  keyword: item.keyword,
+  enemy: item.enemy,
+  rallying_cry: item.rallying_cry,
+  question: isEn ? item.question_en : item.question_de,
+  doubt: isEn ? item.doubt_en : item.doubt_de,
+  title: item.experiment_title,
+  result: isEn ? item.result_en : item.result_de,
+  ctaLabel: isEn ? item.cta_label_en : item.cta_label_de,
+  ctaHref: item.cta_href,
+  accent: item.accent || '#1c1917' // Default to stone-900 if missing
+}));
+---
+
+<section 
+  class="relative w-full min-h-[85vh] bg-[#FAFAF9] text-stone-900 flex flex-col justify-center px-6 py-24 md:px-12 md:py-32 xl:px-24 overflow-hidden border-b border-stone-200"
+  id="hero-experiments"
+  data-items={JSON.stringify(clientItems)}
+>
+  <div class="max-w-[1400px] mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-12 lg:gap-8 items-start relative z-10">
+    
+    {/* 1 & 2. Left Column: Main Statement & Support */}
+    <div class="md:col-span-12 lg:col-span-5 flex flex-col justify-start relative z-20">
+      <h1 class="text-[14vw] leading-[0.85] md:text-[8vw] lg:text-[7.5vw] font-medium tracking-tighter uppercase mb-6 sm:mb-8 text-stone-900 select-none">
+        <span class="block">DARE</span>
+        <span class="block">ANY</span>
+        <span class="block text-stone-400">WAY</span>
+      </h1>
+      <p class="text-xl md:text-2xl lg:text-3xl font-light tracking-tight text-stone-500 max-w-md">
+        {supportLine}
+      </p>
+    </div>
+
+    {/* Right Column: Experiment Details (Only rendered if items exist) */}
+    {hasItems && (
+      <div 
+        class="md:col-span-12 lg:col-span-7 flex flex-col relative mt-8 lg:mt-0 lg:pl-12 z-10 h-full min-h-[500px]"
+        id="hero-experiment-container"
+      >
+        {clientItems.map((item, index) => (
+          <div 
+            class={`experiment-slide w-full flex flex-col transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${index === 0 ? 'opacity-100 translate-y-0 relative z-10' : 'opacity-0 translate-y-4 absolute inset-0 pointer-events-none z-0'}`}
+            data-index={index}
+            style={`--accent: ${item.accent};`}
+          >
+            {/* 3. Keyword / Enemy / Rallying Cry */}
+            <div class="flex flex-wrap items-center gap-3 md:gap-4 mb-8 lg:mb-10 text-xs md:text-sm uppercase tracking-widest font-semibold">
+              <span class="flex items-center gap-2 text-stone-900 bg-stone-100 px-3 py-1.5 rounded-sm border-l-2" style="border-color: var(--accent)">
+                {item.keyword}
+              </span>
+              <span class="text-stone-400">VS</span>
+              <span class="text-stone-500">{item.enemy}</span>
+              <span class="hidden sm:inline text-stone-300">&mdash;</span>
+              <span class="text-stone-900" style="color: var(--accent)">{item.rallying_cry}</span>
+            </div>
+
+            {/* 4. Question */}
+            <h2 class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight mb-4 leading-tight max-w-3xl">
+              {item.question}
+            </h2>
+
+            {/* 5. Doubt */}
+            <p class="text-lg md:text-xl text-stone-500 font-light italic mb-8 lg:mb-10 max-w-2xl">
+              «{item.doubt}»
+            </p>
+
+            <div class="h-px w-full max-w-sm bg-stone-200 mb-8 lg:mb-10"></div>
+
+            {/* 6. Experiment Title */}
+            <h3 class="text-xs md:text-sm uppercase tracking-widest text-stone-400 mb-2 font-medium">
+              Experiment // <span class="text-stone-600">{item.title}</span>
+            </h3>
+
+            {/* 7. Result */}
+            <p class="text-base md:text-lg text-stone-800 leading-relaxed mb-10 max-w-2xl font-light">
+              {item.result}
+            </p>
+
+            {/* 8. CTA */}
+            <div class="mt-auto">
+              <a 
+                href={item.ctaHref} 
+                class="inline-flex items-center justify-center bg-stone-900 text-[#FAFAF9] px-8 py-4 text-sm uppercase tracking-widest transition-transform hover:scale-[1.02] active:scale-[0.98] font-medium"
+              >
+                {item.ctaLabel}
+              </a>
+            </div>
+          </div>
+        ))}
+
+        {/* 9. Controls */}
+        {clientItems.length > 1 && (
+          <div class="mt-8 sm:mt-16 flex items-center gap-4 text-sm font-medium tracking-widest uppercase text-stone-400 relative z-20">
+            <button id="hero-prev" class="hover:text-stone-900 transition-colors p-2 -ml-2 select-none">Prev</button>
+            <span class="w-8 h-px bg-stone-300"></span>
+            <span id="hero-counter" class="text-stone-900 min-w-[3ch] text-center">{`1/${clientItems.length}`}</span>
+            <span class="w-8 h-px bg-stone-300"></span>
+            <button id="hero-next" class="hover:text-stone-900 transition-colors p-2 -mr-2 select-none">Next</button>
+            
+            {/* Pause indicator placeholder */}
+            <span id="hero-pause-hint" class="ml-4 text-[10px] opacity-0 transition-opacity select-none hidden sm:inline-block">Paused</span>
+          </div>
+        )}
+      </div>
+    )}
+
+  </div>
+
+  {/* Subtle grid/dot background for "tech/studio" feel */}
+  <div class="absolute inset-0 pointer-events-none opacity-[0.03] z-0" style="background-image: radial-gradient(#1c1917 1px, transparent 1px); background-size: 32px 32px;"></div>
+</section>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    .experiment-slide {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  function initHero() {
+    const container = document.getElementById('hero-experiments');
+    if (!container) return;
+
+    const itemsRaw = container.getAttribute('data-items');
+    if (!itemsRaw) return;
+
+    let items;
+    try {
+      items = JSON.parse(itemsRaw);
+    } catch(e) {
+      return;
+    }
+
+    if (items.length <= 1) return;
+
+    const slides = container.querySelectorAll('.experiment-slide');
+    const counter = document.getElementById('hero-counter');
+    const prevBtn = document.getElementById('hero-prev');
+    const nextBtn = document.getElementById('hero-next');
+    const pauseHint = document.getElementById('hero-pause-hint');
+
+    let currentIndex = 0;
+    // @ts-ignore
+    let timer = null;
+    let isHovered = false;
+
+    const rotDuration = 7000;
+
+    function showSlide(index) {
+      slides.forEach((slide, i) => {
+        if (i === index) {
+          slide.classList.remove('opacity-0', 'absolute', 'inset-0', 'pointer-events-none', 'z-0', 'translate-y-4');
+          slide.classList.add('opacity-100', 'relative', 'z-10', 'translate-y-0');
+        } else {
+          slide.classList.add('opacity-0', 'absolute', 'inset-0', 'pointer-events-none', 'z-0', 'translate-y-4');
+          slide.classList.remove('opacity-100', 'relative', 'z-10', 'translate-y-0');
+        }
+      });
+      if (counter) {
+        counter.textContent = `${index + 1}/${items.length}`;
+      }
+    }
+
+    function nextSlide() {
+      currentIndex = (currentIndex + 1) % items.length;
+      showSlide(currentIndex);
+    }
+
+    function prevSlide() {
+      currentIndex = (currentIndex - 1 + items.length) % items.length;
+      showSlide(currentIndex);
+    }
+
+    function startTimer() {
+      if (timer !== null) clearInterval(timer);
+      if (!isHovered) {
+        timer = window.setInterval(nextSlide, rotDuration);
+        if (pauseHint) pauseHint.classList.remove('opacity-100');
+      } else {
+        if (pauseHint) pauseHint.classList.add('opacity-100');
+      }
+    }
+
+    // Controls
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        nextSlide();
+        startTimer();
+      });
+    }
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        prevSlide();
+        startTimer();
+      });
+    }
+
+    // Pause on hover
+    container.addEventListener('mouseenter', () => {
+      isHovered = true;
+      startTimer();
+    });
+    
+    container.addEventListener('mouseleave', () => {
+      isHovered = false;
+      startTimer();
+    });
+
+    // Handle focus for accessibility
+    container.addEventListener('focusin', () => {
+      isHovered = true;
+      startTimer();
+    });
+
+    container.addEventListener('focusout', () => {
+      setTimeout(() => {
+         if (!container.contains(document.activeElement)) {
+           isHovered = false;
+           startTimer();
+         }
+      }, 0);
+    });
+
+    startTimer();
+  }
+
+  // Handle Astro page transitions
+  document.addEventListener('astro:page-load', initHero);
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initHero();
+  } else {
+    document.addEventListener('DOMContentLoaded', initHero);
+  }
+</script>

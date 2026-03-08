@@ -89,3 +89,36 @@ export async function getCategories() {
     return rows.filter(row => row.isPublished === true || row.isPublished === 'TRUE');
 }
 
+export interface HeroExperimentRow {
+    isPublished: boolean | string;
+    sortOrder: string | number;
+    theme: string;
+    keyword: string;
+    enemy: string;
+    rallying_cry: string;
+    question_de: string;
+    question_en: string;
+    doubt_de: string;
+    doubt_en: string;
+    experiment_title: string;
+    experiment_slug: string;
+    result_de: string;
+    result_en: string;
+    cta_label_de: string;
+    cta_label_en: string;
+    cta_href: string;
+    accent: string;
+}
+
+export async function getHeroExperiments(): Promise<HeroExperimentRow[]> {
+    if (!env.GOOGLE_CMS_SHEET_ID) throw new Error('GOOGLE_CMS_SHEET_ID missing');
+    const rows = await getRows<HeroExperimentRow>(env.GOOGLE_CMS_SHEET_ID, 'hero_experiments');
+    const activeRows = rows.filter(row => row.isPublished === true || row.isPublished === 'TRUE');
+
+    return activeRows.sort((a, b) => {
+        const sortA = Number(a.sortOrder) || 0;
+        const sortB = Number(b.sortOrder) || 0;
+        return sortA - sortB;
+    });
+}
+

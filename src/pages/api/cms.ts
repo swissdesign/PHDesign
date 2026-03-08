@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getServices, getProjects, getCategories } from '../../server/modules/cms';
+import { getServices, getProjects, getCategories, getHeroExperiments } from '../../server/modules/cms';
 
 export const GET: APIRoute = async ({ request }) => {
     try {
@@ -16,6 +16,9 @@ export const GET: APIRoute = async ({ request }) => {
         }
         if (resource === 'categories' || resource === 'all') {
             payload.categories = await getCategories();
+        }
+        if (resource === 'hero_experiments' || resource === 'all') {
+            payload.heroExperiments = await getHeroExperiments();
         }
 
         return new Response(JSON.stringify({

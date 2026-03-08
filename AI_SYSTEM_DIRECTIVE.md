@@ -34,7 +34,3 @@ PROPOSE execution sequence for [T1] and [T2].
 AWAIT human confirmation before mutating files.
 </execution_protocol>
 
-curl -X POST https://pheiniger.vercel.app/api/ops/run \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer e8f242edc2f335f95a1b527e0d954f7824742be8fe0ba16d5cf8bbaa840cef73" \
-  -d '{"actionId": "INIT_LEADS_DB"}'

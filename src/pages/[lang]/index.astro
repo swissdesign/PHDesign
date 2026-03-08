@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import App from '../../components/react/App';
+import HeroExperiments from '../../components/HeroExperiments.astro';
 import { getAll } from '../../lib/sheets';
 import { LANGS, normalizeLang } from '../../lib/i18n';
 import { getImage } from 'astro:assets';
@@ -13,7 +14,7 @@ export function getStaticPaths() {
 
 const lang = normalizeLang(Astro.params.lang);
 
-const { projects, services, categories } = await getAll();
+const { projects, services, categories, heroExperiments } = await getAll(lang as any);
 
 const optimizedProjects = await Promise.all(
   projects.map(async (p) => {
@@ -37,6 +38,7 @@ const optimizedProjects = await Promise.all(
 ---
 
 <BaseLayout lang={lang}>
+  <HeroExperiments items={heroExperiments || []} lang={lang} />
   <div id="app-mount">
     <App
       client:load
