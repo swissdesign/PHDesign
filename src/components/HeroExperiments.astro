@@ -25,19 +25,15 @@ const clientItems = items.map(item => ({
   result: isEn ? item.result_en : item.result_de,
   ctaLabel: isEn ? item.cta_label_en : item.cta_label_de,
   ctaHref: item.cta_href,
-  accent: item.accent || '#1c1917' // Default to stone-900 if missing
+  accent: item.accent || '#1c1917' 
 }));
 ---
 
-<section 
-  class="relative w-full min-h-[85vh] bg-[#FAFAF9] text-stone-900 flex flex-col justify-center px-6 py-24 md:px-12 md:py-32 xl:px-24 overflow-hidden border-b border-stone-200"
-  id="hero-experiments"
-  data-items={JSON.stringify(clientItems)}
->
-  <div class="max-w-[1400px] mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-12 lg:gap-8 items-start relative z-10">
-    
-    {/* 1 & 2. Left Column: Main Statement & Support */}
-    <div class="md:col-span-12 lg:col-span-5 flex flex-col justify-start relative z-20">
+<div id="hero-experiments-sequence" class="relative w-full bg-[#FAFAF9] text-stone-900 border-b border-stone-200">
+  
+  {/* PART 1: Manifesto (100vh) */}
+  <section class="relative w-full h-[100vh] flex flex-col justify-center px-6 md:px-12 xl:px-24 overflow-hidden">
+    <div class="max-w-[1400px] mx-auto w-full relative z-20">
       <h1 class="text-[14vw] leading-[0.85] md:text-[8vw] lg:text-[7.5vw] font-medium tracking-tighter uppercase mb-6 sm:mb-8 text-stone-900 select-none">
         <span class="block">DARE</span>
         <span class="block">ANY</span>
@@ -47,97 +43,182 @@ const clientItems = items.map(item => ({
         {supportLine}
       </p>
     </div>
+    
+    {/* Subtle Scroll Hint */}
+    <div class="absolute bottom-12 left-6 md:left-12 xl:left-24 text-stone-400 text-[10px] sm:text-xs tracking-widest uppercase font-semibold z-20 select-none">
+      Scroll if you dare &darr;
+    </div>
+    
+    {/* Subtle grid/dot background for "tech/studio" feel */}
+    <div class="absolute inset-0 pointer-events-none opacity-[0.03] z-0" style="background-image: radial-gradient(#1c1917 1px, transparent 1px); background-size: 32px 32px;"></div>
+  </section>
 
-    {/* Right Column: Experiment Details (Only rendered if items exist) */}
-    {hasItems && (
-      <div 
-        class="md:col-span-12 lg:col-span-7 flex flex-col relative mt-8 lg:mt-0 lg:pl-12 z-10 h-full min-h-[500px]"
-        id="hero-experiment-container"
-      >
-        {clientItems.map((item, index) => (
-          <div 
-            class={`experiment-slide w-full flex flex-col transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${index === 0 ? 'opacity-100 translate-y-0 relative z-10' : 'opacity-0 translate-y-4 absolute inset-0 pointer-events-none z-0'}`}
-            data-index={index}
-            style={`--accent: ${item.accent};`}
-          >
-            {/* 3. Keyword / Enemy / Rallying Cry */}
-            <div class="flex flex-wrap items-center gap-3 md:gap-4 mb-8 lg:mb-10 text-xs md:text-sm uppercase tracking-widest font-semibold">
-              <span class="flex items-center gap-2 text-stone-900 bg-stone-100 px-3 py-1.5 rounded-sm border-l-2" style="border-color: var(--accent)">
-                {item.keyword}
-              </span>
-              <span class="text-stone-400">VS</span>
-              <span class="text-stone-500">{item.enemy}</span>
-              <span class="hidden sm:inline text-stone-300">&mdash;</span>
-              <span class="text-stone-900" style="color: var(--accent)">{item.rallying_cry}</span>
-            </div>
+  {/* PART 2 & 3: Philosophy + Experiments Scroll Container */}
+  <section class="relative w-full px-6 md:px-12 xl:px-24 py-24 md:py-32 bg-[#FAFAF9] z-10">
+    <div class="max-w-[1400px] mx-auto w-full flex flex-col lg:flex-row relative items-start gap-16 lg:gap-8">
+      
+      {/* Left Column: Sticky Anchor */}
+      <div class="lg:w-4/12 xl:w-5/12 w-full relative">
+        <div class="lg:sticky lg:top-32 hidden md:block">
+          {/* Faded anchor text */}
+          <h2 class="text-[8vw] leading-[0.85] lg:text-[4.5vw] font-medium tracking-tighter uppercase text-stone-900 select-none opacity-[0.08]">
+            <span class="block">DARE</span>
+            <span class="block">ANY</span>
+            <span class="block">WAY</span>
+          </h2>
+        </div>
+      </div>
 
-            {/* 4. Question */}
-            <h2 class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight mb-4 leading-tight max-w-3xl">
-              {item.question}
-            </h2>
-
-            {/* 5. Doubt */}
-            <p class="text-lg md:text-xl text-stone-500 font-light italic mb-8 lg:mb-10 max-w-2xl">
-              «{item.doubt}»
+      {/* Right Column: Scrolling Principles + Experiments */}
+      <div class="lg:w-8/12 xl:w-7/12 w-full flex flex-col relative z-20">
+        
+        {/* Part 2: Philosophy Principles */}
+        <div class="flex flex-col gap-24 md:gap-32 mb-32 md:mb-48 border-b border-stone-200 pb-24 md:pb-32">
+          
+          <div class="principle-item opacity-20 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+            <h3 class="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">Courage</h3>
+            <p class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
+              Move before certainty shows up.
             </p>
-
-            <div class="h-px w-full max-w-sm bg-stone-200 mb-8 lg:mb-10"></div>
-
-            {/* 6. Experiment Title */}
-            <h3 class="text-xs md:text-sm uppercase tracking-widest text-stone-400 mb-2 font-medium">
-              Experiment // <span class="text-stone-600">{item.title}</span>
-            </h3>
-
-            {/* 7. Result */}
-            <p class="text-base md:text-lg text-stone-800 leading-relaxed mb-10 max-w-2xl font-light">
-              {item.result}
-            </p>
-
-            {/* 8. CTA */}
-            <div class="mt-auto">
-              <a 
-                href={item.ctaHref} 
-                class="inline-flex items-center justify-center bg-stone-900 text-[#FAFAF9] px-8 py-4 text-sm uppercase tracking-widest transition-transform hover:scale-[1.02] active:scale-[0.98] font-medium"
-              >
-                {item.ctaLabel}
-              </a>
-            </div>
           </div>
-        ))}
 
-        {/* 9. Controls */}
-        {clientItems.length > 1 && (
-          <div class="mt-8 sm:mt-16 flex items-center gap-4 text-sm font-medium tracking-widest uppercase text-stone-400 relative z-20">
-            <button id="hero-prev" class="hover:text-stone-900 transition-colors p-2 -ml-2 select-none">Prev</button>
-            <span class="w-8 h-px bg-stone-300"></span>
-            <span id="hero-counter" class="text-stone-900 min-w-[3ch] text-center">{`1/${clientItems.length}`}</span>
-            <span class="w-8 h-px bg-stone-300"></span>
-            <button id="hero-next" class="hover:text-stone-900 transition-colors p-2 -mr-2 select-none">Next</button>
-            
-            {/* Pause indicator placeholder */}
-            <span id="hero-pause-hint" class="ml-4 text-[10px] opacity-0 transition-opacity select-none hidden sm:inline-block">Paused</span>
+          <div class="principle-item opacity-20 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+            <h3 class="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">Curiosity</h3>
+            <p class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
+              Ask what others leave alone.
+            </p>
+          </div>
+
+          <div class="principle-item opacity-20 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+            <h3 class="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">Experiment</h3>
+            <p class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
+              Test the better idea.
+            </p>
+          </div>
+
+          <div class="principle-item opacity-20 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+            <h3 class="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">Proof</h3>
+            <p class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
+              Keep what actually works.
+            </p>
+          </div>
+
+        </div>
+
+        {/* Part 3: Experiments */}
+        {hasItems && (
+          <div 
+            class="flex flex-col relative w-full lg:pl-0 min-h-[500px]" 
+            id="hero-experiment-container"
+            data-items={JSON.stringify(clientItems)}
+          >
+            {clientItems.map((item, index) => (
+              <div 
+                class={`experiment-slide w-full flex flex-col transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] ${index === 0 ? 'opacity-100 relative z-10' : 'opacity-0 absolute inset-0 pointer-events-none z-0'}`}
+                data-index={index}
+                style={`--accent: ${item.accent};`}
+              >
+                {/* 3. Keyword / Enemy / Rallying Cry */}
+                <div class="flex flex-wrap items-center gap-3 md:gap-4 mb-8 lg:mb-10 text-[10px] md:text-xs uppercase tracking-widest font-semibold">
+                  <span class="flex items-center gap-2 text-stone-900 bg-stone-100 px-3 py-1.5 rounded-sm border-l-2" style="border-color: var(--accent)">
+                    {item.keyword}
+                  </span>
+                  <span class="text-stone-400">VS</span>
+                  <span class="text-stone-500">{item.enemy}</span>
+                  <span class="hidden sm:inline text-stone-300">&mdash;</span>
+                  <span class="text-stone-900" style="color: var(--accent)">{item.rallying_cry}</span>
+                </div>
+
+                {/* 4. Question */}
+                <h2 class="text-xl md:text-2xl lg:text-3xl font-medium tracking-tight mb-4 leading-snug max-w-2xl">
+                  {item.question}
+                </h2>
+
+                {/* 5. Doubt */}
+                <p class="text-base md:text-lg text-stone-500 font-light italic mb-8 lg:mb-10 max-w-xl">
+                  «{item.doubt}»
+                </p>
+
+                <div class="h-px w-full max-w-sm bg-stone-200 mb-8 lg:mb-10"></div>
+
+                {/* 6. Experiment Title */}
+                <h3 class="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 mb-2 font-medium">
+                  Experiment // <span class="text-stone-600">{item.title}</span>
+                </h3>
+
+                {/* 7. Result */}
+                <p class="text-sm md:text-base text-stone-800 leading-relaxed mb-10 max-w-xl font-light">
+                  {item.result}
+                </p>
+
+                {/* 8. CTA */}
+                <div class="mt-auto flex items-start">
+                  <a 
+                    href={item.ctaHref} 
+                    class="inline-flex items-center justify-center bg-stone-900 text-[#FAFAF9] px-6 py-3 md:px-8 md:py-4 text-[10px] md:text-xs uppercase tracking-widest transition-transform hover:-translate-y-0.5 active:translate-y-0 font-semibold border border-transparent hover:border-stone-700"
+                  >
+                    {item.ctaLabel}
+                  </a>
+                </div>
+              </div>
+            ))}
+
+            {/* 9. Controls (Manual Only) */}
+            {clientItems.length > 1 && (
+              <div class="mt-12 sm:mt-16 flex items-center gap-4 text-xs font-semibold tracking-widest uppercase text-stone-400 relative z-20">
+                <button id="hero-prev" class="hover:text-stone-900 transition-colors p-2 -ml-2 select-none group flex items-center gap-1">
+                  <span class="group-hover:-translate-x-1 transition-transform">&larr;</span> Prev
+                </button>
+                <span class="w-6 h-px bg-stone-300"></span>
+                <span id="hero-counter" class="text-stone-900 min-w-[3ch] text-center">{`1/${clientItems.length}`}</span>
+                <span class="w-6 h-px bg-stone-300"></span>
+                <button id="hero-next" class="hover:text-stone-900 transition-colors p-2 -mr-2 select-none group flex items-center gap-1">
+                  Next <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
+
       </div>
-    )}
 
-  </div>
-
-  {/* Subtle grid/dot background for "tech/studio" feel */}
-  <div class="absolute inset-0 pointer-events-none opacity-[0.03] z-0" style="background-image: radial-gradient(#1c1917 1px, transparent 1px); background-size: 32px 32px;"></div>
-</section>
+    </div>
+  </section>
+</div>
 
 <style>
   @media (prefers-reduced-motion: reduce) {
-    .experiment-slide {
+    .experiment-slide, .principle-item {
       transition: none !important;
     }
   }
 </style>
 
 <script>
-  function initHero() {
-    const container = document.getElementById('hero-experiments');
+  function initHeroSequence() {
+    // 1. Philosophy Principles Observer
+    const principles = document.querySelectorAll('.principle-item');
+    if (principles.length > 0) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove('opacity-20');
+            entry.target.classList.add('opacity-100');
+          } else {
+            entry.target.classList.remove('opacity-100');
+            entry.target.classList.add('opacity-20');
+          }
+        });
+      }, {
+        rootMargin: '-30% 0px -30% 0px', // Trigger when mostly in the middle
+        threshold: 0
+      });
+
+      principles.forEach(p => observer.observe(p));
+    }
+
+    // 2. Experiment Manual Controls
+    const container = document.getElementById('hero-experiment-container');
     if (!container) return;
 
     const itemsRaw = container.getAttribute('data-items');
@@ -156,23 +237,17 @@ const clientItems = items.map(item => ({
     const counter = document.getElementById('hero-counter');
     const prevBtn = document.getElementById('hero-prev');
     const nextBtn = document.getElementById('hero-next');
-    const pauseHint = document.getElementById('hero-pause-hint');
 
     let currentIndex = 0;
-    // @ts-ignore
-    let timer = null;
-    let isHovered = false;
-
-    const rotDuration = 7000;
 
     function showSlide(index) {
       slides.forEach((slide, i) => {
         if (i === index) {
-          slide.classList.remove('opacity-0', 'absolute', 'inset-0', 'pointer-events-none', 'z-0', 'translate-y-4');
-          slide.classList.add('opacity-100', 'relative', 'z-10', 'translate-y-0');
+          slide.classList.remove('opacity-0', 'absolute', 'inset-0', 'pointer-events-none', 'z-0');
+          slide.classList.add('opacity-100', 'relative', 'z-10');
         } else {
-          slide.classList.add('opacity-0', 'absolute', 'inset-0', 'pointer-events-none', 'z-0', 'translate-y-4');
-          slide.classList.remove('opacity-100', 'relative', 'z-10', 'translate-y-0');
+          slide.classList.add('opacity-0', 'absolute', 'inset-0', 'pointer-events-none', 'z-0');
+          slide.classList.remove('opacity-100', 'relative', 'z-10');
         }
       });
       if (counter) {
@@ -180,74 +255,25 @@ const clientItems = items.map(item => ({
       }
     }
 
-    function nextSlide() {
-      currentIndex = (currentIndex + 1) % items.length;
-      showSlide(currentIndex);
-    }
-
-    function prevSlide() {
-      currentIndex = (currentIndex - 1 + items.length) % items.length;
-      showSlide(currentIndex);
-    }
-
-    function startTimer() {
-      if (timer !== null) clearInterval(timer);
-      if (!isHovered) {
-        timer = window.setInterval(nextSlide, rotDuration);
-        if (pauseHint) pauseHint.classList.remove('opacity-100');
-      } else {
-        if (pauseHint) pauseHint.classList.add('opacity-100');
-      }
-    }
-
-    // Controls
     if (nextBtn) {
       nextBtn.addEventListener('click', () => {
-        nextSlide();
-        startTimer();
+        currentIndex = (currentIndex + 1) % items.length;
+        showSlide(currentIndex);
       });
     }
     if (prevBtn) {
       prevBtn.addEventListener('click', () => {
-        prevSlide();
-        startTimer();
+        currentIndex = (currentIndex - 1 + items.length) % items.length;
+        showSlide(currentIndex);
       });
     }
-
-    // Pause on hover
-    container.addEventListener('mouseenter', () => {
-      isHovered = true;
-      startTimer();
-    });
-    
-    container.addEventListener('mouseleave', () => {
-      isHovered = false;
-      startTimer();
-    });
-
-    // Handle focus for accessibility
-    container.addEventListener('focusin', () => {
-      isHovered = true;
-      startTimer();
-    });
-
-    container.addEventListener('focusout', () => {
-      setTimeout(() => {
-         if (!container.contains(document.activeElement)) {
-           isHovered = false;
-           startTimer();
-         }
-      }, 0);
-    });
-
-    startTimer();
   }
 
   // Handle Astro page transitions
-  document.addEventListener('astro:page-load', initHero);
+  document.addEventListener('astro:page-load', initHeroSequence);
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    initHero();
+    initHeroSequence();
   } else {
-    document.addEventListener('DOMContentLoaded', initHero);
+    document.addEventListener('DOMContentLoaded', initHeroSequence);
   }
 </script>
