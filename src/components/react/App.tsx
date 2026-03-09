@@ -148,9 +148,25 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
+
+    // Initial sync
     syncStateFromUrl();
+
+    // Listen for browser back/forward
     window.addEventListener('popstate', syncStateFromUrl);
-    return () => window.removeEventListener('popstate', syncStateFromUrl);
+
+    // Listen for custom view change events (e.g. from Hero CTAs in a separate React island)
+    const handleCustomViewChange = (e: Event) => {
+      const customEvent = e as CustomEvent<'work' | 'services'>;
+      setView(customEvent.detail);
+      setSelectedProject(null);
+    };
+    window.addEventListener('ph-view-change', handleCustomViewChange);
+
+    return () => {
+      window.removeEventListener('popstate', syncStateFromUrl);
+      window.removeEventListener('ph-view-change', handleCustomViewChange);
+    };
   }, [syncStateFromUrl]);
 
   return (
