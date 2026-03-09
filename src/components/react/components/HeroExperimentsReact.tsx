@@ -220,10 +220,10 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                 <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 xl:px-24 pb-32 pt-16 flex flex-col items-center justify-center gap-6 border-t border-stone-200 mt-16 pointer-events-auto relative z-30">
                     <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 font-semibold">Explore Further</span>
                     <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12 mt-2">
-                        <a href={`/${lang}/work`} onClick={handleRevealPortfolio} className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1 cursor-pointer">
+                        <a href={`/${lang}/work?view=work`} onClick={handleRevealPortfolio} className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1 cursor-pointer">
                             Go to Portfolio &rarr;
                         </a>
-                        <a href={`/${lang}/services`} className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1">
+                        <a href={`/${lang}/services?view=services`} onClick={handleRevealPortfolio} className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1 cursor-pointer">
                             Go to Services &rarr;
                         </a>
                     </div>
@@ -415,10 +415,10 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                     >
                                         <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 font-semibold -mt-1 hidden sm:block w-[120px]">Explore</span>
                                         <div className="flex flex-col sm:flex-row gap-4 sm:gap-12">
-                                            <a href={`/${lang}/work`} onClick={handleRevealPortfolio} className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors cursor-pointer">
+                                            <a href={`/${lang}/work?view=work`} onClick={handleRevealPortfolio} className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors cursor-pointer">
                                                 Go to Portfolio &rarr;
                                             </a>
-                                            <a href={`/${lang}/services`} className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors">
+                                            <a href={`/${lang}/services?view=services`} onClick={handleRevealPortfolio} className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors cursor-pointer">
                                                 Go to Services &rarr;
                                             </a>
                                         </div>

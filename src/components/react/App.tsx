@@ -30,14 +30,35 @@ const getFallbackRect = (): TransitionRect => {
   };
 };
 
-const updateProjectQuery = (slug: string | null, mode: 'push' | 'replace' = 'push') => {
+const updateProjectQuery = (slug: string | null, mode: 'push' | 'replace' = 'push', view?: 'work' | 'services') => {
   if (typeof window === 'undefined') return;
   const url = new URL(window.location.href);
+
   if (slug) {
     url.searchParams.set('project', slug);
   } else {
     url.searchParams.delete('project');
   }
+
+  if (view) {
+    url.searchParams.set('view', view);
+  } else {
+    // If no view explicitly passed but we are clearing slug, maintain current view in URL if it exists
+    // actually, let's explicitly manage view state via handleViewChange instead here.
+  }
+
+  const next = `${url.pathname}${url.search}${url.hash}`;
+  if (mode === 'push') {
+    window.history.pushState({}, '', next);
+  } else {
+    window.history.replaceState({}, '', next);
+  }
+};
+
+const updateViewQuery = (view: 'work' | 'services', mode: 'push' | 'replace' = 'push') => {
+  if (typeof window === 'undefined') return;
+  const url = new URL(window.location.href);
+  url.searchParams.set('view', view);
   const next = `${url.pathname}${url.search}${url.hash}`;
   if (mode === 'push') {
     window.history.pushState({}, '', next);
@@ -52,7 +73,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
   const [originRect, setOriginRect] = useState<TransitionRect | null>(null);
   const [theme, setTheme] = useState<Theme>('light');
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
-  
+
   // Contact Modal State
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [contactOrigin, setContactOrigin] = useState<TransitionRect | null>(null);
@@ -61,7 +82,8 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
   const handleViewChange = (newView: 'work' | 'services') => {
     setView(newView);
     setSelectedProject(null); // Close modal on nav
-    updateProjectQuery(null, 'replace');
+    updateProjectQuery(null, 'replace'); // clear project 
+    updateViewQuery(newView, 'push'); // update view
   };
 
   const handleSelectProject = (project: Project, rect: TransitionRect) => {
@@ -78,7 +100,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
     setSelectedProject(null);
     updateProjectQuery(null, 'replace');
   };
-  
+
   const handleOpenContact = (rect: TransitionRect) => {
     setContactOrigin(rect);
     setIsContactOpen(true);
@@ -96,9 +118,20 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
     document.body.style.backgroundColor = theme === 'light' ? '#FAFAF9' : '#1C1917';
   }, [theme]);
 
-  const syncProjectFromUrl = useCallback(() => {
+  const syncStateFromUrl = useCallback(() => {
     if (typeof window === 'undefined') return;
-    const slug = new URLSearchParams(window.location.search).get('project');
+    const urlParams = new URLSearchParams(window.location.search);
+    const slug = urlParams.get('project');
+    const viewQuery = urlParams.get('view');
+
+    // 1. Handle View State
+    if (viewQuery === 'services') {
+      setView('services');
+    } else {
+      setView('work'); // default
+    }
+
+    // 2. Handle Project Deep Link
     if (!slug) {
       setSelectedProject(null);
       return;
@@ -107,6 +140,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
     const projectFromSlug = projects.find((p) => getProjectSlug(p) === slug);
     if (!projectFromSlug) return;
 
+    // Force work view if opening a project directly
     setView('work');
     setSelectedProject(projectFromSlug);
     setOriginRect((prev) => prev ?? getFallbackRect());
@@ -114,21 +148,20 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
-    syncProjectFromUrl();
-    window.addEventListener('popstate', syncProjectFromUrl);
-    return () => window.removeEventListener('popstate', syncProjectFromUrl);
-  }, [syncProjectFromUrl]);
+    syncStateFromUrl();
+    window.addEventListener('popstate', syncStateFromUrl);
+    return () => window.removeEventListener('popstate', syncStateFromUrl);
+  }, [syncStateFromUrl]);
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-stone-900">
-      
+
       {/* --- AMBIENT BACKGROUND LAYERS (CROSS-FADE) --- */}
 
       {/* DARK MODE LAYER */}
-      <div 
-        className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-[2000ms] ease-in-out ${
-          theme === 'dark' ? 'opacity-100' : 'opacity-0'
-        }`}
+      <div
+        className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-[2000ms] ease-in-out ${theme === 'dark' ? 'opacity-100' : 'opacity-0'
+          }`}
       >
         <div className="absolute inset-0 bg-[#1C1917]" />
         {/* Deep Aqua Aurora - More visible (opacity 0.3) */}
@@ -140,10 +173,9 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
       </div>
 
       {/* LIGHT MODE LAYER */}
-      <div 
-        className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-[2000ms] ease-in-out ${
-          theme === 'light' ? 'opacity-100' : 'opacity-0'
-        }`}
+      <div
+        className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-[2000ms] ease-in-out ${theme === 'light' ? 'opacity-100' : 'opacity-0'
+          }`}
       >
         <div className="absolute inset-0 bg-[#FAFAF9]" />
         {/* Aqua Sky Hint - More visible */}
@@ -156,23 +188,22 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
 
       {/* --- CONTENT LAYER --- */}
       <div className="relative z-10 w-full h-full">
-        <Navigation 
-           currentView={view} 
-           onNavigate={handleViewChange} 
-           onOpenContact={handleOpenContact}
-           onSelectProject={handleSelectProject}
-           projects={projects}
-           lang={lang}
-           isAnyModalOpen={isAnyModalOpen}
-           isServiceDetailOpen={isServiceModalOpen}
-           theme={theme} 
+        <Navigation
+          currentView={view}
+          onNavigate={handleViewChange}
+          onOpenContact={handleOpenContact}
+          onSelectProject={handleSelectProject}
+          projects={projects}
+          lang={lang}
+          isAnyModalOpen={isAnyModalOpen}
+          isServiceDetailOpen={isServiceModalOpen}
+          theme={theme}
         />
-        
+
         {/* Work View (Surface) */}
-        <div 
-          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-            view === 'work' ? 'opacity-100 z-30 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
-          }`}
+        <div
+          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${view === 'work' ? 'opacity-100 z-30 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+            }`}
         >
           <PortfolioSurface
             projects={projects}
@@ -183,16 +214,15 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
         </div>
 
         {/* Services View (Wheel) */}
-        <div 
-          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-            view === 'services' ? 'opacity-100 z-30 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
-          }`}
+        <div
+          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${view === 'services' ? 'opacity-100 z-30 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+            }`}
         >
-          <ServicesWheel 
+          <ServicesWheel
             services={services}
             categories={categories}
             lang={lang}
-            theme={theme} 
+            theme={theme}
             onModalToggle={setIsServiceModalOpen}
           />
         </div>
@@ -200,10 +230,10 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
 
       {/* Detail Modal */}
       {selectedProject && originRect && (
-        <ProjectDetail 
-          project={selectedProject} 
+        <ProjectDetail
+          project={selectedProject}
           originRect={originRect}
-          onClose={handleCloseProject} 
+          onClose={handleCloseProject}
           lang={lang}
           theme={theme}
         />
@@ -211,7 +241,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
 
       {/* Contact Modal */}
       {isContactOpen && (
-        <ContactModal 
+        <ContactModal
           isOpen={isContactOpen}
           onClose={() => setIsContactOpen(false)}
           originRect={contactOrigin}
@@ -222,7 +252,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
 
       {/* Theme Toggle */}
       <ThemeToggle theme={theme} onToggle={toggleTheme} />
-      
+
       {/* Creative Cookie Banner */}
       <CookieConsent theme={theme} />
     </div>
