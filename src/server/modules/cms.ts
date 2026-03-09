@@ -3,24 +3,19 @@ import { env } from '../lib/env.ts';
 
 export interface ServiceRow {
     id: string;
-    active: boolean | string;
-    sort: string | number;
-    price_chf: string | number;
-    deposit_pct: string | number;
-    duration_label_de: string;
-    duration_label_en: string;
-    title_de: string;
-    title_en: string;
-    subtitle_de?: string;
-    subtitle_en?: string;
-    description_de: string;
-    description_en: string;
-    deliverables_de: string;
-    deliverables_en: string;
-    cta_de: string;
-    cta_en: string;
-    stripe_like_sku?: string;
-    tags: string;
+    isPublished: boolean | string;
+    name_de: string;
+    name_en: string;
+    name_fr: string;
+    name_it: string;
+    category_slug: string;
+    bullets_de: string;
+    bullets_en: string;
+    bullets_fr: string;
+    bullets_it: string;
+    start_price: string;
+    image_id: string | null;
+    folder_id: string | null;
 }
 
 export async function getServices(lang: string = 'de') {
@@ -29,48 +24,30 @@ export async function getServices(lang: string = 'de') {
     }
 
     const rows = await getRows<ServiceRow>(env.GOOGLE_CMS_SHEET_ID, 'Services');
-
-    const activeServices = rows.filter(row => row.active === true || row.active === 'TRUE');
-
-    const sortedServices = activeServices.sort((a, b) => {
-        const sortA = Number(a.sort) || 0;
-        const sortB = Number(b.sort) || 0;
-        return sortA - sortB;
-    });
+    const activeServices = rows.filter(row => row.isPublished === true || String(row.isPublished).toUpperCase() === 'TRUE');
 
     const isEn = lang === 'en';
 
-    return sortedServices.map(service => {
-        let deliverables: string[] = [];
+    return activeServices.map((service, index) => {
+        let bullets: string[] = [];
         try {
-            const rawDeliverables = isEn ? service.deliverables_en : service.deliverables_de;
-            if (rawDeliverables) {
-                if (rawDeliverables.startsWith('[')) {
-                    deliverables = JSON.parse(rawDeliverables);
-                } else {
-                    deliverables = rawDeliverables.split('|').map(s => s.trim()).filter(Boolean);
-                }
+            const rawBullets = isEn ? service.bullets_en : service.bullets_de;
+            if (rawBullets) {
+                // Split on bullets, newlines, or pipes keeping it robust
+                bullets = rawBullets.split(/[•|\n]+/).map(s => s.trim()).filter(Boolean);
             }
         } catch (e) {
-            console.warn(`Failed to parse deliverables for service ${service.id}`);
-        }
-
-        let tagsList: string[] = [];
-        if (service.tags) {
-            tagsList = service.tags.split(',').map(s => s.trim()).filter(Boolean);
+            console.warn(`Failed to parse bullets for service ${service.id}`);
         }
 
         return {
-            id: service.id,
-            title: isEn ? service.title_en : service.title_de,
-            subtitle: isEn ? service.subtitle_en : service.subtitle_de,
-            duration_label: isEn ? service.duration_label_en : service.duration_label_de,
-            price_chf: Number(service.price_chf) || 0,
-            deposit_pct: Number(service.deposit_pct) || 50,
-            description: isEn ? service.description_en : service.description_de,
-            deliverables,
-            cta: isEn ? service.cta_en : service.cta_de,
-            tags: tagsList
+            id: service.id || `service-${index}`,
+            title: isEn ? service.name_en : service.name_de,
+            category_slug: service.category_slug,
+            price_chf: Number(service.start_price) || 0,
+            bullets,
+            start_price: service.start_price,
+            image_id: service.image_id
         };
     });
 }

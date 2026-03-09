@@ -68,6 +68,8 @@ const updateViewQuery = (view: 'work' | 'services', mode: 'push' | 'replace' = '
 };
 
 const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }) => {
+  console.log("App.tsx received services:", services?.length, services);
+
   const [view, setView] = useState<'work' | 'services'>('work');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [originRect, setOriginRect] = useState<TransitionRect | null>(null);
