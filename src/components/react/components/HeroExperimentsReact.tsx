@@ -38,6 +38,30 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
     const prevSlide = () => setActiveIndex(i => (i - 1 + clientItems.length) % clientItems.length);
 
     useEffect(() => {
+        const appMount = document.getElementById('app-mount');
+        if (appMount) {
+            appMount.style.height = '0';
+            appMount.style.overflow = 'hidden';
+            appMount.style.opacity = '0';
+        }
+    }, []);
+
+    const handleRevealPortfolio = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        const appMount = document.getElementById('app-mount');
+        if (appMount) {
+            appMount.style.height = 'auto';
+            appMount.style.overflow = 'visible';
+            appMount.style.opacity = '1';
+            appMount.style.transition = 'opacity 1s ease';
+
+            setTimeout(() => {
+                appMount.scrollIntoView({ behavior: 'smooth' });
+            }, 50);
+        }
+    };
+
+    useEffect(() => {
         const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
         setReducedMotion(mediaQuery.matches);
         const onMediaChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
@@ -192,6 +216,19 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                         </div>
                     </div>
                 </section>
+
+                <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 xl:px-24 pb-32 pt-16 flex flex-col items-center justify-center gap-6 border-t border-stone-200 mt-16 pointer-events-auto relative z-30">
+                    <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 font-semibold">Explore Further</span>
+                    <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12 mt-2">
+                        <a href={`/${lang}/work`} onClick={handleRevealPortfolio} className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1 cursor-pointer">
+                            Go to Portfolio &rarr;
+                        </a>
+                        <a href={`/${lang}/services`} className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1">
+                            Go to Services &rarr;
+                        </a>
+                    </div>
+                </div>
+
             </div>
         );
     }
@@ -378,7 +415,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                     >
                                         <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 font-semibold -mt-1 hidden sm:block w-[120px]">Explore</span>
                                         <div className="flex flex-col sm:flex-row gap-4 sm:gap-12">
-                                            <a href={`/${lang}/work`} className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors">
+                                            <a href={`/${lang}/work`} onClick={handleRevealPortfolio} className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors cursor-pointer">
                                                 Go to Portfolio &rarr;
                                             </a>
                                             <a href={`/${lang}/services`} className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors">
