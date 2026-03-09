@@ -29,74 +29,58 @@ const clientItems = items.map(item => ({
 }));
 ---
 
-<div id="hero-experiments-sequence" class="relative w-full bg-[#FAFAF9] text-stone-900 border-b border-stone-200">
+<div id="narrative-intro" class="relative w-full bg-[#FAFAF9] text-stone-900 border-b border-stone-200">
   
-  {/* PART 1: Manifesto (100vh) */}
-  <section class="relative w-full h-[100vh] flex flex-col justify-center px-6 md:px-12 xl:px-24 overflow-hidden">
-    <div class="max-w-[1400px] mx-auto w-full relative z-20">
-      <h1 class="text-[14vw] leading-[0.85] md:text-[8vw] lg:text-[7.5vw] font-medium tracking-tighter uppercase mb-6 sm:mb-8 text-stone-900 select-none">
-        <span class="block">DARE</span>
-        <span class="block">ANY</span>
-        <span class="block text-stone-400">WAY</span>
-      </h1>
-      <p class="text-xl md:text-2xl lg:text-3xl font-light tracking-tight text-stone-500 max-w-md">
-        {supportLine}
-      </p>
-    </div>
-    
-    {/* Subtle Scroll Hint */}
-    <div class="absolute bottom-12 left-6 md:left-12 xl:left-24 text-stone-400 text-[10px] sm:text-xs tracking-widest uppercase font-semibold z-20 select-none">
-      Scroll if you dare &darr;
-    </div>
-    
-    {/* Subtle grid/dot background for "tech/studio" feel */}
-    <div class="absolute inset-0 pointer-events-none opacity-[0.03] z-0" style="background-image: radial-gradient(#1c1917 1px, transparent 1px); background-size: 32px 32px;"></div>
-  </section>
-
-  {/* PART 2 & 3: Philosophy + Experiments Scroll Container */}
-  <section class="relative w-full px-6 md:px-12 xl:px-24 py-24 md:py-32 bg-[#FAFAF9] z-10">
-    <div class="max-w-[1400px] mx-auto w-full flex flex-col lg:flex-row relative items-start gap-16 lg:gap-8">
+  {/* PART 1 & 2: 300vh Scroll-Tied Pinned Sequence */}
+  <div id="scroll-wrapper" class="relative w-full h-[300vh]">
+    <div id="sticky-viewport" class="sticky top-0 w-full h-[100vh] overflow-hidden flex items-center justify-center pointer-events-none">
       
-      {/* Left Column: Sticky Anchor */}
-      <div class="lg:w-4/12 xl:w-5/12 w-full relative">
-        <div class="lg:sticky lg:top-32 hidden md:block">
-          {/* Faded anchor text */}
-          <h2 class="text-[8vw] leading-[0.85] lg:text-[4.5vw] font-medium tracking-tighter uppercase text-stone-900 select-none opacity-[0.08]">
-            <span class="block">DARE</span>
-            <span class="block">ANY</span>
-            <span class="block">WAY</span>
-          </h2>
+      {/* Subtle grid/dot background for "tech/studio" feel */}
+      <div class="absolute inset-0 opacity-[0.03] z-0" style="background-image: radial-gradient(#1c1917 1px, transparent 1px); background-size: 32px 32px;"></div>
+
+      {/* Dynamic Title Container */}
+      <div id="manifesto-title" class="absolute flex flex-col items-center justify-center will-change-transform transform-origin-center">
+        <h1 class="text-[14vw] leading-[0.85] md:text-[10vw] font-medium tracking-tighter uppercase mb-6 sm:mb-8 text-stone-900 select-none text-center">
+          <span class="block text-stone-900">DARE</span>
+          <span class="block text-stone-900">ANY</span>
+          <span class="block text-stone-400">WAY</span>
+        </h1>
+        <div id="manifesto-support" class="text-xl md:text-3xl font-light tracking-tight text-stone-500 will-change-opacity overflow-hidden">
+          {supportLine}
         </div>
       </div>
 
-      {/* Right Column: Scrolling Principles + Experiments */}
-      <div class="lg:w-8/12 xl:w-7/12 w-full flex flex-col relative z-20">
-        
-        {/* Part 2: Philosophy Principles */}
-        <div class="flex flex-col gap-24 md:gap-32 mb-32 md:mb-48 border-b border-stone-200 pb-24 md:pb-32">
+      {/* Subtle Scroll Hint */}
+      <div id="scroll-hint" class="absolute bottom-12 text-stone-400 text-[10px] sm:text-xs tracking-widest uppercase font-semibold z-20 select-none will-change-opacity transition-opacity duration-300">
+        Scroll if you dare &darr;
+      </div>
+
+      {/* Progressive Philosophy Reveal Container */}
+      <div class="absolute inset-0 max-w-[1400px] mx-auto w-full px-6 md:px-12 xl:px-24 flex items-center justify-end z-10 pointer-events-none">
+        <div class="w-full lg:w-7/12 flex flex-col justify-center translate-y-24 md:translate-y-0" id="principles-container">
           
-          <div class="principle-item opacity-20 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+          <div class="principle-card absolute right-6 md:right-12 xl:right-24 lg:right-auto opacity-0 will-change-transform-opacity transform translate-y-12">
             <h3 class="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">Courage</h3>
             <p class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
               Move before certainty shows up.
             </p>
           </div>
 
-          <div class="principle-item opacity-20 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+          <div class="principle-card absolute right-6 md:right-12 xl:right-24 lg:right-auto opacity-0 will-change-transform-opacity transform translate-y-12">
             <h3 class="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">Curiosity</h3>
             <p class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
               Ask what others leave alone.
             </p>
           </div>
 
-          <div class="principle-item opacity-20 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+          <div class="principle-card absolute right-6 md:right-12 xl:right-24 lg:right-auto opacity-0 will-change-transform-opacity transform translate-y-12">
             <h3 class="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">Experiment</h3>
             <p class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
               Test the better idea.
             </p>
           </div>
 
-          <div class="principle-item opacity-20 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+          <div class="principle-card absolute right-6 md:right-12 xl:right-24 lg:right-auto opacity-0 will-change-transform-opacity transform translate-y-12">
             <h3 class="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">Proof</h3>
             <p class="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
               Keep what actually works.
@@ -104,120 +88,228 @@ const clientItems = items.map(item => ({
           </div>
 
         </div>
+      </div>
+    </div>
+  </div>
 
-        {/* Part 3: Experiments */}
-        {hasItems && (
-          <div 
-            class="flex flex-col relative w-full lg:pl-0 min-h-[500px]" 
-            id="hero-experiment-container"
-            data-items={JSON.stringify(clientItems)}
-          >
-            {clientItems.map((item, index) => (
-              <div 
-                class={`experiment-slide w-full flex flex-col transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] ${index === 0 ? 'opacity-100 relative z-10' : 'opacity-0 absolute inset-0 pointer-events-none z-0'}`}
-                data-index={index}
-                style={`--accent: ${item.accent};`}
-              >
-                {/* 3. Keyword / Enemy / Rallying Cry */}
-                <div class="flex flex-wrap items-center gap-3 md:gap-4 mb-8 lg:mb-10 text-[10px] md:text-xs uppercase tracking-widest font-semibold">
-                  <span class="flex items-center gap-2 text-stone-900 bg-stone-100 px-3 py-1.5 rounded-sm border-l-2" style="border-color: var(--accent)">
-                    {item.keyword}
-                  </span>
-                  <span class="text-stone-400">VS</span>
-                  <span class="text-stone-500">{item.enemy}</span>
-                  <span class="hidden sm:inline text-stone-300">&mdash;</span>
-                  <span class="text-stone-900" style="color: var(--accent)">{item.rallying_cry}</span>
-                </div>
+  {/* PART 3: Experiments (acts as the boundary end so sticky completes) */}
+  {hasItems && (
+    <section class="relative w-full px-6 md:px-12 xl:px-24 py-24 md:py-32 bg-[#FAFAF9] z-20 border-t border-stone-200">
+      <div class="max-w-[1400px] mx-auto w-full flex flex-col lg:flex-row relative items-start gap-16 lg:gap-8">
+        
+        {/* Fill left space to match layout */}
+        <div class="lg:w-4/12 xl:w-5/12 hidden lg:block"></div>
 
-                {/* 4. Question */}
-                <h2 class="text-xl md:text-2xl lg:text-3xl font-medium tracking-tight mb-4 leading-snug max-w-2xl">
-                  {item.question}
-                </h2>
-
-                {/* 5. Doubt */}
-                <p class="text-base md:text-lg text-stone-500 font-light italic mb-8 lg:mb-10 max-w-xl">
-                  «{item.doubt}»
-                </p>
-
-                <div class="h-px w-full max-w-sm bg-stone-200 mb-8 lg:mb-10"></div>
-
-                {/* 6. Experiment Title */}
-                <h3 class="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 mb-2 font-medium">
-                  Experiment // <span class="text-stone-600">{item.title}</span>
-                </h3>
-
-                {/* 7. Result */}
-                <p class="text-sm md:text-base text-stone-800 leading-relaxed mb-10 max-w-xl font-light">
-                  {item.result}
-                </p>
-
-                {/* 8. CTA */}
-                <div class="mt-auto flex items-start">
-                  <a 
-                    href={item.ctaHref} 
-                    class="inline-flex items-center justify-center bg-stone-900 text-[#FAFAF9] px-6 py-3 md:px-8 md:py-4 text-[10px] md:text-xs uppercase tracking-widest transition-transform hover:-translate-y-0.5 active:translate-y-0 font-semibold border border-transparent hover:border-stone-700"
-                  >
-                    {item.ctaLabel}
-                  </a>
-                </div>
+        {/* Experiments Deck */}
+        <div class="lg:w-8/12 xl:w-7/12 w-full flex flex-col relative" id="hero-experiment-container" data-items={JSON.stringify(clientItems)}>
+          
+          {clientItems.map((item, index) => (
+            <div 
+              class={`experiment-slide w-full flex flex-col transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] ${index === 0 ? 'opacity-100 relative z-10' : 'opacity-0 absolute inset-0 pointer-events-none z-0'}`}
+              data-index={index}
+              style={`--accent: ${item.accent};`}
+            >
+              {/* Keyword / Enemy / Rallying Cry */}
+              <div class="flex flex-wrap items-center gap-3 md:gap-4 mb-8 lg:mb-10 text-[10px] md:text-xs uppercase tracking-widest font-semibold text-stone-900">
+                <span class="flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-sm border-l-2" style="border-color: var(--accent)">
+                  {item.keyword}
+                </span>
+                <span class="text-stone-400">VS</span>
+                <span class="text-stone-500">{item.enemy}</span>
+                <span class="hidden sm:inline text-stone-300">&mdash;</span>
+                <span style="color: var(--accent)">{item.rallying_cry}</span>
               </div>
-            ))}
 
-            {/* 9. Controls (Manual Only) */}
-            {clientItems.length > 1 && (
-              <div class="mt-12 sm:mt-16 flex items-center gap-4 text-xs font-semibold tracking-widest uppercase text-stone-400 relative z-20">
-                <button id="hero-prev" class="hover:text-stone-900 transition-colors p-2 -ml-2 select-none group flex items-center gap-1">
-                  <span class="group-hover:-translate-x-1 transition-transform">&larr;</span> Prev
-                </button>
-                <span class="w-6 h-px bg-stone-300"></span>
-                <span id="hero-counter" class="text-stone-900 min-w-[3ch] text-center">{`1/${clientItems.length}`}</span>
-                <span class="w-6 h-px bg-stone-300"></span>
-                <button id="hero-next" class="hover:text-stone-900 transition-colors p-2 -mr-2 select-none group flex items-center gap-1">
-                  Next <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
-                </button>
+              {/* Question */}
+              <h2 class="text-xl md:text-2xl lg:text-3xl font-medium tracking-tight mb-4 leading-snug max-w-2xl text-stone-900">
+                {item.question}
+              </h2>
+
+              {/* Doubt */}
+              <p class="text-base md:text-lg text-stone-500 font-light italic mb-8 lg:mb-10 max-w-xl">
+                «{item.doubt}»
+              </p>
+
+              <div class="h-px w-full max-w-sm bg-stone-200 mb-8 lg:mb-10"></div>
+
+              {/* Experiment Title */}
+              <h3 class="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 mb-2 font-medium">
+                Experiment // <span class="text-stone-600">{item.title}</span>
+              </h3>
+
+              {/* Result */}
+              <p class="text-sm md:text-base text-stone-800 leading-relaxed mb-10 max-w-xl font-light">
+                {item.result}
+              </p>
+
+              {/* CTA */}
+              <div class="mt-auto flex items-start">
+                <a 
+                  href={item.ctaHref} 
+                  class="inline-flex items-center justify-center bg-stone-900 text-[#FAFAF9] px-6 py-3 md:px-8 md:py-4 text-[10px] md:text-xs uppercase tracking-widest transition-transform hover:-translate-y-0.5 active:translate-y-0 font-semibold border border-transparent hover:border-stone-700"
+                >
+                  {item.ctaLabel}
+                </a>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          ))}
+
+          {/* Manual Controls */}
+          {clientItems.length > 1 && (
+            <div class="mt-12 sm:mt-16 flex items-center gap-4 text-xs font-semibold tracking-widest uppercase text-stone-400 relative z-20">
+              <button id="hero-prev" class="hover:text-stone-900 transition-colors p-2 -ml-2 select-none group flex items-center gap-1">
+                <span class="group-hover:-translate-x-1 transition-transform">&larr;</span> Prev
+              </button>
+              <span class="w-6 h-px bg-stone-300"></span>
+              <span id="hero-counter" class="text-stone-900 min-w-[3ch] text-center">{`1/${clientItems.length}`}</span>
+              <span class="w-6 h-px bg-stone-300"></span>
+              <button id="hero-next" class="hover:text-stone-900 transition-colors p-2 -mr-2 select-none group flex items-center gap-1">
+                Next <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </button>
+            </div>
+          )}
+        </div>
 
       </div>
-
-    </div>
-  </section>
+    </section>
+  )}
 </div>
 
-<style>
-  @media (prefers-reduced-motion: reduce) {
-    .experiment-slide, .principle-item {
-      transition: none !important;
-    }
-  }
-</style>
-
 <script>
-  function initHeroSequence() {
-    // 1. Philosophy Principles Observer
-    const principles = document.querySelectorAll('.principle-item');
-    if (principles.length > 0) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.remove('opacity-20');
-            entry.target.classList.add('opacity-100');
-          } else {
-            entry.target.classList.remove('opacity-100');
-            entry.target.classList.add('opacity-20');
-          }
-        });
-      }, {
-        rootMargin: '-30% 0px -30% 0px', // Trigger when mostly in the middle
-        threshold: 0
+  function initNarrativeScroll() {
+    const wrapper = document.getElementById('scroll-wrapper');
+    const title = document.getElementById('manifesto-title');
+    const support = document.getElementById('manifesto-support');
+    const hint = document.getElementById('scroll-hint');
+    const cards = document.querySelectorAll('.principle-card');
+    
+    if (!wrapper || !title) return;
+
+    let ticking = false;
+
+    // Linear interpolation
+    const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
+    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+
+    function onScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(updateFrame);
+        ticking = true;
+      }
+    }
+
+    function updateFrame() {
+      const rect = wrapper.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      
+      // Calculate how far we've scrolled through the 300vh wrapper
+      // 0 = top of wrapper is at top of screen
+      // 1 = bottom of wrapper is at bottom of screen
+      const scrollableDistance = rect.height - viewportHeight;
+      const progress = clamp(-rect.top / scrollableDistance, 0, 1);
+
+      // We break the progress (0 to 1) into phases:
+      // 0.00 -> 0.15 : Hint fades out, title shrinks and moves left
+      // 0.15 -> 1.00 : Title stays locked as small anchor, principles reveal sequentially
+
+      // Phase 1: Title Transformation (0 -> 0.15)
+      const p1Progress = clamp(progress / 0.15, 0, 1);
+      
+      if (hint) {
+        hint.style.opacity = 1 - p1Progress;
+      }
+      
+      if (support) {
+        // Support text fades out and collapses instantly
+        support.style.opacity = 1 - (p1Progress * 2);
+        support.style.transform = `scale(${1 - p1Progress})`;
+        support.style.height = p1Progress > 0.5 ? '0px' : 'auto';
+      }
+
+      // Title scaling: 1 down to 0.4
+      const scaleVal = lerp(1, 0.45, (Math.sin((p1Progress - 0.5) * Math.PI) + 1) * 0.5); // Ease In/Out
+      
+      // Calculate translation
+      // At scale 1 it is centered (0,0)
+      // At scale 0.45, we need to push it to the left and up
+      // We rely on viewport widths for responsive positioning
+      const isMobile = window.innerWidth < 1024;
+
+      let xMove = 0;
+      let yMove = 0;
+
+      if (isMobile) {
+        // Mobile: move to top center/left
+        xMove = lerp(0, -window.innerWidth * 0.25, p1Progress);
+        yMove = lerp(0, -window.innerHeight * 0.35, p1Progress);
+      } else {
+        // Desktop: move to left margin, align with grid
+        xMove = lerp(0, -window.innerWidth * 0.25, p1Progress);
+        yMove = lerp(0, -window.innerHeight * 0.15, p1Progress);
+      }
+
+      // Align text strictly left when scaled down to act as a proper margin anchor
+      if (p1Progress > 0.5) {
+        title.classList.remove('text-center', 'items-center');
+        title.classList.add('text-left', 'items-start');
+      } else {
+        title.classList.add('text-center', 'items-center');
+        title.classList.remove('text-left', 'items-start');
+      }
+
+      title.style.transform = `translate3d(${xMove}px, ${yMove}px, 0) scale(${scaleVal})`;
+      if (p1Progress > 0) {
+        title.style.opacity = lerp(1, 0.2, p1Progress); // Anchor becomes slightly transparent to recede
+      } else {
+        title.style.opacity = 1;
+      }
+
+      // Phase 2: Principles Reveal (0.15 -> 0.95)
+      // We have 4 cards, we divide the remaining 0.8 progress into 4 chunks (0.2 each)
+      const p2Progress = clamp((progress - 0.15) / 0.8, 0, 1);
+      const chunkCount = cards.length;
+      const chunkSize = 1 / chunkCount;
+
+      cards.forEach((card, i) => {
+        // Determine how close the current progress is to this card's "ideal" center time
+        const cardCenter = (i * chunkSize) + (chunkSize / 2);
+        const distance = Math.abs(p2Progress - cardCenter);
+        
+        // It peaks at opacity 1 when exactly at cardCenter, fading out gracefully to 0 before the next card peaks
+        const maxVisibilityDistance = chunkSize * 0.9; 
+        const cardOpacity = clamp(1 - (distance / maxVisibilityDistance), 0, 1);
+        
+        // Y translation: comes up from below (40px) to center (0px), goes up (-40px)
+        const offsetProg = (p2Progress - cardCenter) / maxVisibilityDistance;
+        const yOffset = -offsetProg * 40; 
+        
+        card.style.opacity = cardOpacity;
+        card.style.transform = `translate3d(0, ${yOffset}px, 0)`;
+        
+        if (cardOpacity > 0.1) {
+          card.style.pointerEvents = 'auto';
+        } else {
+          card.style.pointerEvents = 'none';
+        }
       });
 
-      principles.forEach(p => observer.observe(p));
+      ticking = false;
     }
 
-    // 2. Experiment Manual Controls
+    // Bind scroll
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    
+    // Initial paint
+    updateFrame();
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }
+
+  function initExperimentControls() {
     const container = document.getElementById('hero-experiment-container');
     if (!container) return;
 
@@ -270,10 +362,40 @@ const clientItems = items.map(item => ({
   }
 
   // Handle Astro page transitions
-  document.addEventListener('astro:page-load', initHeroSequence);
+  function initAll() {
+    
+    // Detect reduced motion profile
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (!mediaQuery || !mediaQuery.matches) {
+       initNarrativeScroll();
+    } else {
+      // If reduced motion is explicitly set, lock the opacity of all cards to 1 and remove the tall wrapper height
+      const wrapper = document.getElementById('scroll-wrapper');
+      const viewport = document.getElementById('sticky-viewport');
+      const container = document.getElementById('principles-container');
+      const hint = document.getElementById('scroll-hint');
+      const title = document.getElementById('manifesto-title');
+      
+      if (wrapper) wrapper.classList.remove('h-[300vh]', 'relative');
+      if (viewport) viewport.classList.remove('sticky', 'h-[100vh]', 'overflow-hidden');
+      if (hint) hint.remove();
+      if (title) title.classList.remove('absolute');
+      if (container) {
+        container.classList.remove('absolute');
+        container.querySelectorAll('.principle-card').forEach(c => {
+          c.classList.remove('opacity-0', 'absolute');
+          c.classList.add('opacity-100', 'relative', 'mb-24');
+        });
+      }
+    }
+
+    initExperimentControls();
+  }
+
+  document.addEventListener('astro:page-load', initAll);
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    initHeroSequence();
+    initAll();
   } else {
-    document.addEventListener('DOMContentLoaded', initHeroSequence);
+    document.addEventListener('DOMContentLoaded', initAll);
   }
 </script>
