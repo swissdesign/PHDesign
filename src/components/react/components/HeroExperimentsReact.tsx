@@ -61,7 +61,6 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                 const scrollableDistance = rect.height - viewportHeight;
 
                 if (scrollableDistance > 0) {
-                    // Progress of the 800vh wrapper specifically
                     const rawProgress = -rect.top / scrollableDistance;
                     setProgress(Math.min(Math.max(rawProgress, 0), 1));
                 }
@@ -84,55 +83,44 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
     const clamp = (val: number, min: number, max: number) => Math.min(Math.max(val, min), max);
     const lerp = (start: number, end: number, amt: number) => (1 - amt) * start + amt * end;
 
-    // ---------------------------------------------------------------------------
-    // ANIMATION LOGIC (800vh Wrapper)
-    // Phase 1 (0.00 - 0.15): Title shrinks & moves. Hint/Support fade.
-    // Phase 2 (0.15 - 0.30): Courage
-    // Phase 3 (0.30 - 0.45): Curiosity
-    // Phase 4 (0.45 - 0.60): Experiment
-    // Phase 5 (0.60 - 0.75): Proof
-    // Phase 6 (0.75 - 0.90): Evidence Reveal
-    // Phase 7 (0.90 - 1.00): Blank padding to let sticky scroll away naturally
-    // ---------------------------------------------------------------------------
+    // 1200vh Wrapper Scaling
+    const p_Title = clamp(progress / 0.10, 0, 1);
+    const p_Evidence = clamp((progress - 0.58) / 0.12, 0, 1);
+    const p_Assemble = clamp((progress - 0.70) / 0.15, 0, 1);
+    const p_Hold = clamp((progress - 0.85) / 0.15, 0, 1);
 
     const getPhaseState = (prog: number, start: number, end: number) => {
         const p = clamp((prog - start) / (end - start), 0, 1);
-        if (p === 0) return { opacity: 0, y: 30 };
-        if (p === 1) return { opacity: 0, y: -30 };
+        if (p === 0) return { opacity: 0, y: 40 };
+        if (p === 1) return { opacity: 0, y: -40 };
 
         let opacity = 0;
         let y = 0;
 
-        // 25% fade in, 50% hold, 25% fade out
-        if (p < 0.25) {
-            opacity = p / 0.25;
-            y = 30 * (1 - opacity);
-        } else if (p < 0.75) {
+        if (p < 0.3) {
+            opacity = p / 0.3;
+            y = 40 * (1 - opacity);
+        } else if (p < 0.7) {
             opacity = 1;
             y = 0;
         } else {
-            opacity = 1 - ((p - 0.75) / 0.25);
-            y = -30 * (1 - opacity);
+            opacity = 1 - ((p - 0.7) / 0.3);
+            y = -40 * (1 - opacity);
         }
         return { opacity, y };
     };
 
-    // Phase 1 Computations
-    const titleProgress = clamp(progress / 0.15, 0, 1);
-    const hintOpacity = 1 - clamp(titleProgress * 3, 0, 1); // fades very fast
-    const supportOpacity = 1 - clamp(titleProgress * 2, 0, 1);
+    const hintOpacity = 1 - clamp(p_Title * 3, 0, 1);
+    const supportOpacity = 1 - clamp(p_Title * 2, 0, 1);
 
-    // Ease In/Out for scale
     const easeInOut = (t: number) => (Math.sin((t - 0.5) * Math.PI) + 1) * 0.5;
-    const titleScale = lerp(1, 0.45, easeInOut(titleProgress));
+    const titleScale = lerp(1, 0.45, easeInOut(p_Title));
 
-    // Note: we're using a max-w-[1400px] layout below, so we want the anchor to align with that left edge.
     const isMobile = typeof window !== 'undefined' ? window.innerWidth < 1024 : false;
-    const titleMoveX = isMobile ? lerp(0, -35, easeInOut(titleProgress)) : lerp(0, -32, easeInOut(titleProgress)); // vw
-    const titleMoveY = isMobile ? lerp(0, -35, easeInOut(titleProgress)) : lerp(0, -35, easeInOut(titleProgress)); // vh
-    const titleOpacity = lerp(1, 0.15, titleProgress); // Turns into a subtle background anchor
+    const titleMoveX = isMobile ? lerp(0, -35, easeInOut(p_Title)) : lerp(0, -32, easeInOut(p_Title));
+    const titleMoveY = isMobile ? lerp(0, -35, easeInOut(p_Title)) : lerp(0, -35, easeInOut(p_Title));
+    const titleOpacity = lerp(1, 0.2, p_Title);
 
-    // Phase 2-5 Computations
     const cards = [
         { title: "Courage", desc: "Move before certainty shows up." },
         { title: "Curiosity", desc: "Ask what others leave alone." },
@@ -140,9 +128,39 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
         { title: "Proof", desc: "Keep what actually works." }
     ];
 
-    // Phase 6 Computations
-    const evidenceState = getPhaseState(progress, 0.75, 0.90);
+    const evidenceState = getPhaseState(progress, 0.58, 0.70);
 
+    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+    const ap = easeOut(p_Assemble);
+
+    // Different directional motion offsets for experimental assembly
+    const assembleStyle = {
+        keyword: {
+            opacity: clamp(ap / 0.4, 0, 1),
+            transform: `translate3d(0, ${lerp(20, 0, clamp(ap / 0.4, 0, 1))}px, 0)`
+        },
+        question: {
+            opacity: clamp((ap - 0.2) / 0.4, 0, 1),
+            transform: `translate3d(${lerp(-30, 0, clamp((ap - 0.2) / 0.4, 0, 1))}px, 0, 0)`
+        },
+        doubt: {
+            opacity: clamp((ap - 0.4) / 0.4, 0, 1),
+            transform: `translate3d(0, ${lerp(20, 0, clamp((ap - 0.4) / 0.4, 0, 1))}px, 0)`
+        },
+        line: {
+            opacity: clamp((ap - 0.6) / 0.3, 0, 1),
+            transform: `scaleX(${clamp((ap - 0.6) / 0.3, 0, 1)})`,
+            transformOrigin: 'left' as const
+        },
+        body: {
+            opacity: clamp((ap - 0.7) / 0.3, 0, 1),
+            transform: `translate3d(0, ${lerp(20, 0, clamp((ap - 0.7) / 0.3, 0, 1))}px, 0)`
+        },
+        controls: {
+            opacity: clamp((ap - 0.8) / 0.2, 0, 1),
+            transform: `translate3d(0, ${lerp(20, 0, clamp((ap - 0.8) / 0.2, 0, 1))}px, 0)`
+        }
+    };
 
     if (reducedMotion) {
         return (
@@ -174,241 +192,208 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                         </div>
                     </div>
                 </section>
-
-                <div className="py-24 flex justify-center">
-                    <h2 className="text-2xl md:text-4xl lg:text-5xl font-medium tracking-tighter text-stone-900 uppercase">
-                        The Evidence.
-                    </h2>
-                </div>
-
-                {hasItems && (
-                    <StaticExperiments items={clientItems} activeIndex={activeIndex} nextSlide={nextSlide} prevSlide={prevSlide} />
-                )}
-
-                {/* CTA Footer */}
-                <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 xl:px-24 pb-32 pt-16 flex flex-col items-center justify-center gap-6 border-t border-stone-200 mt-16">
-                    <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 font-semibold">Explore Further</span>
-                    <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12 mt-2">
-                        <a href="/work" className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1">
-                            Go to Portfolio
-                        </a>
-                        <a href="/services" className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1">
-                            Go to Services
-                        </a>
-                    </div>
-                </div>
             </div>
         );
     }
 
     return (
-        // Master Wrapper: Spans Intro + Experiments + Footer, so global sticky elements persist naturally
         <div className="relative w-full bg-[#FAFAF9] text-stone-900 border-b border-stone-200">
 
-            {/* GLOBAL STICKY ANCHOR */}
-            {/* This holds DARE ANY WAY and stays pinned until the very end of the component (past the footer) */}
-            <div className="sticky top-0 w-full h-[100vh] overflow-hidden flex items-center justify-center pointer-events-none z-10">
+            {/* Narrative Scroll Wrapper */}
+            <div ref={wrapperRef} className="relative w-full h-[1000vh] lg:h-[1200vh]">
 
-                {/* Render grid background globally inside sticky so it never scrolls itself */}
-                <div className="absolute inset-0 opacity-[0.03] z-0" style={{ backgroundImage: 'radial-gradient(#1c1917 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+                <div className="sticky top-0 w-full h-[100vh] overflow-hidden flex flex-col pointer-events-none z-10 font-sans">
 
-                {/* Dynamic Title Container */}
-                <div
-                    className={`absolute flex flex-col transform-origin-center will-change-transform ${titleProgress >= 0.5 ? 'items-start text-left' : 'items-center text-center'}`}
-                    style={{
-                        transform: `translate3d(${titleMoveX}vw, ${titleMoveY}vh, 0) scale(${titleScale})`,
-                        opacity: titleOpacity
-                    }}
-                >
-                    <h1 className="text-[14vw] leading-[0.85] md:text-[10vw] font-medium tracking-tighter uppercase mb-6 sm:mb-8 text-stone-900 select-none">
-                        <span className="block text-stone-900">DARE</span>
-                        <span className="block text-stone-900">ANY</span>
-                        <span className="block text-stone-400">WAY</span>
-                    </h1>
-                    <div className="text-xl md:text-3xl font-light tracking-tight text-stone-500 will-change-opacity overflow-hidden"
-                        style={{ opacity: clamp(supportOpacity, 0, 1), height: titleProgress > 0.5 ? 0 : 'auto' }}>
-                        {supportLine}
-                    </div>
-                </div>
+                    <div className="absolute inset-0 opacity-[0.03] z-0" style={{ backgroundImage: 'radial-gradient(#1c1917 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
 
-            </div>
-
-            {/* CONTENT LAYER */}
-            {/* Pulls up 100vh to overlap the global sticky anchor visually */}
-            <div className="relative w-full -mt-[100vh] z-20">
-
-                {/* 800vh Narrative Scroll Wrapper */}
-                <div ref={wrapperRef} className="relative w-full h-[800vh]">
-
-                    <div className="sticky top-0 w-full h-[100vh] overflow-hidden flex items-center justify-center pointer-events-none">
-
-                        {/* Scroll Hint (Phase 1) */}
+                    {/* DARE ANY WAY Anchor */}
+                    <div
+                        className={`absolute flex flex-col transform-origin-center will-change-transform z-10 text-center items-center justify-center inset-0 pointer-events-none pb-24 lg:pb-0`}
+                    >
                         <div
-                            className="absolute bottom-12 text-stone-400 text-[10px] sm:text-xs tracking-widest uppercase font-semibold z-20 select-none will-change-opacity"
-                            style={{ opacity: clamp(hintOpacity, 0, 1) }}
+                            style={{
+                                transform: `translate3d(${titleMoveX}vw, ${titleMoveY}vh, 0) scale(${titleScale})`,
+                                opacity: titleOpacity,
+                                transformOrigin: 'center'
+                            }}
+                            className={`flex flex-col transition-all duration-300 ${p_Title >= 0.5 ? 'items-start text-left' : 'items-center text-center'}`}
                         >
-                            Scroll if you dare &darr;
-                        </div>
-
-                        {/* Principles (Phase 2-5) */}
-                        <div className="absolute inset-0 max-w-[1400px] mx-auto w-full px-6 md:px-12 xl:px-24 flex items-center justify-end z-10">
-                            <div className="w-full lg:w-7/12 flex flex-col justify-center translate-y-32 md:translate-y-0 relative h-full items-end lg:items-start text-right lg:text-left">
-
-                                {cards.map((card, i) => {
-                                    const startPhase = 0.15 + (i * 0.15);
-                                    const endPhase = startPhase + 0.15;
-                                    const state = getPhaseState(progress, startPhase, endPhase);
-
-                                    return (
-                                        <div
-                                            key={i}
-                                            className="absolute will-change-transform transform"
-                                            style={{
-                                                opacity: state.opacity,
-                                                transform: `translate3d(0, ${state.y}px, 0)`,
-                                                pointerEvents: state.opacity > 0.1 ? 'auto' : 'none'
-                                            }}
-                                        >
-                                            <h3 className="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">{card.title}</h3>
-                                            <p className="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
-                                                {card.desc}
-                                            </p>
-                                        </div>
-                                    );
-                                })}
-
+                            <h1 className="text-[14vw] leading-[0.85] md:text-[10vw] font-medium tracking-tighter uppercase mb-6 sm:mb-8 text-stone-900 select-none">
+                                <span className="block text-stone-900">DARE</span>
+                                <span className="block text-stone-900">ANY</span>
+                                <span className="block text-stone-400">WAY</span>
+                            </h1>
+                            <div className="text-xl md:text-3xl font-light tracking-tight text-stone-500 will-change-opacity overflow-hidden"
+                                style={{ opacity: clamp(supportOpacity, 0, 1), maxHeight: p_Title > 0.5 ? 0 : '100px' }}>
+                                {supportLine}
                             </div>
                         </div>
-
-                        {/* Evidence Reveal (Phase 6) */}
-                        <div className="absolute inset-0 max-w-[1400px] mx-auto w-full px-6 md:px-12 xl:px-24 flex flex-col items-center justify-center z-10">
-                            <div
-                                className="will-change-transform transform text-center"
-                                style={{
-                                    opacity: evidenceState.opacity,
-                                    transform: `translate3d(0, ${evidenceState.y}px, 0)`,
-                                    pointerEvents: evidenceState.opacity > 0.1 ? 'auto' : 'none'
-                                }}
-                            >
-                                <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 mb-6 font-semibold block">Proof</span>
-                                <h2 className="text-3xl md:text-4xl lg:text-6xl font-medium tracking-tighter text-stone-900 uppercase">
-                                    The Evidence.
-                                </h2>
-                            </div>
-                        </div>
-
                     </div>
-                </div>
 
-                {/* Phase 8: Experiments Deck */}
-                {/* Document flow natively takes over. No scroll progress mapping needed. */}
-                {hasItems && (
-                    <StaticExperiments items={clientItems} activeIndex={activeIndex} nextSlide={nextSlide} prevSlide={prevSlide} />
-                )}
-
-                {/* CTA Footer */}
-                <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 xl:px-24 pb-32 pt-16 flex flex-col items-center justify-center gap-6 pointer-events-auto border-t border-stone-200 mt-16 relative z-30 pointer-events-auto bg-[#FAFAF9]">
-                    <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 font-semibold">Explore Further</span>
-                    <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12 mt-2">
-                        <a href="/work" className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1">
-                            Go to Portfolio
-                        </a>
-                        <a href="/services" className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1">
-                            Go to Services
-                        </a>
+                    <div
+                        className="absolute bottom-12 left-0 right-0 text-center text-stone-400 text-[10px] sm:text-xs tracking-widest uppercase font-semibold z-20 select-none will-change-opacity"
+                        style={{ opacity: clamp(hintOpacity, 0, 1) }}
+                    >
+                        Scroll if you dare &darr;
                     </div>
-                </div>
 
-            </div>
-        </div>
-    );
-}
-
-// Sub-component payload
-function StaticExperiments({ items, activeIndex, prevSlide, nextSlide }: { items: any[], activeIndex: number, prevSlide: () => void, nextSlide: () => void }) {
-    return (
-        <section className="relative w-full px-6 md:px-12 xl:px-24 py-24 md:py-32 z-30 pointer-events-auto">
-            <div className="max-w-[1400px] mx-auto w-full flex flex-col lg:flex-row relative items-start gap-16 lg:gap-8">
-
-                {/* Left column spacer. We leave this empty. 
-            The global sticky "DARE ANY WAY" anchor will perfectly slot visually into this empty space! */}
-                <div className="lg:w-4/12 xl:w-5/12 hidden lg:block">
-                </div>
-
-                {/* Experiments Deck */}
-                <div className="lg:w-8/12 xl:w-7/12 w-full flex flex-col relative min-h-[500px]">
-
-                    {items.map((item, index) => {
-                        const isActive = index === activeIndex;
-                        return (
-                            <div
-                                key={index}
-                                className={`w-full flex flex-col transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isActive ? 'opacity-100 relative z-10' : 'opacity-0 absolute inset-0 pointer-events-none z-0 transform translate-y-4'}`}
-                                style={{ '--accent': item.accent } as React.CSSProperties}
-                            >
-                                {/* Keyword / Enemy / Rallying Cry */}
-                                <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-8 lg:mb-10 text-[10px] md:text-xs uppercase tracking-widest font-semibold text-stone-900">
-                                    <span className="flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-sm border-l-2" style={{ borderColor: 'var(--accent)' }}>
-                                        {item.keyword}
-                                    </span>
-                                    <span className="text-stone-400">VS</span>
-                                    <span className="text-stone-500">{item.enemy}</span>
-                                    <span className="hidden sm:inline text-stone-300">&mdash;</span>
-                                    <span style={{ color: 'var(--accent)' }}>{item.rallying_cry}</span>
-                                </div>
-
-                                {/* Question */}
-                                <h2 className="text-xl md:text-2xl lg:text-3xl font-medium tracking-tight mb-4 leading-snug max-w-2xl text-stone-900">
-                                    {item.question}
-                                </h2>
-
-                                {/* Doubt */}
-                                <p className="text-base md:text-lg text-stone-500 font-light italic mb-8 lg:mb-10 max-w-xl">
-                                    «{item.doubt}»
-                                </p>
-
-                                <div className="h-px w-full max-w-sm bg-stone-200 mb-8 lg:mb-10"></div>
-
-                                {/* Experiment Title */}
-                                <h3 className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 mb-2 font-medium">
-                                    Experiment // <span className="text-stone-600">{item.title}</span>
-                                </h3>
-
-                                {/* Result */}
-                                <p className="text-sm md:text-base text-stone-800 leading-relaxed mb-10 max-w-xl font-light">
-                                    {item.result}
-                                </p>
-
-                                {/* CTA */}
-                                <div className="mt-auto flex items-start">
-                                    <a
-                                        href={item.ctaHref}
-                                        className="inline-flex items-center justify-center bg-stone-900 text-[#FAFAF9] px-6 py-3 md:px-8 md:py-4 text-[10px] md:text-xs uppercase tracking-widest transition-transform hover:-translate-y-0.5 active:translate-y-0 font-semibold border border-transparent hover:border-stone-700"
+                    {/* Principles */}
+                    <div className="absolute inset-0 max-w-[1400px] mx-auto w-full px-6 md:px-12 xl:px-24 flex items-center justify-end z-20 pointer-events-none pt-12 lg:pt-0">
+                        <div className="w-full lg:w-7/12 flex flex-col justify-center relative h-full items-end lg:items-start text-right lg:text-left">
+                            {cards.map((card, i) => {
+                                const startPhase = 0.10 + (i * 0.12);
+                                const endPhase = startPhase + 0.12;
+                                const state = getPhaseState(progress, startPhase, endPhase);
+                                return (
+                                    <div
+                                        key={i}
+                                        className="absolute will-change-transform transform"
+                                        style={{
+                                            opacity: state.opacity,
+                                            transform: `translate3d(0, ${state.y}px, 0)`,
+                                            pointerEvents: state.opacity > 0.1 ? 'auto' : 'none'
+                                        }}
                                     >
-                                        {item.ctaLabel}
-                                    </a>
+                                        <h3 className="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">{card.title}</h3>
+                                        <p className="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
+                                            {card.desc}
+                                        </p>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Evidence Reveal Label */}
+                    <div className="absolute inset-0 max-w-[1400px] mx-auto w-full px-6 md:px-12 xl:px-24 flex flex-col items-center justify-center z-10 pt-12 lg:pt-0">
+                        <div
+                            className="will-change-transform transform text-center"
+                            style={{
+                                opacity: evidenceState.opacity,
+                                transform: `translate3d(0, ${evidenceState.y}px, 0)`,
+                                pointerEvents: evidenceState.opacity > 0.1 ? 'auto' : 'none'
+                            }}
+                        >
+                            <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 mb-6 font-semibold block">Proof</span>
+                            <h2 className="text-3xl md:text-4xl lg:text-6xl font-medium tracking-tighter text-stone-900 uppercase">
+                                The Evidence.
+                            </h2>
+                        </div>
+                    </div>
+
+                    {/* Assembled Experiments */}
+                    {hasItems && (
+                        <div
+                            className="absolute inset-0 max-w-[1400px] mx-auto w-full px-6 md:px-12 xl:px-24 flex flex-col justify-center z-30 pointer-events-none"
+                        >
+                            <div className="w-full flex flex-col lg:flex-row items-center justify-end relative h-full pt-[20vh] sm:pt-16 lg:pt-0">
+
+                                <div className="lg:w-4/12 xl:w-5/12 hidden lg:block"></div>
+
+                                <div className="lg:w-8/12 xl:w-7/12 w-full flex flex-col relative" style={{ opacity: ap > 0.01 ? 1 : 0 }}>
+
+                                    <div className="relative min-h-[380px] sm:min-h-[460px] pointer-events-auto">
+                                        {clientItems.map((item, index) => {
+                                            const isActive = index === activeIndex;
+
+                                            const getStyle = (layer: keyof typeof assembleStyle) => {
+                                                if (index === 0) return assembleStyle[layer];
+                                                return {};
+                                            };
+
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    className={`w-full flex flex-col absolute inset-0 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] pointer-events-none ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                                                    style={{ '--accent': item.accent } as React.CSSProperties}
+                                                >
+                                                    <div style={getStyle('keyword')} className="will-change-transform">
+                                                        <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-4 sm:mb-8 text-[10px] md:text-xs uppercase tracking-widest font-semibold text-stone-900">
+                                                            <span className="flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-sm border-l-2" style={{ borderColor: 'var(--accent)' }}>
+                                                                {item.keyword}
+                                                            </span>
+                                                            <span className="text-stone-400">VS</span>
+                                                            <span className="text-stone-500">{item.enemy}</span>
+                                                            <span className="hidden sm:inline text-stone-300">&mdash;</span>
+                                                            <span style={{ color: 'var(--accent)' }}>{item.rallying_cry}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div style={getStyle('question')} className="will-change-transform">
+                                                        <h2 className="text-xl md:text-2xl lg:text-3xl font-medium tracking-tight mb-4 leading-snug max-w-2xl text-stone-900">
+                                                            {item.question}
+                                                        </h2>
+                                                    </div>
+
+                                                    <div style={getStyle('doubt')} className="will-change-transform">
+                                                        <p className="text-base md:text-lg text-stone-500 font-light italic mb-6 lg:mb-8 max-w-xl">
+                                                            «{item.doubt}»
+                                                        </p>
+                                                    </div>
+
+                                                    <div style={getStyle('line')} className="will-change-transform origin-left h-px w-full max-w-sm bg-stone-200 mb-6 lg:mb-8"></div>
+
+                                                    <div style={getStyle('body')} className="will-change-transform">
+                                                        <h3 className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 mb-2 font-medium">
+                                                            Experiment // <span className="text-stone-600">{item.title}</span>
+                                                        </h3>
+
+                                                        <p className="text-sm md:text-base text-stone-800 leading-relaxed max-w-xl font-light mb-8">
+                                                            {item.result}
+                                                        </p>
+                                                    </div>
+
+                                                    <div style={getStyle('controls')} className="will-change-transform mt-auto flex items-start z-30 relative pointer-events-auto">
+                                                        <a
+                                                            href={item.ctaHref}
+                                                            className="inline-flex items-center justify-center bg-stone-900 text-[#FAFAF9] px-6 py-3 sm:px-8 sm:py-4 text-[10px] md:text-xs uppercase tracking-widest transition-transform hover:-translate-y-0.5 active:translate-y-0 font-semibold border border-transparent hover:border-stone-700"
+                                                        >
+                                                            {item.ctaLabel}
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <div style={assembleStyle.controls} className="will-change-transform z-20 relative pt-2 sm:pt-6">
+                                        {clientItems.length > 1 && (
+                                            <div className="flex items-center gap-4 text-[10px] sm:text-xs font-semibold tracking-widest uppercase text-stone-400 relative pointer-events-auto">
+                                                <button onClick={prevSlide} className="hover:text-stone-900 transition-colors py-2 pr-2 select-none group flex items-center gap-1">
+                                                    <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> Prev
+                                                </button>
+                                                <span className="w-6 h-px bg-stone-300"></span>
+                                                <span className="text-stone-900 min-w-[3ch] text-center">{`${activeIndex + 1}/${clientItems.length}`}</span>
+                                                <span className="w-6 h-px bg-stone-300"></span>
+                                                <button onClick={nextSlide} className="hover:text-stone-900 transition-colors py-2 pl-2 select-none group flex items-center gap-1">
+                                                    Next <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div
+                                        className="flex items-start sm:items-center gap-4 sm:gap-12 mt-8 sm:mt-12 pt-6 border-t border-stone-200 will-change-transform pointer-events-auto"
+                                        style={{ opacity: p_Hold, transform: `translate3d(0, ${lerp(20, 0, p_Hold)}px, 0)` }}
+                                    >
+                                        <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 font-semibold -mt-1 hidden sm:block w-[120px]">Explore</span>
+                                        <div className="flex flex-col sm:flex-row gap-4 sm:gap-12">
+                                            <a href={`/${lang}/work`} className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors">
+                                                Go to Portfolio &rarr;
+                                            </a>
+                                            <a href={`/${lang}/services`} className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors">
+                                                Go to Services &rarr;
+                                            </a>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
-                        );
-                    })}
-
-                    {/* Manual Controls */}
-                    {items.length > 1 && (
-                        <div className="mt-12 sm:mt-16 flex items-center gap-4 text-xs font-semibold tracking-widest uppercase text-stone-400 relative z-20">
-                            <button onClick={prevSlide} className="hover:text-stone-900 transition-colors p-2 -ml-2 select-none group flex items-center gap-1">
-                                <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> Prev
-                            </button>
-                            <span className="w-6 h-px bg-stone-300"></span>
-                            <span className="text-stone-900 min-w-[3ch] text-center">{`${activeIndex + 1}/${items.length}`}</span>
-                            <span className="w-6 h-px bg-stone-300"></span>
-                            <button onClick={nextSlide} className="hover:text-stone-900 transition-colors p-2 -mr-2 select-none group flex items-center gap-1">
-                                Next <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
-                            </button>
                         </div>
                     )}
-                </div>
 
+                </div>
             </div>
-        </section>
+        </div>
     );
 }
