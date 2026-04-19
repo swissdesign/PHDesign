@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import App from '../../components/react/App';
+import { getAll } from '../../lib/sheets';
+import { LANGS, normalizeLang } from '../../lib/i18n';
+import { getImage } from 'astro:assets';
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = normalizeLang(Astro.params.lang);
+
+const { projects, services, categories } = await getAll(lang as any);
+
+const optimizedProjects = await Promise.all(
+  projects.map(async (p) => {
+    if (!p.image) return p;
+    const rawDriveUrl = p.image.startsWith('http') ? p.image : `https://drive.google.com/uc?export=view&id=${p.image}`;
+    try {
+      const optimized = await getImage({ src: rawDriveUrl, format: 'webp', width: 1200 });
+      const attributes = 'attributes' in optimized ? (optimized as any).attributes : {};
+      return { 
+        ...p, 
+        image: rawDriveUrl,
+        optimizedSrc: optimized.src,
+        optimizedSrcSet: attributes.srcset || optimized.srcSet?.attribute || optimized.srcSet || ''
+      };
+    } catch {
+      return { ...p, image: rawDriveUrl };
+    }
+  })
+);
+---
+
+<BaseLayout lang={lang}>
+  <div id="app-mount" style="height: auto; overflow: visible; opacity: 1;">
+    <App
+      client:load
+      lang={lang}
+      projects={optimizedProjects}
+      services={services}
+      categories={categories}
+      initialView="services"
+    />
+  </div>
+</BaseLayout>

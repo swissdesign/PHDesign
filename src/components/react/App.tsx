@@ -2,7 +2,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Navigation } from './components/Navigation';
 import { PortfolioSurface } from './components/PortfolioSurface';
+import { PortfolioGridMobile } from './components/PortfolioGridMobile';
 import { ServicesWheel } from './components/ServicesWheel';
+import { ServicesTiles } from './components/ServicesTiles';
 import { ProjectDetail } from './components/ProjectDetail';
 import { ThemeToggle } from './components/ThemeToggle';
 import { CookieConsent } from './components/CookieConsent';
@@ -15,6 +17,7 @@ interface AppProps {
   projects: Project[];
   services: any[];
   categories: any[];
+  initialView?: 'work' | 'services';
 }
 
 const getProjectSlug = (project: Project): string => project.slug || project.id;
@@ -67,7 +70,7 @@ const updateViewQuery = (view: 'work' | 'services', mode: 'push' | 'replace' = '
   }
 };
 
-const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }) => {
+const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, initialView }) => {
   console.log("App.tsx received services:", services?.length, services);
 
   const [view, setView] = useState<'work' | 'services'>('work');
@@ -79,6 +82,17 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
   // Contact Modal State
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [contactOrigin, setContactOrigin] = useState<TransitionRect | null>(null);
+
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024 || window.matchMedia('(pointer: coarse)').matches);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Simple transition logic
   const handleViewChange = (newView: 'work' | 'services') => {
@@ -129,6 +143,10 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
     // 1. Handle View State
     if (viewQuery === 'services') {
       setView('services');
+    } else if (viewQuery === 'work') {
+      setView('work');
+    } else if (initialView) {
+      setView(initialView);
     } else {
       setView('work'); // default
     }
@@ -218,31 +236,50 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories }
           theme={theme}
         />
 
-        {/* Work View (Surface) */}
+        {/* Work View */}
         <div
           className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${view === 'work' ? 'opacity-100 z-30 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
             }`}
         >
-          <PortfolioSurface
-            projects={projects}
-            lang={lang}
-            onSelectProject={handleSelectProject}
-            theme={theme}
-          />
+          {isMobile ? (
+            <PortfolioGridMobile
+              projects={projects}
+              lang={lang}
+              onSelectProject={handleSelectProject}
+              theme={theme}
+            />
+          ) : (
+            <PortfolioSurface
+              projects={projects}
+              lang={lang}
+              onSelectProject={handleSelectProject}
+              theme={theme}
+            />
+          )}
         </div>
 
-        {/* Services View (Wheel) */}
+        {/* Services View */}
         <div
           className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${view === 'services' ? 'opacity-100 z-30 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
             }`}
         >
-          <ServicesWheel
-            services={services}
-            categories={categories}
-            lang={lang}
-            theme={theme}
-            onModalToggle={setIsServiceModalOpen}
-          />
+          {isMobile ? (
+            <ServicesTiles
+              services={services}
+              categories={categories}
+              lang={lang}
+              theme={theme}
+              onModalToggle={setIsServiceModalOpen}
+            />
+          ) : (
+            <ServicesWheel
+              services={services}
+              categories={categories}
+              lang={lang}
+              theme={theme}
+              onModalToggle={setIsServiceModalOpen}
+            />
+          )}
         </div>
       </div>
 
