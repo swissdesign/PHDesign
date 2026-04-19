@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import type { Theme, TransitionRect } from '../types';
 import type { Lang } from '../../../lib/i18n';
-import { pickLang, pickLangArray } from '../utils/pickLang';
+
 import { QuoteForm } from './QuoteForm';
 
 interface ServiceDetailProps {
-  service: Record<string, unknown>;
+  service: import('../types').Service;
   originRect: TransitionRect;
   onClose: () => void;
   lang?: Lang;
@@ -94,23 +94,11 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
     ? { paddingTop: 'calc(env(safe-area-inset-top, 0px) + 96px)' }
     : undefined;
 
-  const serviceName =
-    pickLang(service, 'title', lang) ||
-    pickLang(service, 'name', lang) ||
-    String(service.name ?? 'Service').trim();
-  const serviceDescription = pickLang(service, 'description', lang) || String(service.description ?? '').trim();
-  const serviceStartPrice =
-    pickLang(service, 'startPrice', lang) ||
-    pickLang(service, 'start_price', lang) ||
-    pickLang(service, 'price', lang) ||
-    String(service.startPrice ?? service.start_price ?? service.price ?? '').trim();
-  const serviceIcon = String(service.icon ?? '').trim() || DEFAULT_ICON;
-  const serviceBullets =
-    pickLangArray(service, 'bullets', lang).length > 0
-      ? pickLangArray(service, 'bullets', lang)
-      : pickLangArray(service, 'features', lang).length > 0
-        ? pickLangArray(service, 'features', lang)
-        : pickLangArray(service, 'includes', lang);
+  const serviceName = service.name;
+  const serviceDescription = service.description;
+  const serviceStartPrice = service.startPrice;
+  const serviceIcon = service.icon || DEFAULT_ICON;
+  const serviceBullets = service.bullets || [];
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-auto">

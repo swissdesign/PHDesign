@@ -5,35 +5,36 @@ import {
   getHeroExperiments as getCmsHeroExperiments,
   type HeroExperimentRow
 } from '../server/modules/cms';
+import type { Project, Service, Category } from './components/react/types';
 
 export type SheetsAllResponse = {
-  projects: any[];
-  services: any[];
-  categories: any[];
+  projects: Project[];
+  services: Service[];
+  categories: Category[];
   heroExperiments: HeroExperimentRow[];
 };
 
 export async function getAll(lang: string = 'de'): Promise<SheetsAllResponse> {
   const [projects, services, categories, heroExperiments] = await Promise.all([
-    getCmsProjects(),
+    getCmsProjects(lang),
     getCmsServices(lang),
-    getCmsCategories(),
+    getCmsCategories(lang),
     getCmsHeroExperiments()
   ]);
 
   return { projects, services, categories, heroExperiments };
 }
 
-export async function getProjects(): Promise<any[]> {
-  return getCmsProjects();
+export async function getProjects(lang: string = 'de'): Promise<Project[]> {
+  return getCmsProjects(lang);
 }
 
-export async function getServices(lang: string = 'de'): Promise<any[]> {
+export async function getServices(lang: string = 'de'): Promise<Service[]> {
   return getCmsServices(lang);
 }
 
-export async function getCategories(): Promise<any[]> {
-  return getCmsCategories();
+export async function getCategories(lang: string = 'de'): Promise<Category[]> {
+  return getCmsCategories(lang);
 }
 
 export async function getHeroExperiments(): Promise<HeroExperimentRow[]> {

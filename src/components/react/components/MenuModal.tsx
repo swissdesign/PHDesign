@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Theme, TransitionRect, Project } from '../types';
 import type { Lang } from '../../../lib/i18n';
-import { pickLang } from '../utils/pickLang';
+
 
 interface MenuModalProps {
   isOpen: boolean;
@@ -200,8 +200,8 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
               <h3 className={`text-xs uppercase tracking-widest mb-6 ${subTextClass}`}>Latest Projects</h3>
               <div className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
                 {latestProjects.map((p, idx) => {
-                  const title = pickLang(p, 'title', lang) || p.title || 'Project';
-                  const category = pickLang(p, 'category', lang) || String(p.category ?? '');
+                  const title = p.title || 'Project';
+                  const category = p.category || '';
                   return (
                   <div 
                     key={`${getProjectKey(p, idx)}-${idx}`} 

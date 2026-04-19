@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { Project, Theme, TransitionRect } from '../types';
 import type { Lang } from '../../../lib/i18n';
-import { pickLang, pickLangArray, toTextArray } from '../utils/pickLang';
+
 
 interface ProjectDetailProps {
   project: Project;
@@ -69,15 +69,14 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
     };
   }, [isClosing, onClose]);
 
-  const projectTitle = pickLang(project, 'title', lang) || project.title || 'Untitled Project';
-  const projectDescription = pickLang(project, 'description', lang) || project.description || '';
-  const projectCategory = pickLang(project, 'category', lang) || String(project.category ?? '').trim();
+  const projectTitle = project.title || 'Untitled Project';
+  const projectDescription = project.description || '';
+  const projectCategory = project.category || '';
   const projectDate = String(project.date ?? '').trim();
   const projectImage = project.optimizedSrc || String(project.image ?? '').trim() || DEFAULT_PROJECT_IMAGE;
   const projectSrcSet = project.optimizedSrcSet || undefined;
 
-  const projectTagsFromSheet = pickLangArray(project, 'tags', lang);
-  const projectTags = projectTagsFromSheet.length > 0 ? projectTagsFromSheet : toTextArray(project.tags);
+  const projectTags = project.tags || [];
   const projectId = String(project.id ?? project.slug ?? '').trim();
 
   const galleryImages = [

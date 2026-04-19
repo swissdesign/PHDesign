@@ -9,12 +9,6 @@ interface PortfolioGridMobileProps {
   theme: Theme;
 }
 
-const getLocalizedTitle = (project: Project, lang: Lang): string => {
-  if (lang === 'en') return project.title_en || project.title;
-  if (lang === 'fr') return project.title_fr || project.title;
-  if (lang === 'it') return project.title_it || project.title;
-  return project.title_de || project.title;
-};
 
 export const PortfolioGridMobile: React.FC<PortfolioGridMobileProps> = ({ projects, lang = 'de', onSelectProject, theme }) => {
   const isLight = theme === 'light';
@@ -38,7 +32,7 @@ export const PortfolioGridMobile: React.FC<PortfolioGridMobileProps> = ({ projec
 
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
           {projects.map((project) => {
-            const title = getLocalizedTitle(project, lang);
+            const title = project.title;
             
             return (
             <div
