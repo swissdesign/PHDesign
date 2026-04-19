@@ -130,6 +130,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
     const p_Title = clamp(progress / 0.10, 0, 1);
     const p_Evidence = clamp((progress - 0.58) / 0.12, 0, 1);
     const p_Assemble = clamp((progress - 0.70) / 0.15, 0, 1);
+    const p_Explore = clamp((progress - 0.75) / 0.15, 0, 1);
     const p_Hold = clamp((progress - 0.85) / 0.15, 0, 1);
 
     const getPhaseState = (prog: number, start: number, end: number) => {
@@ -236,14 +237,14 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                     </div>
                 </section>
 
-                <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 xl:px-24 pb-32 pt-16 flex flex-col items-center justify-center gap-6 border-t border-stone-200 mt-16 pointer-events-auto relative z-30">
-                    <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 font-semibold">Explore Further</span>
-                    <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12 mt-2">
-                        <a href={`/${lang}/work`} onClick={(e) => handleRevealAppView(e, 'work')} className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1 cursor-pointer">
-                            Go to Portfolio &rarr;
+                <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 xl:px-24 pb-32 pt-16 flex flex-col items-center justify-center gap-8 border-t border-stone-200 mt-16 pointer-events-auto relative z-30">
+                    <span className="text-xs uppercase tracking-widest text-stone-400 font-semibold mb-2">Ready to explore?</span>
+                    <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto">
+                        <a href={`/${lang}/work`} onClick={(e) => handleRevealAppView(e, 'work')} className="w-full sm:w-auto text-center text-sm uppercase tracking-widest font-semibold text-white bg-stone-900 border border-stone-900 hover:bg-stone-800 transition-colors px-10 py-4 shadow-sm">
+                            Portfolio &rarr;
                         </a>
-                        <a href={`/${lang}/services`} onClick={(e) => handleRevealAppView(e, 'services')} className="text-xs md:text-sm uppercase tracking-widest font-semibold text-stone-900 border-b-2 border-transparent hover:border-stone-900 transition-colors pb-1 cursor-pointer">
-                            Go to Services &rarr;
+                        <a href={`/${lang}/services`} onClick={(e) => handleRevealAppView(e, 'services')} className="w-full sm:w-auto text-center text-sm uppercase tracking-widest font-semibold text-stone-900 bg-white border border-stone-200 hover:border-stone-400 hover:bg-stone-50 transition-colors px-10 py-4 shadow-sm">
+                            Services &rarr;
                         </a>
                     </div>
                 </div>
@@ -261,6 +262,23 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                 <div className="sticky top-0 w-full h-[100vh] overflow-hidden flex flex-col pointer-events-none z-10 font-sans">
 
                     <div className="absolute inset-0 opacity-[0.03] z-0" style={{ backgroundImage: 'radial-gradient(#1c1917 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+
+                    {/* Prominent Explore Nav at Top */}
+                    <div 
+                        className="absolute top-6 right-6 md:top-12 md:right-12 xl:right-24 flex flex-col sm:flex-row items-center gap-4 z-50 pointer-events-auto will-change-transform"
+                        style={{ 
+                            opacity: p_Explore,
+                            transform: `translate3d(0, ${lerp(-20, 0, p_Explore)}px, 0)`,
+                            pointerEvents: p_Explore > 0.1 ? 'auto' : 'none'
+                        }}
+                    >
+                        <a href={`/${lang}/work`} onClick={(e) => handleRevealAppView(e, 'work')} className="w-full sm:w-auto text-center text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-white bg-stone-900 hover:bg-cyan-900 transition-colors px-6 py-3 shadow-md rounded-none md:rounded-full">
+                            Portfolio
+                        </a>
+                        <a href={`/${lang}/services`} onClick={(e) => handleRevealAppView(e, 'services')} className="w-full sm:w-auto text-center text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-900 bg-white border border-stone-200 hover:border-cyan-200 transition-colors px-6 py-3 shadow-md rounded-none md:rounded-full">
+                            Services
+                        </a>
+                    </div>
 
                     {/* DARE ANY WAY Anchor */}
                     <div
@@ -428,20 +446,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                         )}
                                     </div>
 
-                                    <div
-                                        className="flex items-start sm:items-center gap-4 sm:gap-12 mt-8 sm:mt-12 pt-6 border-t border-stone-200 will-change-transform pointer-events-auto"
-                                        style={{ opacity: p_Hold, transform: `translate3d(0, ${lerp(20, 0, p_Hold)}px, 0)` }}
-                                    >
-                                        <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 font-semibold -mt-1 hidden sm:block w-[120px]">Explore</span>
-                                        <div className="flex flex-col sm:flex-row gap-4 sm:gap-12">
-                                            <a href={`/${lang}/work`} onClick={(e) => handleRevealAppView(e, 'work')} className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors cursor-pointer">
-                                                Go to Portfolio &rarr;
-                                            </a>
-                                            <a href={`/${lang}/services`} onClick={(e) => handleRevealAppView(e, 'services')} className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors cursor-pointer">
-                                                Go to Services &rarr;
-                                            </a>
-                                        </div>
-                                    </div>
+                                        {/* Explore buttons moved to the top of the viewport */}
 
                                 </div>
                             </div>
