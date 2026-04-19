@@ -25,9 +25,9 @@ export const PortfolioGridMobile: React.FC<PortfolioGridMobileProps> = ({ projec
 
   return (
     <div className="w-full h-full overflow-y-auto overscroll-y-none pb-32 pt-28 px-4 sm:px-8">
-      <div className="max-w-xl mx-auto flex flex-col gap-8">
+      <div className="max-w-2xl mx-auto">
         
-        <div className="pb-2">
+        <div className="pb-6">
           <h2 className={`text-3xl font-light tracking-tight ${textClass}`}>
              {lang === 'de' ? 'Unsere Arbeiten' : 'Selected Work'}
           </h2>
@@ -36,13 +36,14 @@ export const PortfolioGridMobile: React.FC<PortfolioGridMobileProps> = ({ projec
           </p>
         </div>
 
-        {projects.map((project) => {
-          const title = getLocalizedTitle(project, lang);
-          
-          return (
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+          {projects.map((project) => {
+            const title = getLocalizedTitle(project, lang);
+            
+            return (
             <div
               key={project.id}
-              className={`w-full rounded-2xl overflow-hidden cursor-pointer flex flex-col transition-transform active:scale-[0.98] ${bgClass}`}
+              className={`w-full rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer flex flex-col transition-transform active:scale-[0.98] ${bgClass}`}
               onClick={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 onSelectProject(project, {
@@ -54,7 +55,7 @@ export const PortfolioGridMobile: React.FC<PortfolioGridMobileProps> = ({ projec
               }}
             >
               {/* Image Container */}
-              <div className={`relative w-full aspect-[4/3] overflow-hidden ${isLight ? 'bg-stone-100' : 'bg-stone-900'}`}>
+              <div className={`relative w-full aspect-square overflow-hidden ${isLight ? 'bg-stone-100' : 'bg-stone-900'}`}>
                 <img
                   src={project.optimizedSrc || project.image}
                   srcSet={project.optimizedSrcSet}
@@ -70,18 +71,19 @@ export const PortfolioGridMobile: React.FC<PortfolioGridMobileProps> = ({ projec
               </div>
               
               {/* Content Area */}
-              <div className="p-5 flex flex-col gap-2">
-                <span className={`text-[10px] uppercase font-semibold tracking-widest ${categoryTextColor}`}>
+              <div className="p-2 sm:p-4 flex flex-col gap-1">
+                <span className={`text-[8px] sm:text-[10px] uppercase font-semibold tracking-widest truncate ${categoryTextColor}`}>
                   {project.category}
                 </span>
                 
-                <h3 className={`text-lg sm:text-xl font-medium tracking-tight ${textClass}`}>
+                <h3 className={`text-xs sm:text-base font-medium tracking-tight truncate leading-tight ${textClass}`}>
                   {title}
                 </h3>
               </div>
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );

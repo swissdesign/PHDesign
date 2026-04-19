@@ -73,30 +73,19 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
   const buttonClass = theme === 'light' ? 'bg-stone-900 text-white hover:bg-cyan-900' : 'bg-white text-stone-900 hover:bg-cyan-200';
 
   // Dynamic Style for Expansion
-  // Mobile: Full screen (inset 0), no radius. Desktop: Centered, rounded.
-  const expandedStyle = isMobile ? {
+  const modalStyle = isMobile ? {
     top: 0,
     left: 0,
     width: '100%',
-    height: '100dvh', // Use dvh for robust mobile height
-    transform: 'none',
+    height: '100dvh',
     borderRadius: '0px'
   } : {
-    top: '10%',
+    top: '5%',
     left: '50%',
     width: 'min(90%, 800px)',
-    height: 'min(80%, 700px)',
+    height: 'min(90vh, 700px)',
     transform: 'translateX(-50%)',
     borderRadius: '24px'
-  };
-
-  const initialStyle = {
-    top: `${originRect.top}px`,
-    left: `${originRect.left}px`,
-    width: `${originRect.width}px`,
-    height: `${originRect.height}px`,
-    transform: 'none',
-    borderRadius: '0px'
   };
 
   const needsTopSpacing = isCoarsePointer || isMobile;
@@ -134,8 +123,10 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
 
       {/* Card */}
       <div
-        className={`fixed md:relative shadow-2xl overflow-hidden transition-all duration-700 cubic-bezier(0.76, 0, 0.24, 1) ${bgClass}`}
-        style={isExpanded ? expandedStyle : initialStyle}
+        className={`fixed shadow-2xl overflow-hidden transition-all duration-500 ease-out ${bgClass} ${
+          isExpanded && !isClosing ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+        }`}
+        style={modalStyle}
       >
         {/* Close Button */}
         <button
