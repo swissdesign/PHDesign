@@ -59,11 +59,6 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
 
         e.preventDefault();
 
-        // Update URL state without reload
-        const url = new URL(window.location.href);
-        url.searchParams.set('view', view);
-        window.history.pushState({}, '', url.toString());
-
         // Dispatch event for App.tsx to catch
         window.dispatchEvent(new CustomEvent('ph-view-change', { detail: view }));
 

@@ -32,7 +32,7 @@ const getFallbackRect = (): TransitionRect => {
   };
 };
 
-const updateProjectQuery = (slug: string | null, mode: 'push' | 'replace' = 'push', view?: 'work' | 'services') => {
+const updateProjectQuery = (slug: string | null, mode: 'push' | 'replace' = 'push') => {
   if (typeof window === 'undefined') return;
   const url = new URL(window.location.href);
 
@@ -42,25 +42,6 @@ const updateProjectQuery = (slug: string | null, mode: 'push' | 'replace' = 'pus
     url.searchParams.delete('project');
   }
 
-  if (view) {
-    url.searchParams.set('view', view);
-  } else {
-    // If no view explicitly passed but we are clearing slug, maintain current view in URL if it exists
-    // actually, let's explicitly manage view state via handleViewChange instead here.
-  }
-
-  const next = `${url.pathname}${url.search}${url.hash}`;
-  if (mode === 'push') {
-    window.history.pushState({}, '', next);
-  } else {
-    window.history.replaceState({}, '', next);
-  }
-};
-
-const updateViewQuery = (view: 'work' | 'services', mode: 'push' | 'replace' = 'push') => {
-  if (typeof window === 'undefined') return;
-  const url = new URL(window.location.href);
-  url.searchParams.set('view', view);
   const next = `${url.pathname}${url.search}${url.hash}`;
   if (mode === 'push') {
     window.history.pushState({}, '', next);
@@ -72,7 +53,7 @@ const updateViewQuery = (view: 'work' | 'services', mode: 'push' | 'replace' = '
 const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, initialView }) => {
   console.log("App.tsx received services:", services?.length, services);
 
-  const [view, setView] = useState<'work' | 'services'>('work');
+  const [view, setView] = useState<'work' | 'services'>(initialView || 'work');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [originRect, setOriginRect] = useState<TransitionRect | null>(null);
   const [theme, setTheme] = useState<Theme>('light');
@@ -98,7 +79,6 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, 
     setView(newView);
     setSelectedProject(null); // Close modal on nav
     updateProjectQuery(null, 'replace'); // clear project 
-    updateViewQuery(newView, 'push'); // update view
   };
 
   const handleSelectProject = (project: Project, rect: TransitionRect) => {
@@ -137,18 +117,11 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, 
     if (typeof window === 'undefined') return;
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('project');
-    const viewQuery = urlParams.get('view');
 
-    // 1. Handle View State
-    if (viewQuery === 'services') {
-      setView('services');
-    } else if (viewQuery === 'work') {
-      setView('work');
-    } else if (initialView) {
-      setView(initialView);
-    } else {
-      setView('work'); // default
-    }
+    // Note: We deliberately do not reset `view` based on `initialView` 
+    // here during sync state, because otherwise navigating "back" from a modal
+    // would abruptly snap the user back to the initial page view context.
+    // The user's dynamic local React `view` state is safely preserved.
 
     // 2. Handle Project Deep Link
     if (!slug) {
