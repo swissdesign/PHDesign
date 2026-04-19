@@ -233,7 +233,9 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                 </section>
 
                 <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 xl:px-24 pb-32 pt-16 flex flex-col items-center justify-center gap-8 border-t border-brand-teal-dark/20 mt-16 pointer-events-auto relative z-30">
-                    <span className="text-xs uppercase tracking-widest text-brand-teal-dark/50 font-semibold mb-2">Ready to explore?</span>
+                    <span className="text-xs uppercase tracking-widest text-brand-teal-dark/50 font-semibold mb-2">
+                      {isEn ? 'Ready to explore?' : 'Bereit zum Erkunden?'}
+                    </span>
                     <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto">
                         <a href={`/${lang}/work`} onClick={(e) => handleRevealAppView(e, 'work')} className="w-full sm:w-auto text-center text-sm uppercase tracking-widest font-semibold text-white bg-brand-teal-dark border border-brand-teal-dark hover:bg-stone-800 transition-colors px-10 py-4 shadow-sm">
                             Portfolio &rarr;
@@ -303,7 +305,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                         className="absolute bottom-12 left-0 right-0 text-center text-brand-teal-dark/50 text-[10px] sm:text-xs tracking-widest uppercase font-semibold z-20 select-none will-change-opacity"
                         style={{ opacity: clamp(hintOpacity, 0, 1) }}
                     >
-                        Scroll if you dare &darr;
+                        {isEn ? 'Scroll if you dare' : 'Scrolle, wenn du wagst'} &darr;
                     </div>
 
                     {/* Principles */}
@@ -343,9 +345,11 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                 pointerEvents: evidenceState.opacity > 0.1 ? 'auto' : 'none'
                             }}
                         >
-                            <span className="text-[10px] md:text-xs uppercase tracking-widest text-brand-teal-dark/50 mb-6 font-semibold block">Proof</span>
+                            <span className="text-[10px] md:text-xs uppercase tracking-widest text-brand-teal-dark/50 mb-6 font-semibold block">
+                              {isEn ? 'Proof' : 'Nachweis'}
+                            </span>
                             <h2 className="text-3xl md:text-4xl lg:text-6xl font-medium tracking-tighter text-brand-teal-dark uppercase">
-                                The Evidence.
+                              {isEn ? 'The Evidence.' : 'Die Beweise.'}
                             </h2>
                         </div>
                     </div>

@@ -211,7 +211,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
 
             {/* Brand pink scroll indicator */}
             <div className={`absolute bottom-6 right-6 ${theme === 'light' ? 'text-brand-pink' : 'text-brand-pink-light'} text-[10px] uppercase tracking-widest animate-pulse transition-opacity duration-500 pointer-events-none z-20 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
-              Scroll / Swipe
+              {lang === 'de' ? 'Scrollen / Wischen' : 'Scroll / Swipe'}
             </div>
           </div>
 
@@ -236,13 +236,15 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
                     rel="noopener noreferrer"
                     className={`inline-block mt-12 text-xs uppercase tracking-widest border-b pb-1 transition-all ${theme === 'light' ? 'border-brand-teal-dark text-brand-teal-dark' : 'border-brand-teal-lightAccent text-brand-teal-lightAccent'} ${linkHoverClass}`}
                   >
-                    Visit Live Site ↗
+                    {lang === 'de' ? 'Live-Website besuchen ↗' : 'Visit Live Site ↗'}
                   </a>
                 )}
               </div>
 
               <div className={`mt-12 pt-6 border-t ${borderClass}`}>
-                <h4 className={`text-[10px] uppercase tracking-widest ${theme === 'light' ? 'text-brand-teal-dark/50' : 'text-brand-teal-lightAccent/50'} mb-3`}>Deliverables</h4>
+                <h4 className={`text-[10px] uppercase tracking-widest ${theme === 'light' ? 'text-brand-teal-dark/50' : 'text-brand-teal-lightAccent/50'} mb-3`}>
+                  {lang === 'de' ? 'Leistungen' : 'Deliverables'}
+                </h4>
                 <div className="flex flex-wrap gap-2">
                   {(projectTags ?? []).map((tag, idx) => (
                     <span

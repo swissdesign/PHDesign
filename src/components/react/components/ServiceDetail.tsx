@@ -153,13 +153,17 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
                 </svg>
               </div>
               <div>
-                <span className={`text-[10px] uppercase tracking-widest block mb-1 md:mb-2 opacity-50 ${textClass}`}>Service Details</span>
+                <span className={`text-[10px] uppercase tracking-widest block mb-1 md:mb-2 opacity-50 ${textClass}`}>
+                  {lang === 'de' ? 'Leistung' : 'Service Details'}
+                </span>
                 <h2 className={`text-2xl md:text-4xl font-light leading-tight ${textClass}`}>{serviceName}</h2>
               </div>
             </div>
 
             <div className={`hidden md:block mt-6 pt-6 border-t w-full ${theme === 'light' ? 'border-brand-teal-dark/10' : 'border-brand-teal-lightAccent/10'}`}>
-              <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>Investment</span>
+              <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>
+                {lang === 'de' ? 'Investition' : 'Investment'}
+              </span>
               <span className={`text-lg font-medium ${textClass}`}>{serviceStartPrice}</span>
             </div>
           </div>
@@ -177,7 +181,7 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
                     : (theme === 'light' ? 'border-transparent text-brand-teal-dark/40 hover:text-brand-teal-dark/60' : 'border-transparent text-brand-teal-lightAccent/40 hover:text-brand-teal-lightAccent/60')
                   }`}
               >
-                Overview
+                {lang === 'de' ? 'Übersicht' : 'Overview'}
               </button>
               <button
                 onClick={() => setMode('booking')}
@@ -186,14 +190,16 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
                     : (theme === 'light' ? 'border-transparent text-brand-teal-dark/40 hover:text-brand-teal-dark/60' : 'border-transparent text-brand-teal-lightAccent/40 hover:text-brand-teal-lightAccent/60')
                   }`}
               >
-                Booking Request
+                {lang === 'de' ? 'Anfragen' : 'Book'}
               </button>
             </div>
 
             {/* Info View */}
             <div className={`absolute inset-x-6 md:inset-x-12 top-24 md:top-32 bottom-6 md:bottom-8 transition-all duration-500 overflow-y-auto ${mode === 'info' ? 'translate-x-0 opacity-100 z-10' : '-translate-x-10 opacity-0 z-0 pointer-events-none'}`}>
               <div className={`md:hidden mb-6 pb-6 border-b ${theme === 'light' ? 'border-brand-teal-dark/10' : 'border-brand-teal-lightAccent/10'}`}>
-                <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>Investment</span>
+                <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>
+                  {lang === 'de' ? 'Investition' : 'Investment'}
+                </span>
                 <span className={`text-lg font-medium ${textClass}`}>{serviceStartPrice}</span>
               </div>
 
@@ -201,7 +207,9 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
                 <p className={`mb-6 leading-relaxed ${subTextClass}`}>{serviceDescription}</p>
               )}
 
-              <h3 className={`text-lg font-medium mb-6 ${textClass}`}>What's included</h3>
+              <h3 className={`text-lg font-medium mb-6 ${textClass}`}>
+                {lang === 'de' ? 'Leistungsumfang' : "What's included"}
+              </h3>
               <ul className="space-y-4 mb-8">
                 {(serviceBullets ?? []).map((bullet, i) => (
                   <li key={`${bullet}-${i}`} className={`flex items-start gap-3 ${subTextClass}`}>
@@ -211,14 +219,16 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
                 ))}
               </ul>
               {serviceBullets.length === 0 && (
-                <p className={`mb-8 text-sm italic ${subTextClass}`}>Details coming soon.</p>
+                <p className={`mb-8 text-sm italic ${subTextClass}`}>
+                  {lang === 'de' ? 'Details folgen.' : 'Details coming soon.'}
+                </p>
               )}
               <div className="mt-auto pt-6">
                 <button
                   onClick={() => setMode('booking')}
                   className={`w-full md:w-auto px-6 py-4 md:py-3 rounded-full text-xs uppercase tracking-widest transition-transform hover:scale-105 shadow-lg ${buttonClass}`}
                 >
-                  Start Project
+                  {lang === 'de' ? 'Projekt starten' : 'Start Project'}
                 </button>
               </div>
             </div>
