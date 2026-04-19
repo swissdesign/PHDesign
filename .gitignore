@@ -1,41 +1,27 @@
-
 # Node
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-dist/
-.vite/
-.DS_Store
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-dist/
-.vite/
-.DS_Store
-*.code-workspace
-.env.local
-.env
-.vercel/
-.vercel/output/
-.astro/
-.env
-.env.*
-!.env.example
-
-# Secrets / local env
-.env
-.env.*
-!.env.example
 
 # Build artifacts
+dist/
+.vite/
 .astro/
+
+# OS
+.DS_Store
+*.code-workspace
+
+# Environment — never commit real secrets
+.env
+.env.*
+!.env.example
+
+# Vercel
 .vercel/
 .vercel/output/
+
+# Local secrets
 pascal-cms-platform-2e4464610ef3.json
-
-
-curl -X POST https://pheiniger.vercel.app/api/ops/run -H "Content-Type: application/json" -H "Authorization: Bearer e8f242edc2f335f95a1b527e0d954f7824742be8fe0ba16d5cf8bbaa840cef73" -d '{"actionId": "health.env"}'
