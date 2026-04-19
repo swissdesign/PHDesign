@@ -21,6 +21,16 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
   const [isMobile, setIsMobile] = useState(false);
   const [isCoarsePointer, setIsCoarsePointer] = useState(false);
 
+  const handleClose = () => {
+    if (isClosing) return;
+    setIsClosing(true);
+    setShowContent(false);
+    setIsExpanded(false);
+    setTimeout(() => {
+      onClose();
+    }, 700);
+  };
+
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -57,7 +67,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
       clearTimeout(timer2);
       window.removeEventListener('keydown', handleEsc);
     };
-  }, []);
+  }, [isClosing, onClose]);
 
   const projectTitle = pickLang(project, 'title', lang) || project.title || 'Untitled Project';
   const projectDescription = pickLang(project, 'description', lang) || project.description || '';
@@ -76,18 +86,6 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
     { src: projectImage, srcSet: projectSrcSet, className: 'blur-sm' },
     { src: projectImage, srcSet: projectSrcSet, className: '' }
   ];
-
-
-
-  const handleClose = () => {
-    if (isClosing) return;
-    setIsClosing(true);
-    setShowContent(false);
-    setIsExpanded(false);
-    setTimeout(() => {
-      onClose();
-    }, 700);
-  };
 
   // Theme styling constants
   const bgClass = theme === 'light' ? 'bg-white' : 'bg-[#1C1917]';
