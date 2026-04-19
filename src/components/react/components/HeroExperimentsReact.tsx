@@ -360,7 +360,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                         <div
                             className="absolute inset-0 max-w-[1400px] mx-auto w-full px-6 md:px-12 xl:px-24 flex flex-col justify-center z-30 pointer-events-none"
                         >
-                            <div className="w-full flex flex-col lg:flex-row items-center justify-end relative h-full pt-[20vh] sm:pt-16 lg:pt-0">
+                            <div className="w-full flex flex-col lg:flex-row items-center justify-end relative h-full pt-[5vh] sm:pt-4 lg:pt-0 pb-[15vh]">
 
                                 <div className="lg:w-4/12 xl:w-5/12 hidden lg:block"></div>
 
@@ -381,16 +381,16 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                                     className={`w-full flex flex-col absolute inset-0 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] pointer-events-none ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
                                                     style={{ '--accent': item.accent } as React.CSSProperties}
                                                 >
-                                                    <div style={getStyle('controls')} className="will-change-transform z-20 relative pb-10 pointer-events-auto">
+                                                    <div style={getStyle('controls')} className="will-change-transform z-20 relative pb-12 pointer-events-auto">
                                                         {clientItems.length > 1 && (
-                                                            <div className="flex items-center gap-6 text-xs sm:text-sm font-semibold tracking-widest uppercase text-stone-900 relative">
-                                                                <button onClick={prevSlide} className="hover:text-stone-500 transition-colors py-2 pr-4 select-none group flex items-center gap-2 border border-stone-300 rounded-full px-6 bg-white shadow-sm hover:shadow-md">
+                                                            <div className="flex items-center gap-6 text-sm sm:text-base font-bold tracking-widest uppercase text-stone-900 relative">
+                                                                <button onClick={prevSlide} className="hover:bg-stone-800 transition-colors py-3 pr-6 select-none group flex items-center gap-2 border border-stone-900 rounded-full px-8 bg-stone-900 text-white shadow-xl hover:scale-[1.02] active:scale-[0.98]">
                                                                     <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> Prev
                                                                 </button>
-                                                                <span className="w-8 h-px bg-stone-400"></span>
-                                                                <span className="text-stone-900 min-w-[3ch] text-center">{`${index + 1}/${clientItems.length}`}</span>
-                                                                <span className="w-8 h-px bg-stone-400"></span>
-                                                                <button onClick={nextSlide} className="hover:text-stone-500 transition-colors py-2 pl-4 select-none group flex items-center gap-2 border border-stone-300 rounded-full px-6 bg-white shadow-sm hover:shadow-md">
+                                                                <span className="w-8 h-1 bg-stone-900/20 rounded-full"></span>
+                                                                <span className="text-stone-900 min-w-[3ch] text-center text-lg">{`${index + 1}/${clientItems.length}`}</span>
+                                                                <span className="w-8 h-1 bg-stone-900/20 rounded-full"></span>
+                                                                <button onClick={nextSlide} className="hover:bg-stone-800 transition-colors py-3 pl-6 select-none group flex items-center gap-2 border border-stone-900 rounded-full px-8 bg-stone-900 text-white shadow-xl hover:scale-[1.02] active:scale-[0.98]">
                                                                     Next <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
                                                                 </button>
                                                             </div>
@@ -433,10 +433,11 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                                         </p>
                                                     </div>
 
-                                                    <div style={getStyle('controls')} className="will-change-transform mt-auto flex items-start z-30 relative pointer-events-auto">
+                                                    <div style={getStyle('controls')} className="will-change-transform mt-auto flex items-start z-30 relative pointer-events-auto pb-4">
                                                         <a
                                                             href={item.ctaHref}
-                                                            className="inline-flex items-center justify-center bg-stone-900 text-[#A1E4ED] px-6 py-3 sm:px-8 sm:py-4 text-[10px] md:text-xs uppercase tracking-widest transition-transform hover:-translate-y-0.5 active:translate-y-0 font-semibold border border-transparent hover:border-stone-700"
+                                                            style={{ backgroundColor: 'var(--accent)' }}
+                                                            className="inline-flex items-center justify-center text-white px-8 py-4 sm:px-10 sm:py-5 text-xs md:text-sm uppercase tracking-widest transition-transform hover:-translate-y-1 active:translate-y-0 font-bold border border-transparent shadow-xl hover:shadow-2xl rounded-full"
                                                         >
                                                             {item.ctaLabel}
                                                         </a>
