@@ -208,7 +208,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
 
     if (reducedMotion) {
         return (
-            <div className="relative w-full bg-[#EAF3F4] text-stone-900 border-b border-stone-200">
+            <div className="relative w-full bg-[#A1E4ED] text-stone-900 border-b border-stone-200">
                 <section className="relative w-full py-32 px-6 md:px-12 xl:px-24 flex flex-col justify-center overflow-hidden">
                     <div className="max-w-[1400px] mx-auto w-full relative z-20">
                         <h1 className="text-[14vw] leading-[0.85] md:text-[8vw] lg:text-[7.5vw] font-medium tracking-tighter uppercase mb-6 text-stone-900 select-none">
@@ -222,7 +222,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                     </div>
                 </section>
 
-                <section className="relative w-full px-6 md:px-12 xl:px-24 py-16 bg-[#EAF3F4]">
+                <section className="relative w-full px-6 md:px-12 xl:px-24 py-16 bg-[#A1E4ED]">
                     <div className="max-w-[1400px] mx-auto w-full flex flex-col lg:flex-row relative items-start gap-16 lg:gap-8">
                         <div className="lg:w-8/12 xl:w-7/12 w-full lg:ml-auto flex flex-col gap-24">
                             {cards.map((c, i) => (
@@ -254,7 +254,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
     }
 
     return (
-        <div className="relative w-full bg-[#EAF3F4] text-stone-900 border-b border-stone-200">
+        <div className="relative w-full bg-[#A1E4ED] text-stone-900 border-b border-stone-200">
 
             {/* Narrative Scroll Wrapper */}
             <div ref={wrapperRef} className="relative w-full h-[1000vh] lg:h-[1200vh]">
@@ -381,6 +381,22 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                                     className={`w-full flex flex-col absolute inset-0 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] pointer-events-none ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
                                                     style={{ '--accent': item.accent } as React.CSSProperties}
                                                 >
+                                                    <div style={getStyle('controls')} className="will-change-transform z-20 relative pb-10 pointer-events-auto">
+                                                        {clientItems.length > 1 && (
+                                                            <div className="flex items-center gap-6 text-xs sm:text-sm font-semibold tracking-widest uppercase text-stone-900 relative">
+                                                                <button onClick={prevSlide} className="hover:text-stone-500 transition-colors py-2 pr-4 select-none group flex items-center gap-2 border border-stone-300 rounded-full px-6 bg-white shadow-sm hover:shadow-md">
+                                                                    <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> Prev
+                                                                </button>
+                                                                <span className="w-8 h-px bg-stone-400"></span>
+                                                                <span className="text-stone-900 min-w-[3ch] text-center">{`${index + 1}/${clientItems.length}`}</span>
+                                                                <span className="w-8 h-px bg-stone-400"></span>
+                                                                <button onClick={nextSlide} className="hover:text-stone-500 transition-colors py-2 pl-4 select-none group flex items-center gap-2 border border-stone-300 rounded-full px-6 bg-white shadow-sm hover:shadow-md">
+                                                                    Next <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
                                                     <div style={getStyle('keyword')} className="will-change-transform">
                                                         <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-4 sm:mb-8 text-[10px] md:text-xs uppercase tracking-widest font-semibold text-stone-900">
                                                             <span className="flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-sm border-l-2" style={{ borderColor: 'var(--accent)' }}>
@@ -407,22 +423,6 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
 
                                                     <div style={getStyle('line')} className="will-change-transform origin-left h-px w-full max-w-sm bg-stone-200 mb-6 lg:mb-8"></div>
 
-                                                    <div style={getStyle('controls')} className="will-change-transform z-20 relative pb-6 pointer-events-auto">
-                                                        {clientItems.length > 1 && (
-                                                            <div className="flex items-center gap-4 text-[10px] sm:text-xs font-semibold tracking-widest uppercase text-stone-400 relative">
-                                                                <button onClick={prevSlide} className="hover:text-stone-900 transition-colors py-2 pr-2 select-none group flex items-center gap-1">
-                                                                    <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> Prev
-                                                                </button>
-                                                                <span className="w-6 h-px bg-stone-300"></span>
-                                                                <span className="text-stone-900 min-w-[3ch] text-center">{`${index + 1}/${clientItems.length}`}</span>
-                                                                <span className="w-6 h-px bg-stone-300"></span>
-                                                                <button onClick={nextSlide} className="hover:text-stone-900 transition-colors py-2 pl-2 select-none group flex items-center gap-1">
-                                                                    Next <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </div>
-
                                                     <div style={getStyle('body')} className="will-change-transform">
                                                         <h3 className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 mb-2 font-medium">
                                                             Experiment // <span className="text-stone-600">{item.title}</span>
@@ -436,7 +436,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                                     <div style={getStyle('controls')} className="will-change-transform mt-auto flex items-start z-30 relative pointer-events-auto">
                                                         <a
                                                             href={item.ctaHref}
-                                                            className="inline-flex items-center justify-center bg-stone-900 text-[#EAF3F4] px-6 py-3 sm:px-8 sm:py-4 text-[10px] md:text-xs uppercase tracking-widest transition-transform hover:-translate-y-0.5 active:translate-y-0 font-semibold border border-transparent hover:border-stone-700"
+                                                            className="inline-flex items-center justify-center bg-stone-900 text-[#A1E4ED] px-6 py-3 sm:px-8 sm:py-4 text-[10px] md:text-xs uppercase tracking-widest transition-transform hover:-translate-y-0.5 active:translate-y-0 font-semibold border border-transparent hover:border-stone-700"
                                                         >
                                                             {item.ctaLabel}
                                                         </a>

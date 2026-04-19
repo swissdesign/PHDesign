@@ -135,7 +135,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
       {/* Backdrop */}
       <div
         className={`absolute inset-0 backdrop-blur-md transition-opacity duration-700 ease-in-out pointer-events-auto ${isExpanded && !isClosing ? 'opacity-100' : 'opacity-0'
-          } ${theme === 'light' ? 'bg-[#EAF3F4]/80' : 'bg-black/80'}`}
+          } ${theme === 'light' ? 'bg-[#A1E4ED]/80' : 'bg-black/80'}`}
         onClick={handleClose}
       />
 

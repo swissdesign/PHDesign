@@ -148,7 +148,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
       {/* Backdrop */}
       <div
         className={`absolute inset-0 backdrop-blur-md transition-all duration-700 ease-in-out ${isExpanded && !isClosing ? 'opacity-100' : 'opacity-0'
-          } ${theme === 'light' ? 'bg-[#EAF3F4]/90' : 'bg-black/90'}`}
+          } ${theme === 'light' ? 'bg-[#A1E4ED]/90' : 'bg-black/90'}`}
         onClick={handleClose}
       ></div>
 

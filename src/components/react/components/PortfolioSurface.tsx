@@ -204,7 +204,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ projects, la
               className={`w-full h-full rounded-xl p-[1px] shadow-sm transition-all duration-500 group-hover:shadow-xl ${frameGradient}`}
             >
               <div
-                className={`w-full h-full relative overflow-hidden rounded-[calc(0.75rem-1px)] transition-colors duration-500 ${theme === 'light' ? 'bg-[#EAF3F4]' : 'bg-[#292524]'
+                className={`w-full h-full relative overflow-hidden rounded-[calc(0.75rem-1px)] transition-colors duration-500 ${theme === 'light' ? 'bg-[#A1E4ED]' : 'bg-[#292524]'
                   }`}
               >
                 <div className="w-full h-full overflow-hidden flex items-center justify-center">
