@@ -50,8 +50,29 @@ const updateProjectQuery = (slug: string | null, mode: 'push' | 'replace' = 'pus
   }
 };
 
+/**
+ * Updates the browser URL pathname to the correct view route.
+ * e.g. /de/work or /de/services
+ * Uses replaceState so that back/forward is not polluted by every minor toggle.
+ */
+const updateViewRoute = (lang: string, view: 'work' | 'services', mode: 'push' | 'replace' = 'push') => {
+  if (typeof window === 'undefined') return;
+  const url = new URL(window.location.href);
+  // Only rewrite if we're actually changing the canonical route
+  const targetPath = `/${lang}/${view}`;
+  if (url.pathname === targetPath) return;
+  // Clear project param when changing view
+  url.searchParams.delete('project');
+  url.pathname = targetPath;
+  const next = `${url.pathname}${url.search}${url.hash}`;
+  if (mode === 'push') {
+    window.history.pushState({}, '', next);
+  } else {
+    window.history.replaceState({}, '', next);
+  }
+};
+
 const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, initialView }) => {
-  console.log("App.tsx received services:", services?.length, services);
 
   const [view, setView] = useState<'work' | 'services'>(initialView || 'work');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -78,7 +99,8 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, 
   const handleViewChange = (newView: 'work' | 'services') => {
     setView(newView);
     setSelectedProject(null); // Close modal on nav
-    updateProjectQuery(null, 'replace'); // clear project 
+    updateProjectQuery(null, 'replace'); // clear project param
+    updateViewRoute(lang, newView, 'push'); // sync URL pathname to the new view
   };
 
   const handleSelectProject = (project: Project, rect: TransitionRect) => {
@@ -118,12 +140,17 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, 
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('project');
 
-    // Note: We deliberately do not reset `view` based on `initialView` 
-    // here during sync state, because otherwise navigating "back" from a modal
-    // would abruptly snap the user back to the initial page view context.
-    // The user's dynamic local React `view` state is safely preserved.
+    // Determine view from the current URL pathname when no initialView was given.
+    // e.g. /de/work → 'work', /de/services → 'services', /de/ → use React state as-is.
+    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    if (lastSegment === 'work' || lastSegment === 'services') {
+      setView(lastSegment);
+    }
+    // Note: we do NOT reset to initialView here to avoid snapping the user back
+    // when pressing back from a project modal.
 
-    // 2. Handle Project Deep Link
+    // Handle Project Deep Link
     if (!slug) {
       setSelectedProject(null);
       return;

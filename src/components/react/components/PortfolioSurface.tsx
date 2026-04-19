@@ -9,13 +9,6 @@ interface PortfolioSurfaceProps {
   theme: Theme;
 }
 
-const getLocalizedTitle = (project: Project, lang: Lang): string => {
-  if (lang === 'en') return project.title_en || project.title;
-  if (lang === 'fr') return project.title_fr || project.title;
-  if (lang === 'it') return project.title_it || project.title;
-  return project.title_de || project.title;
-};
-
 export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ projects, lang = 'de', onSelectProject, theme }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -175,7 +168,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ projects, la
 
     for (let i = 0; i < repetitions; i++) {
       projects.forEach((project, index) => {
-        const title = getLocalizedTitle(project, lang);
+        const title = project.title;
         const key = `${project.id}-${i}-${index}`;
         items.push(
           <div

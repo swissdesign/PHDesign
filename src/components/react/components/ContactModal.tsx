@@ -24,7 +24,8 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
     message: '',
     _honey: ''
   });
-  const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
+  const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -55,6 +56,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
       setShouldRender(false);
       setIsClosing(false);
       setFormStatus('idle'); // Reset form on close
+      setFormError(null);
       onClose();
     }, 700);
   };
@@ -62,30 +64,34 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormStatus('submitting');
+    setFormError(null);
 
-    // Send to contact API
     try {
       const payload = {
-        service_id: formData.service || 'unknown',
+        service_id: formData.service || 'general',
         email: formData.email,
-        name: formData.email.split('@')[0] || 'Unknown User',
+        name: formData.email.split('@')[0] || 'Unknown',
         notes: formData.message,
         _honey: formData._honey
       };
 
       const res = await fetch('/api/contact', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      // Not awaiting res.json() mostly for simplicity as long as not 500
-    } catch (err) {
-      console.error(err)
-    }
 
-    setFormStatus('success');
+      const data = await res.json();
+      if (data.ok) {
+        setFormStatus('success');
+      } else {
+        setFormError(data.error || 'Unbekannter Fehler.');
+        setFormStatus('error');
+      }
+    } catch (err) {
+      setFormError('Netzwerkfehler. Bitte versuche es erneut.');
+      setFormStatus('error');
+    }
   };
 
   if (!shouldRender || !originRect) return null;
@@ -161,31 +167,52 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
 
           {formStatus === 'success' ? (
             <div className="h-full flex flex-col items-center justify-center text-center animate-in fade-in duration-700">
-              <div className="text-5xl mb-6">✨</div>
-              <h2 className={`text-3xl font-light mb-4 ${textClass}`}>Message Sent.</h2>
+              <div className="text-5xl mb-6">✓</div>
+              <h2 className={`text-3xl font-light mb-4 ${textClass}`}>Nachricht gesendet.</h2>
               <p className={`max-w-xs mx-auto leading-relaxed ${subTextClass}`}>
-                Thank you for reaching out. I usually respond within 24 hours.
+                Ich melde mich in der Regel innerhalb von 24 Stunden.
               </p>
               <button
                 onClick={handleClose}
                 className={`mt-12 px-8 py-3 rounded-full text-xs uppercase tracking-widest border transition-all hover:scale-105 ${theme === 'light' ? 'border-brand-teal-dark text-brand-teal-dark' : 'border-brand-teal-lightAccent text-brand-teal-lightAccent'
                   }`}
               >
-                Close
+                Schliessen
+              </button>
+            </div>
+          ) : formStatus === 'error' ? (
+            <div className="h-full flex flex-col items-center justify-center text-center animate-in fade-in duration-700 px-4">
+              <div className="text-5xl mb-6 opacity-60">!</div>
+              <h2 className={`text-2xl font-light mb-4 ${textClass}`}>Versand fehlgeschlagen.</h2>
+              <p className={`max-w-xs mx-auto leading-relaxed text-sm ${subTextClass}`}>
+                {formError || 'Bitte versuche es erneut oder schreib direkt an:'}
+              </p>
+              <a
+                href="mailto:pascal@oss.studio"
+                className={`mt-6 text-sm underline underline-offset-4 ${textClass}`}
+              >
+                pascal@oss.studio
+              </a>
+              <button
+                onClick={() => { setFormStatus('idle'); setFormError(null); }}
+                className={`mt-8 px-8 py-3 rounded-full text-xs uppercase tracking-widest border transition-all hover:scale-105 ${theme === 'light' ? 'border-brand-teal-dark text-brand-teal-dark' : 'border-brand-teal-lightAccent text-brand-teal-lightAccent'
+                  }`}
+              >
+                Nochmal versuchen
               </button>
             </div>
           ) : (
             <div className="max-w-lg mx-auto h-full flex flex-col">
               <div className="mb-6 md:mb-10 shrink-0">
-                <span className={`text-xs uppercase tracking-widest block mb-2 opacity-50 ${textClass}`}>Get in touch</span>
-                <h2 className={`text-2xl md:text-4xl font-light leading-tight ${textClass}`}>Let's start a project.</h2>
+                <span className={`text-xs uppercase tracking-widest block mb-2 opacity-50 ${textClass}`}>Kontakt</span>
+                <h2 className={`text-2xl md:text-4xl font-light leading-tight ${textClass}`}>Projekt anfragen.</h2>
               </div>
 
               <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-6 md:gap-8 overflow-y-auto">
 
                 {/* Service Dropdown */}
                 <div className="group">
-                  <label className={`block text-xs uppercase tracking-widest mb-3 ${subTextClass}`}>I'm interested in</label>
+                <label className={`block text-xs uppercase tracking-widest mb-3 ${subTextClass}`}>Ich interessiere mich für</label>
                   <div className="relative">
                     <select
                       required
@@ -193,7 +220,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
                       onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                       className={`w-full bg-transparent border-b py-3 pr-8 appearance-none outline-none cursor-pointer rounded-none transition-colors ${inputClass}`}
                     >
-                      <option value="" disabled className={`bg-brand-teal-light text-brand-teal-dark/50`}>Select a Service...</option>
+                      <option value="" disabled className={`bg-brand-teal-light text-brand-teal-dark/50`}>Service wählen...</option>
                       {(services ?? []).map((s, index) => {
                         const row = (s ?? {}) as unknown as Record<string, unknown>;
                         const label = String(row.name ?? row.title ?? row.slug ?? `Service ${index + 1}`);
@@ -217,7 +244,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
 
                 {/* Email Input */}
                 <div>
-                  <label className={`block text-xs uppercase tracking-widest mb-3 ${subTextClass}`}>My Email is</label>
+                  <label className={`block text-xs uppercase tracking-widest mb-3 ${subTextClass}`}>E-Mail-Adresse</label>
                   <input
                     type="email"
                     required
@@ -239,10 +266,10 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
 
                 {/* Message Area */}
                 <div className="flex-1 min-h-[100px] md:min-h-[120px]">
-                  <label className={`block text-xs uppercase tracking-widest mb-3 ${subTextClass}`}>Message</label>
+                  <label className={`block text-xs uppercase tracking-widest mb-3 ${subTextClass}`}>Nachricht</label>
                   <textarea
                     required
-                    placeholder="Tell me a bit about your goals, timeline, or just say hello..."
+                    placeholder="Was bewegt dich? Timeline, Ziele oder einfach Hallo..."
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     className={`w-full h-full bg-transparent border-b py-3 outline-none resize-none rounded-none transition-colors ${inputClass}`}
@@ -252,14 +279,14 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
                 {/* Action Row */}
                 <div className="flex items-center justify-between pt-4 md:pt-6 mt-auto shrink-0 pb-4 md:pb-0">
                   <span className={`text-[10px] uppercase tracking-wider opacity-50 ${textClass}`}>
-                    {formStatus === 'submitting' ? 'Processing...' : 'Ready to launch'}
+                    {formStatus === 'submitting' ? 'Wird gesendet...' : 'Bereit?'}
                   </span>
                   <button
                     type="submit"
                     disabled={formStatus === 'submitting'}
                     className={`px-8 py-4 rounded-full text-xs uppercase tracking-widest font-medium transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 ${buttonClass}`}
                   >
-                    Send Request
+                    {formStatus === 'submitting' ? '...' : 'Anfrage senden'}
                   </button>
                 </div>
 

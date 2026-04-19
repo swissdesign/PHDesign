@@ -66,7 +66,8 @@ export interface ProjectRow {
     title_en?: string;
     category?: string;
     date?: string;
-    image?: string;
+    image?: string;      // preferred column name
+    image_id?: string;   // fallback: some sheet versions use image_id
     description_de?: string;
     description_en?: string;
     clientUrl?: string;
@@ -98,7 +99,9 @@ export async function getProjects(lang: string = 'de'): Promise<Project[]> {
             title: title || 'Untitled',
             category: p.category || '',
             date: p.date || '',
-            image: p.image || '',
+            // Normalize: accept either `image` or `image_id` column from the sheet.
+            // Both are treated as a raw Google Drive file ID or a full URL.
+            image: p.image || p.image_id || '',
             description: description || '',
             clientUrl: p.clientUrl || '',
             tags,

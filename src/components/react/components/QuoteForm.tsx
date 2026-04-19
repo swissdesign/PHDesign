@@ -18,7 +18,7 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ theme = 'light', serviceId
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDone, setIsDone] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Dynamic styles based on theme
   const textClass = theme === 'light' ? 'text-stone-900' : 'text-stone-100';
@@ -45,14 +45,14 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ theme = 'light', serviceId
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setErrorMsg('');
+    setErrorMsg(null);
 
     const payload = {
       service_id: serviceId || 'unknown-service',
       lang,
       name: formData.email.split('@')[0] || 'Unknown User',
       email: formData.email,
-      notes: `Goal: ${formData.q1}\nSuccess: ${formData.q2}\nBudget: ${formData.q3}`,
+      notes: `Ziel: ${formData.q1}\nErfolg: ${formData.q2}\nBudget: ${formData.q3}`,
       _honey: formData._honey
     };
 
@@ -65,24 +65,42 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ theme = 'light', serviceId
       const data = await res.json();
 
       if (data.ok && data.payment?.url) {
-        // Premium redirect experience
+        // Payrexx is live — redirect to payment
         window.location.href = data.payment.url;
+        return; // keep isSubmitting true during redirect
+      } else if (data.ok) {
+        // Booking logged as lead — no payment link yet. Show confirmation.
+        setIsDone(true);
+        setIsSubmitting(false);
       } else {
-        setErrorMsg(data.error || 'Oops, something went wrong.');
+        // Server returned an explicit error
+        const msg = lang === 'en'
+          ? 'Something went wrong. Please try again or write to us directly.'
+          : 'Etwas ist schiefgelaufen. Bitte versuche es erneut oder schreib uns direkt.';
+        setErrorMsg(data.error || msg);
         setIsSubmitting(false);
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Network error.');
+      const msg = lang === 'en'
+        ? 'Network error. Please check your connection and try again.'
+        : 'Netzwerkfehler. Bitte prüfe deine Verbindung und versuche es nochmals.';
+      setErrorMsg(msg);
       setIsSubmitting(false);
     }
   };
 
   if (isDone) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-center animate-in fade-in duration-700">
-        <div className="text-4xl mb-4">✨</div>
-        <h3 className={`text-xl font-light mb-2 ${textClass}`}>Weiterleitung zu Payrexx...</h3>
-        <p className={`${subTextClass} text-sm`}>Bitte warten, du wirst zum Payment-Provider weitergeleitet.</p>
+      <div className="h-full flex flex-col items-center justify-center text-center animate-in fade-in duration-700 px-4">
+        <div className="text-5xl mb-6">✓</div>
+        <h3 className={`text-2xl font-light mb-3 ${textClass}`}>
+          {lang === 'en' ? 'Request received.' : 'Anfrage erhalten.'}
+        </h3>
+        <p className={`${subTextClass} text-sm leading-relaxed max-w-xs`}>
+          {lang === 'en'
+            ? 'Thank you. I will review your project brief and get back to you within 48 hours.'
+            : 'Vielen Dank. Ich sichte deine Angaben und melde mich innerhalb von 48 Stunden.'}
+        </p>
       </div>
     );
   }
@@ -189,7 +207,7 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ theme = 'light', serviceId
 
         {/* Fixed Button Area */}
         <div className={`shrink-0 flex justify-between items-center mt-4 pt-4 md:mt-8 md:pt-6 border-t ${borderClass}`}>
-          <div className="text-red-500 text-xs px-2 flex-1">
+          <div className={`text-xs px-2 flex-1 ${theme === 'light' ? 'text-red-600' : 'text-red-400'}`}>
             {step === 4 && errorMsg}
           </div>
           <button

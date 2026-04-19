@@ -22,7 +22,6 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
   const [isExpanded, setIsExpanded] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
-  const [currentLang, setCurrentLang] = useState('DE');
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
@@ -128,16 +127,29 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
 
           <div className={`mt-4 md:mt-0 md:ml-12 flex flex-col md:flex-row gap-4 md:gap-8 md:items-center text-[10px] uppercase tracking-widest ${subTextClass} flex-1`}>
             <div className="flex gap-4">
-                {['DE', 'EN', 'FR', 'IT'].map((lang) => (
-                    <button 
-                        key={lang}
-                        onClick={() => setCurrentLang(lang)}
-                        className={`transition-colors ${currentLang === lang ? activeLangClass : `opacity-50 hover:opacity-100 ${hoverTextAccent}`}`}
-                    >
-                        {lang}
-                    </button>
-                ))}
-            </div>
+              {(['DE', 'EN', 'FR', 'IT'] as const).map((l) => {
+                  const isActive = lang.toUpperCase() === l;
+                  const targetLang = l.toLowerCase();
+                  // Build the same path but with the target language segment replaced
+                  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+                  const pathParts = currentPath.split('/').filter(Boolean);
+                  pathParts[0] = targetLang; // replace lang segment
+                  const targetPath = '/' + pathParts.join('/');
+                  return (
+                      <a
+                          key={l}
+                          href={targetPath}
+                          className={`transition-colors ${
+                            isActive
+                              ? activeLangClass
+                              : `opacity-50 hover:opacity-100 ${hoverTextAccent}`
+                          }`}
+                      >
+                          {l}
+                      </a>
+                  );
+              })}
+          </div>
 
             <div className="hidden md:block h-3 w-px bg-current opacity-20" />
 
@@ -149,9 +161,9 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
                 >
                     iam
                 </a>
-                <a href="#" className={`hover:underline ${hoverTextAccent}`}>Impressum</a>
-                <a href="#" className={`hover:underline ${hoverTextAccent}`}>Datenschutz</a>
-                <a href="#" className={`hover:underline ${hoverTextAccent}`}>AGB</a>
+                <a href={`/${lang}/impressum`} className={`hover:underline ${hoverTextAccent}`} onClick={onClose}>Impressum</a>
+                <a href={`/${lang}/datenschutz`} className={`hover:underline ${hoverTextAccent}`} onClick={onClose}>Datenschutz</a>
+                <a href={`/${lang}/agb`} className={`hover:underline ${hoverTextAccent}`} onClick={onClose}>AGB</a>
                 <button 
                     onClick={handleOpenCookieSettings}
                     className={`hover:underline ${hoverTextAccent}`}

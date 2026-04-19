@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { LANGS, normalizeLang } from '../../lib/i18n';
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = normalizeLang(Astro.params.lang);
+const isEn = lang === 'en';
+---
+
+<BaseLayout lang={lang} title={isEn ? 'Privacy Policy | P. Heiniger Design' : 'Datenschutz | P. Heiniger Design'}>
+  <main class="max-w-2xl mx-auto px-6 py-24 min-h-screen text-stone-800">
+    <a href={`/${lang}`} class="text-xs uppercase tracking-widest text-stone-400 hover:text-stone-700 transition-colors mb-12 inline-block">
+      ← {isEn ? 'Back' : 'Zurück'}
+    </a>
+
+    <h1 class="text-4xl font-light tracking-tight mb-12 text-stone-900">
+      {isEn ? 'Privacy Policy' : 'Datenschutzerklärung'}
+    </h1>
+
+    <div class="space-y-10 text-sm leading-relaxed text-stone-600">
+      <section>
+        <h2 class="text-xs uppercase tracking-widest text-stone-400 mb-3">
+          {isEn ? 'Overview' : 'Überblick'}
+        </h2>
+        <p>
+          {isEn
+            ? 'This website is operated by Pascal Heiniger Design Studio. We take the protection of your personal data seriously.'
+            : 'Diese Website wird betrieben von Pascal Heiniger Design Studio. Der Schutz Ihrer persönlichen Daten ist uns ein wichtiges Anliegen.'}
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs uppercase tracking-widest text-stone-400 mb-3">
+          {isEn ? 'Data collected' : 'Erhobene Daten'}
+        </h2>
+        <p>
+          {isEn
+            ? 'When you use our contact form, we collect your email address and message in order to respond to your inquiry. This data is stored securely and not shared with third parties.'
+            : 'Wenn Sie unser Kontaktformular verwenden, erfassen wir Ihre E-Mail-Adresse und Nachricht, um auf Ihre Anfrage antworten zu können. Diese Daten werden sicher gespeichert und nicht an Dritte weitergegeben.'}
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs uppercase tracking-widest text-stone-400 mb-3">Cookies</h2>
+        <p>
+          {isEn
+            ? 'This website uses only technically necessary cookies and optional analytics cookies. You can manage your preferences at any time via the cookie settings.'
+            : 'Diese Website verwendet ausschliesslich technisch notwendige Cookies sowie optionale Analyse-Cookies. Ihre Einstellungen können Sie jederzeit über die Cookie-Einstellungen verwalten.'}
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs uppercase tracking-widest text-stone-400 mb-3">Kontakt / Contact</h2>
+        <p>
+          {isEn ? 'For questions about your data:' : 'Bei Fragen zu Ihren Daten:'}
+          {' '}
+          <a href="mailto:pascal@oss.studio" class="underline underline-offset-4 hover:text-stone-900 transition-colors">
+            pascal@oss.studio
+          </a>
+        </p>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

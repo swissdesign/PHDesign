@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { LANGS, normalizeLang } from '../../lib/i18n';
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = normalizeLang(Astro.params.lang);
+const isEn = lang === 'en';
+---
+
+<BaseLayout lang={lang} title={isEn ? 'Terms & Conditions | P. Heiniger Design' : 'AGB | P. Heiniger Design'}>
+  <main class="max-w-2xl mx-auto px-6 py-24 min-h-screen text-stone-800">
+    <a href={`/${lang}`} class="text-xs uppercase tracking-widest text-stone-400 hover:text-stone-700 transition-colors mb-12 inline-block">
+      ← {isEn ? 'Back' : 'Zurück'}
+    </a>
+
+    <h1 class="text-4xl font-light tracking-tight mb-12 text-stone-900">
+      {isEn ? 'Terms & Conditions' : 'Allgemeine Geschäftsbedingungen'}
+    </h1>
+
+    <div class="space-y-10 text-sm leading-relaxed text-stone-600">
+      <section>
+        <h2 class="text-xs uppercase tracking-widest text-stone-400 mb-3">
+          {isEn ? 'Scope' : 'Geltungsbereich'}
+        </h2>
+        <p>
+          {isEn
+            ? 'These terms and conditions apply to all services provided by Pascal Heiniger Design Studio.'
+            : 'Diese Allgemeinen Geschäftsbedingungen gelten für alle Dienstleistungen von Pascal Heiniger Design Studio.'}
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs uppercase tracking-widest text-stone-400 mb-3">
+          {isEn ? 'Services & delivery' : 'Leistungen & Lieferung'}
+        </h2>
+        <p>
+          {isEn
+            ? 'The scope of services is defined in individual project agreements. Delivery timelines are agreed upon per project.'
+            : 'Der Leistungsumfang wird in individuellen Projektvereinbarungen festgelegt. Lieferfristen werden projektbezogen vereinbart.'}
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs uppercase tracking-widest text-stone-400 mb-3">
+          {isEn ? 'Payment' : 'Zahlung'}
+        </h2>
+        <p>
+          {isEn
+            ? 'A deposit is due upon project confirmation. Final payment is due upon delivery. Prices are in CHF unless otherwise agreed.'
+            : 'Eine Anzahlung ist bei Projektbestätigung fällig. Die Restzahlung ist bei Lieferung fällig. Preise in CHF sofern nicht anders vereinbart.'}
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs uppercase tracking-widest text-stone-400 mb-3">
+          {isEn ? 'Applicable law' : 'Anwendbares Recht'}
+        </h2>
+        <p>
+          {isEn
+            ? 'Swiss law applies. Place of jurisdiction is Andermatt, Switzerland.'
+            : 'Es gilt Schweizer Recht. Gerichtsstand ist Andermatt, Schweiz.'}
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs uppercase tracking-widest text-stone-400 mb-3">Kontakt / Contact</h2>
+        <p>
+          <a href="mailto:pascal@oss.studio" class="underline underline-offset-4 hover:text-stone-900 transition-colors">
+            pascal@oss.studio
+          </a>
+        </p>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

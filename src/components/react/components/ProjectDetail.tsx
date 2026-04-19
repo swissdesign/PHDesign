@@ -227,10 +227,6 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
 
                 <div className={`space-y-6 text-sm md:text-lg leading-relaxed font-light max-w-md ${subTextClass}`}>
                   {projectDescription && <p>{projectDescription}</p>}
-                  <p>
-                    Wir haben uns darauf konzentriert, die Essenz der Marke herauszuarbeiten.
-                    Weniger Lärm, mehr Signal. Das Ergebnis ist eine Plattform, die Ruhe ausstrahlt.
-                  </p>
                 </div>
 
                 {project.clientUrl && (

@@ -10,7 +10,7 @@ export const prerender = true;
 export async function getStaticPaths() {
   const allPaths = await Promise.all(
     LANGS.map(async (lang) => {
-      const { projects } = await getAll();
+      const { projects } = await getAll(lang); // Pass lang so each variant gets localized content
       return projects.map((project) => ({
         params: { lang, slug: project.slug || project.id },
         props: { project, lang },
