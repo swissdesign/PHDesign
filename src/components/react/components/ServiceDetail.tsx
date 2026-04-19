@@ -63,14 +63,14 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
     setTimeout(onClose, 700);
   };
 
-  const bgClass = theme === 'light' ? 'bg-white' : 'bg-[#1C1917]';
-  const textClass = theme === 'light' ? 'text-stone-900' : 'text-stone-100';
-  const subTextClass = theme === 'light' ? 'text-stone-500' : 'text-stone-400';
+  const bgClass = theme === 'light' ? 'bg-white' : 'bg-brand-teal-dark';
+  const textClass = theme === 'light' ? 'text-brand-teal-dark' : 'text-brand-teal-lightAccent';
+  const subTextClass = theme === 'light' ? 'text-brand-teal-dark/70' : 'text-brand-teal-lightAccent/70';
 
   // Accents
-  const activeTabClass = theme === 'light' ? 'border-cyan-900 text-cyan-900' : 'border-cyan-200 text-cyan-200';
-  const bulletDotClass = theme === 'light' ? 'bg-cyan-800' : 'bg-cyan-200';
-  const buttonClass = theme === 'light' ? 'bg-stone-900 text-white hover:bg-cyan-900' : 'bg-white text-stone-900 hover:bg-cyan-200';
+  const activeTabClass = theme === 'light' ? 'border-brand-pink text-brand-pink' : 'border-brand-pink-light text-brand-pink-light';
+  const bulletDotClass = theme === 'light' ? 'bg-brand-pink' : 'bg-brand-pink-light';
+  const buttonClass = theme === 'light' ? 'bg-brand-teal-dark text-white hover:bg-brand-teal-dark/90' : 'bg-brand-teal-lightAccent text-brand-teal-dark hover:bg-white';
 
   // Dynamic Style for Expansion
   const modalStyle = isMobile ? {
@@ -105,7 +105,7 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
       {/* Backdrop */}
       <div
         className={`absolute inset-0 backdrop-blur-md transition-opacity duration-700 ease-in-out ${isExpanded && !isClosing ? 'opacity-100' : 'opacity-0'
-          } ${theme === 'light' ? 'bg-[#A1E4ED]/80' : 'bg-black/80'}`}
+          } ${theme === 'light' ? 'bg-brand-teal-light/80' : 'bg-black/80'}`}
         onClick={handleClose}
       />
 
@@ -119,7 +119,7 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className={`absolute md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-500 ${theme === 'light' ? 'bg-stone-100 hover:bg-stone-200 text-stone-900' : 'bg-stone-800 hover:bg-stone-700 text-stone-100'
+          className={`absolute md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-500 ${theme === 'light' ? 'bg-stone-100 hover:bg-stone-200 text-brand-teal-dark' : 'bg-black/50 hover:bg-brand-teal-dark text-white'
             } ${showContent ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
           style={needsTopSpacing ? { top: 'calc(env(safe-area-inset-top, 0px) + 18px)', right: '18px', position: 'fixed' } : undefined}
         >
@@ -137,7 +137,7 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
 
           {/* Left Side: Service Icon & Title (Visual Header) */}
           {/* Compact padding on mobile to save vertical space for form */}
-          <div className={`w-full md:w-1/3 p-6 md:p-12 flex flex-row md:flex-col items-center md:items-start justify-between md:justify-between shrink-0 ${theme === 'light' ? 'bg-stone-50' : 'bg-stone-800/50'}`}>
+          <div className={`w-full md:w-1/3 p-6 md:p-12 flex flex-row md:flex-col items-center md:items-start justify-between md:justify-between shrink-0 ${theme === 'light' ? 'bg-brand-teal-dark/5' : 'bg-black/20'}`}>
             <div className="flex items-center md:block gap-4">
               <div className="w-12 h-12 md:w-24 md:h-24 md:mb-6 shrink-0">
                 <svg
@@ -158,7 +158,7 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
               </div>
             </div>
 
-            <div className={`hidden md:block mt-6 pt-6 border-t w-full ${theme === 'light' ? 'border-stone-200' : 'border-stone-700'}`}>
+            <div className={`hidden md:block mt-6 pt-6 border-t w-full ${theme === 'light' ? 'border-brand-teal-dark/10' : 'border-brand-teal-lightAccent/10'}`}>
               <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>Investment</span>
               <span className={`text-lg font-medium ${textClass}`}>{serviceStartPrice}</span>
             </div>
@@ -169,12 +169,12 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
           <div className="w-full md:w-2/3 p-6 md:p-12 flex flex-col relative overflow-hidden flex-1">
 
             {/* Mode Switcher */}
-            <div className="flex gap-6 mb-4 md:mb-8 border-b border-stone-200 dark:border-stone-800 pb-2 md:pb-4 shrink-0">
+            <div className="flex gap-6 mb-4 md:mb-8 border-b border-brand-teal-dark/10 dark:border-brand-teal-lightAccent/10 pb-2 md:pb-4 shrink-0">
               <button
                 onClick={() => setMode('info')}
                 className={`text-xs uppercase tracking-widest pb-2 md:pb-4 -mb-2 md:-mb-4 border-b-2 transition-colors ${mode === 'info'
                     ? activeTabClass
-                    : 'border-transparent text-stone-400 hover:text-stone-500'
+                    : (theme === 'light' ? 'border-transparent text-brand-teal-dark/40 hover:text-brand-teal-dark/60' : 'border-transparent text-brand-teal-lightAccent/40 hover:text-brand-teal-lightAccent/60')
                   }`}
               >
                 Overview
@@ -183,7 +183,7 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
                 onClick={() => setMode('booking')}
                 className={`text-xs uppercase tracking-widest pb-2 md:pb-4 -mb-2 md:-mb-4 border-b-2 transition-colors ${mode === 'booking'
                     ? activeTabClass
-                    : 'border-transparent text-stone-400 hover:text-stone-500'
+                    : (theme === 'light' ? 'border-transparent text-brand-teal-dark/40 hover:text-brand-teal-dark/60' : 'border-transparent text-brand-teal-lightAccent/40 hover:text-brand-teal-lightAccent/60')
                   }`}
               >
                 Booking Request
@@ -192,7 +192,7 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
 
             {/* Info View */}
             <div className={`absolute inset-x-6 md:inset-x-12 top-24 md:top-32 bottom-6 md:bottom-8 transition-all duration-500 overflow-y-auto ${mode === 'info' ? 'translate-x-0 opacity-100 z-10' : '-translate-x-10 opacity-0 z-0 pointer-events-none'}`}>
-              <div className={`md:hidden mb-6 pb-6 border-b ${theme === 'light' ? 'border-stone-100' : 'border-stone-800'}`}>
+              <div className={`md:hidden mb-6 pb-6 border-b ${theme === 'light' ? 'border-brand-teal-dark/10' : 'border-brand-teal-lightAccent/10'}`}>
                 <span className={`block text-xs uppercase tracking-wider mb-1 ${subTextClass}`}>Investment</span>
                 <span className={`text-lg font-medium ${textClass}`}>{serviceStartPrice}</span>
               </div>

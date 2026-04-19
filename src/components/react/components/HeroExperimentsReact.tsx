@@ -203,27 +203,27 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
 
     if (reducedMotion) {
         return (
-            <div className="relative w-full bg-[#A1E4ED] text-stone-900 border-b border-stone-200">
+            <div className="relative w-full bg-brand-teal-light text-brand-teal-dark border-b border-brand-teal-dark/20">
                 <section className="relative w-full py-32 px-6 md:px-12 xl:px-24 flex flex-col justify-center overflow-hidden">
                     <div className="max-w-[1400px] mx-auto w-full relative z-20">
-                        <h1 className="text-[14vw] leading-[0.85] md:text-[8vw] lg:text-[7.5vw] font-medium tracking-tighter uppercase mb-6 text-stone-900 select-none">
+                        <h1 className="text-[14vw] leading-[0.85] md:text-[8vw] lg:text-[7.5vw] font-medium tracking-tighter uppercase mb-6 text-brand-teal-dark select-none">
                             <span className="block">DARE</span>
                             <span className="block">ANY</span>
-                            <span className="block text-stone-400">WAY</span>
+                            <span className="block text-brand-teal-dark/50">WAY</span>
                         </h1>
-                        <p className="text-xl md:text-2xl lg:text-3xl font-light tracking-tight text-stone-500 max-w-md">
+                        <p className="text-xl md:text-2xl lg:text-3xl font-light tracking-tight text-brand-teal-dark/60 max-w-md">
                             {supportLine}
                         </p>
                     </div>
                 </section>
 
-                <section className="relative w-full px-6 md:px-12 xl:px-24 py-16 bg-[#A1E4ED]">
+                <section className="relative w-full px-6 md:px-12 xl:px-24 py-16 bg-brand-teal-light">
                     <div className="max-w-[1400px] mx-auto w-full flex flex-col lg:flex-row relative items-start gap-16 lg:gap-8">
                         <div className="lg:w-8/12 xl:w-7/12 w-full lg:ml-auto flex flex-col gap-24">
                             {cards.map((c, i) => (
                                 <div key={i} className="mb-8">
-                                    <h3 className="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">{c.title}</h3>
-                                    <p className="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
+                                    <h3 className="text-xs md:text-sm uppercase tracking-widest text-brand-teal-dark/60 mb-3 font-semibold">{c.title}</h3>
+                                    <p className="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-brand-teal-dark max-w-xl">
                                         {c.desc}
                                     </p>
                                 </div>
@@ -232,13 +232,13 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                     </div>
                 </section>
 
-                <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 xl:px-24 pb-32 pt-16 flex flex-col items-center justify-center gap-8 border-t border-stone-200 mt-16 pointer-events-auto relative z-30">
-                    <span className="text-xs uppercase tracking-widest text-stone-400 font-semibold mb-2">Ready to explore?</span>
+                <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 xl:px-24 pb-32 pt-16 flex flex-col items-center justify-center gap-8 border-t border-brand-teal-dark/20 mt-16 pointer-events-auto relative z-30">
+                    <span className="text-xs uppercase tracking-widest text-brand-teal-dark/50 font-semibold mb-2">Ready to explore?</span>
                     <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto">
-                        <a href={`/${lang}/work`} onClick={(e) => handleRevealAppView(e, 'work')} className="w-full sm:w-auto text-center text-sm uppercase tracking-widest font-semibold text-white bg-stone-900 border border-stone-900 hover:bg-stone-800 transition-colors px-10 py-4 shadow-sm">
+                        <a href={`/${lang}/work`} onClick={(e) => handleRevealAppView(e, 'work')} className="w-full sm:w-auto text-center text-sm uppercase tracking-widest font-semibold text-white bg-brand-teal-dark border border-brand-teal-dark hover:bg-stone-800 transition-colors px-10 py-4 shadow-sm">
                             Portfolio &rarr;
                         </a>
-                        <a href={`/${lang}/services`} onClick={(e) => handleRevealAppView(e, 'services')} className="w-full sm:w-auto text-center text-sm uppercase tracking-widest font-semibold text-stone-900 bg-white border border-stone-200 hover:border-stone-400 hover:bg-stone-50 transition-colors px-10 py-4 shadow-sm">
+                        <a href={`/${lang}/services`} onClick={(e) => handleRevealAppView(e, 'services')} className="w-full sm:w-auto text-center text-sm uppercase tracking-widest font-semibold text-brand-teal-dark bg-white border border-brand-teal-dark/20 hover:border-stone-400 hover:bg-stone-50 transition-colors px-10 py-4 shadow-sm">
                             Services &rarr;
                         </a>
                     </div>
@@ -249,7 +249,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
     }
 
     return (
-        <div className="relative w-full bg-[#A1E4ED] text-stone-900 border-b border-stone-200">
+        <div className="relative w-full bg-brand-teal-light text-brand-teal-dark border-b border-brand-teal-dark/20">
 
             {/* Narrative Scroll Wrapper */}
             <div ref={wrapperRef} className="relative w-full h-[1000vh] lg:h-[1200vh]">
@@ -267,10 +267,10 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                             pointerEvents: p_Explore > 0.1 ? 'auto' : 'none'
                         }}
                     >
-                        <a href={`/${lang}/work`} onClick={(e) => handleRevealAppView(e, 'work')} className="w-full sm:w-auto text-center text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-white bg-stone-900 hover:bg-cyan-900 transition-colors px-6 py-3 shadow-md rounded-none md:rounded-full">
+                        <a href={`/${lang}/work`} onClick={(e) => handleRevealAppView(e, 'work')} className="w-full sm:w-auto text-center text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-white bg-brand-teal-dark hover:bg-cyan-900 transition-colors px-6 py-3 shadow-md rounded-none md:rounded-full">
                             Portfolio
                         </a>
-                        <a href={`/${lang}/services`} onClick={(e) => handleRevealAppView(e, 'services')} className="w-full sm:w-auto text-center text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-stone-900 bg-white border border-stone-200 hover:border-cyan-200 transition-colors px-6 py-3 shadow-md rounded-none md:rounded-full">
+                        <a href={`/${lang}/services`} onClick={(e) => handleRevealAppView(e, 'services')} className="w-full sm:w-auto text-center text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-brand-teal-dark bg-white border border-brand-teal-dark/20 hover:border-cyan-200 transition-colors px-6 py-3 shadow-md rounded-none md:rounded-full">
                             Services
                         </a>
                     </div>
@@ -287,12 +287,12 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                             }}
                             className={`flex flex-col transition-all duration-300 ${p_Title >= 0.5 ? 'items-start text-left' : 'items-center text-center'}`}
                         >
-                            <h1 className="text-[14vw] leading-[0.85] md:text-[10vw] font-medium tracking-tighter uppercase mb-6 sm:mb-8 text-stone-900 select-none">
-                                <span className="block text-stone-900">DARE</span>
-                                <span className="block text-stone-900">ANY</span>
-                                <span className="block text-stone-400">WAY</span>
+                            <h1 className="text-[14vw] leading-[0.85] md:text-[10vw] font-medium tracking-tighter uppercase mb-6 sm:mb-8 text-brand-teal-dark select-none">
+                                <span className="block text-brand-teal-dark">DARE</span>
+                                <span className="block text-brand-teal-dark">ANY</span>
+                                <span className="block text-brand-teal-dark/50">WAY</span>
                             </h1>
-                            <div className="text-xl md:text-3xl font-light tracking-tight text-stone-500 will-change-opacity overflow-hidden"
+                            <div className="text-xl md:text-3xl font-light tracking-tight text-brand-teal-dark/60 will-change-opacity overflow-hidden"
                                 style={{ opacity: clamp(supportOpacity, 0, 1), maxHeight: p_Title > 0.5 ? 0 : '100px' }}>
                                 {supportLine}
                             </div>
@@ -300,7 +300,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                     </div>
 
                     <div
-                        className="absolute bottom-12 left-0 right-0 text-center text-stone-400 text-[10px] sm:text-xs tracking-widest uppercase font-semibold z-20 select-none will-change-opacity"
+                        className="absolute bottom-12 left-0 right-0 text-center text-brand-teal-dark/50 text-[10px] sm:text-xs tracking-widest uppercase font-semibold z-20 select-none will-change-opacity"
                         style={{ opacity: clamp(hintOpacity, 0, 1) }}
                     >
                         Scroll if you dare &darr;
@@ -323,8 +323,8 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                             pointerEvents: state.opacity > 0.1 ? 'auto' : 'none'
                                         }}
                                     >
-                                        <h3 className="text-xs md:text-sm uppercase tracking-widest text-stone-500 mb-3 font-semibold">{card.title}</h3>
-                                        <p className="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-stone-900 max-w-xl">
+                                        <h3 className="text-xs md:text-sm uppercase tracking-widest text-brand-teal-dark/60 mb-3 font-semibold">{card.title}</h3>
+                                        <p className="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight leading-snug text-brand-teal-dark max-w-xl">
                                             {card.desc}
                                         </p>
                                     </div>
@@ -343,8 +343,8 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                 pointerEvents: evidenceState.opacity > 0.1 ? 'auto' : 'none'
                             }}
                         >
-                            <span className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 mb-6 font-semibold block">Proof</span>
-                            <h2 className="text-3xl md:text-4xl lg:text-6xl font-medium tracking-tighter text-stone-900 uppercase">
+                            <span className="text-[10px] md:text-xs uppercase tracking-widest text-brand-teal-dark/50 mb-6 font-semibold block">Proof</span>
+                            <h2 className="text-3xl md:text-4xl lg:text-6xl font-medium tracking-tighter text-brand-teal-dark uppercase">
                                 The Evidence.
                             </h2>
                         </div>
@@ -378,14 +378,14 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                                 >
                                                     <div style={getStyle('controls')} className="will-change-transform z-20 relative pb-12 pointer-events-auto">
                                                         {clientItems.length > 1 && (
-                                                            <div className="flex items-center gap-6 text-sm sm:text-base font-bold tracking-widest uppercase text-stone-900 relative">
-                                                                <button onClick={prevSlide} className="hover:bg-stone-800 transition-colors py-3 pr-6 select-none group flex items-center gap-2 border border-stone-900 rounded-full px-8 bg-stone-900 text-white shadow-xl hover:scale-[1.02] active:scale-[0.98]">
+                                                            <div className="flex items-center gap-6 text-sm sm:text-base font-bold tracking-widest uppercase text-brand-teal-dark relative">
+                                                                <button onClick={prevSlide} className="hover:bg-stone-800 transition-colors py-3 pr-6 select-none group flex items-center gap-2 border border-brand-teal-dark rounded-full px-8 bg-brand-teal-dark text-white shadow-xl hover:scale-[1.02] active:scale-[0.98]">
                                                                     <span className="group-hover:-translate-x-1 transition-transform">&larr;</span> Prev
                                                                 </button>
-                                                                <span className="w-8 h-1 bg-stone-900/20 rounded-full"></span>
-                                                                <span className="text-stone-900 min-w-[3ch] text-center text-lg">{`${index + 1}/${clientItems.length}`}</span>
-                                                                <span className="w-8 h-1 bg-stone-900/20 rounded-full"></span>
-                                                                <button onClick={nextSlide} className="hover:bg-stone-800 transition-colors py-3 pl-6 select-none group flex items-center gap-2 border border-stone-900 rounded-full px-8 bg-stone-900 text-white shadow-xl hover:scale-[1.02] active:scale-[0.98]">
+                                                                <span className="w-8 h-1 bg-brand-teal-dark/20 rounded-full"></span>
+                                                                <span className="text-brand-teal-dark min-w-[3ch] text-center text-lg">{`${index + 1}/${clientItems.length}`}</span>
+                                                                <span className="w-8 h-1 bg-brand-teal-dark/20 rounded-full"></span>
+                                                                <button onClick={nextSlide} className="hover:bg-stone-800 transition-colors py-3 pl-6 select-none group flex items-center gap-2 border border-brand-teal-dark rounded-full px-8 bg-brand-teal-dark text-white shadow-xl hover:scale-[1.02] active:scale-[0.98]">
                                                                     Next <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
                                                                 </button>
                                                             </div>
@@ -393,25 +393,25 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                                     </div>
 
                                                     <div style={getStyle('keyword')} className="will-change-transform">
-                                                        <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-4 sm:mb-8 text-[10px] md:text-xs uppercase tracking-widest font-semibold text-stone-900">
+                                                        <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-4 sm:mb-8 text-[10px] md:text-xs uppercase tracking-widest font-semibold text-brand-teal-dark">
                                                             <span className="flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-sm border-l-2" style={{ borderColor: 'var(--accent)' }}>
                                                                 {item.keyword}
                                                             </span>
-                                                            <span className="text-stone-400">VS</span>
-                                                            <span className="text-stone-500">{item.enemy}</span>
-                                                            <span className="hidden sm:inline text-stone-300">&mdash;</span>
+                                                            <span className="text-brand-teal-dark/50">VS</span>
+                                                            <span className="text-brand-teal-dark/60">{item.enemy}</span>
+                                                            <span className="hidden sm:inline text-brand-teal-dark/40">&mdash;</span>
                                                             <span style={{ color: 'var(--accent)' }}>{item.rallying_cry}</span>
                                                         </div>
                                                     </div>
 
                                                     <div style={getStyle('question')} className="will-change-transform">
-                                                        <h2 className="text-xl md:text-2xl lg:text-3xl font-medium tracking-tight mb-4 leading-snug max-w-2xl text-stone-900">
+                                                        <h2 className="text-xl md:text-2xl lg:text-3xl font-medium tracking-tight mb-4 leading-snug max-w-2xl text-brand-teal-dark">
                                                             {item.question}
                                                         </h2>
                                                     </div>
 
                                                     <div style={getStyle('doubt')} className="will-change-transform">
-                                                        <p className="text-base md:text-lg text-stone-500 font-light italic mb-6 lg:mb-8 max-w-xl">
+                                                        <p className="text-base md:text-lg text-brand-teal-dark/60 font-light italic mb-6 lg:mb-8 max-w-xl">
                                                             «{item.doubt}»
                                                         </p>
                                                     </div>
@@ -419,11 +419,11 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                                     <div style={getStyle('line')} className="will-change-transform origin-left h-px w-full max-w-sm bg-stone-200 mb-6 lg:mb-8"></div>
 
                                                     <div style={getStyle('body')} className="will-change-transform">
-                                                        <h3 className="text-[10px] md:text-xs uppercase tracking-widest text-stone-400 mb-2 font-medium">
-                                                            Experiment // <span className="text-stone-600">{item.title}</span>
+                                                        <h3 className="text-[10px] md:text-xs uppercase tracking-widest text-brand-teal-dark/50 mb-2 font-medium">
+                                                            Experiment // <span className="text-brand-teal-dark/70">{item.title}</span>
                                                         </h3>
 
-                                                        <p className="text-sm md:text-base text-stone-800 leading-relaxed max-w-xl font-light mb-8">
+                                                        <p className="text-sm md:text-base text-brand-teal-dark/90 leading-relaxed max-w-xl font-light mb-8">
                                                             {item.result}
                                                         </p>
                                                     </div>
@@ -431,8 +431,7 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                                                     <div style={getStyle('controls')} className="will-change-transform mt-auto flex items-start z-30 relative pointer-events-auto pb-4">
                                                         <a
                                                             href={item.ctaHref}
-                                                            style={{ backgroundColor: 'var(--accent)' }}
-                                                            className="inline-flex items-center justify-center text-white px-8 py-4 sm:px-10 sm:py-5 text-xs md:text-sm uppercase tracking-widest transition-transform hover:-translate-y-1 active:translate-y-0 font-bold border border-transparent shadow-xl hover:shadow-2xl rounded-full"
+                                                            className="inline-flex items-center justify-center text-white bg-brand-pink px-8 py-4 sm:px-10 sm:py-5 text-xs md:text-sm uppercase tracking-widest transition-transform hover:-translate-y-1 active:translate-y-0 font-bold border border-transparent shadow-xl hover:shadow-2xl rounded-full"
                                                         >
                                                             {item.ctaLabel}
                                                         </a>

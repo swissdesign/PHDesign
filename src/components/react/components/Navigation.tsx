@@ -102,20 +102,20 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
   }).format(new Date());
 
   // Colors
-  const textColor = theme === 'light' ? 'text-stone-900' : 'text-stone-100';
-  const subTextColor = theme === 'light' ? 'text-cyan-900' : 'text-cyan-200';
+  const textColor = theme === 'light' ? 'text-brand-teal-dark' : 'text-brand-teal-lightAccent';
+  const subTextColor = theme === 'light' ? 'text-brand-teal-dark opacity-80' : 'text-brand-teal-lightAccent opacity-80';
   
   // Menu Icon Lines - asymmetric coloring
-  const line1Color = theme === 'light' ? 'bg-stone-900' : 'bg-stone-100';
-  // The second line is now distinctly blue (cyan-700/400) to act as a "random" accent
+  const line1Color = theme === 'light' ? 'bg-brand-teal-dark' : 'bg-brand-teal-lightAccent';
+  // The second line is now distinctly pink
   const line2Color = theme === 'light' 
-    ? 'bg-cyan-700 group-hover:bg-cyan-500' 
-    : 'bg-cyan-400 group-hover:bg-cyan-200';
+    ? 'bg-brand-pink group-hover:bg-brand-pink/80' 
+    : 'bg-brand-pink-light group-hover:bg-brand-pink-light/80';
 
   // Cinematic Gradient
   const gradientClass = theme === 'light' 
-    ? 'from-[#A1E4ED]/90 via-[#A1E4ED]/40 to-transparent' 
-    : 'from-[#1C1917]/90 via-[#1C1917]/40 to-transparent';
+    ? 'from-brand-teal-light/90 via-brand-teal-light/40 to-transparent' 
+    : 'from-brand-teal-dark/90 via-brand-teal-dark/40 to-transparent';
   const shouldHideMenuButton = isMenuOpen || (isAnyModalOpen && isCoarsePointer) || (isServiceDetailOpen && isTabletOrBelow);
 
   return (

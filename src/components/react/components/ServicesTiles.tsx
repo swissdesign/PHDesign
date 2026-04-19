@@ -36,12 +36,12 @@ export const ServicesTiles: React.FC<ServicesTilesProps> = ({ services, categori
   };
 
   const isLight = theme === 'light';
-  const textClass = isLight ? 'text-stone-900' : 'text-stone-100';
-  const subTextClass = isLight ? 'text-stone-500' : 'text-stone-400';
-  const cardBg = isLight ? 'bg-white shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-stone-100' : 'bg-[#24211f] shadow-[0_4px_24px_rgba(0,0,0,0.4)] border border-stone-800';
-  const iconClass = isLight ? 'text-cyan-700' : 'text-cyan-400';
-  const badgeBg = isLight ? 'bg-stone-100 text-stone-600' : 'bg-stone-800 text-stone-300';
-  const priceColor = isLight ? 'text-cyan-800' : 'text-cyan-300';
+  const textClass = isLight ? 'text-brand-teal-dark' : 'text-brand-teal-lightAccent';
+  const subTextClass = isLight ? 'text-brand-teal-dark/60' : 'text-brand-teal-lightAccent/60';
+  const cardBg = isLight ? 'bg-white shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-brand-teal-dark/10' : 'bg-brand-teal-dark shadow-[0_4px_24px_rgba(0,0,0,0.4)] border border-brand-teal-lightAccent/10';
+  const iconClass = isLight ? 'text-brand-pink' : 'text-brand-pink-light';
+  const badgeBg = isLight ? 'bg-brand-teal-dark/5 text-brand-teal-dark/70' : 'bg-black/30 text-brand-teal-lightAccent/70';
+  const priceColor = isLight ? 'text-brand-pink' : 'text-brand-pink-light';
 
   return (
     <div className="w-full h-full overflow-y-auto overscroll-y-none pb-32 pt-28 px-4 md:px-12 lg:px-24">
@@ -64,7 +64,7 @@ export const ServicesTiles: React.FC<ServicesTilesProps> = ({ services, categori
             className={`w-full rounded-2xl p-6 md:p-8 flex flex-col gap-4 cursor-pointer transition-transform hover:-translate-y-1 active:scale-[0.98] ${cardBg}`}
           >
             <div className="flex justify-between items-start">
-               <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full ${isLight ? 'bg-cyan-50' : 'bg-cyan-950/30'} flex items-center justify-center shrink-0`}>
+               <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full ${isLight ? 'bg-brand-pink/10' : 'bg-brand-pink-light/10'} flex items-center justify-center shrink-0`}>
                  <svg 
                    viewBox="0 0 24 24" 
                    fill="none" 
@@ -94,8 +94,8 @@ export const ServicesTiles: React.FC<ServicesTilesProps> = ({ services, categori
               </p>
             </div>
 
-            <div className="mt-auto pt-4 md:pt-6 flex items-center justify-between border-t border-stone-200 dark:border-stone-800/60 transition-colors">
-              <span className={`text-[11px] md:text-xs uppercase tracking-widest font-semibold ${isLight ? 'text-stone-400' : 'text-stone-500'}`}>
+            <div className="mt-auto pt-4 md:pt-6 flex items-center justify-between border-t border-brand-teal-dark/10 dark:border-brand-teal-lightAccent/10 transition-colors">
+              <span className={`text-[11px] md:text-xs uppercase tracking-widest font-semibold ${isLight ? 'text-brand-teal-dark/40' : 'text-brand-teal-lightAccent/50'}`}>
                 {lang === 'de' ? 'Details ansehen' : 'View Details'} &rarr;
               </span>
               

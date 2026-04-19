@@ -12,10 +12,10 @@ interface PortfolioGridMobileProps {
 
 export const PortfolioGridMobile: React.FC<PortfolioGridMobileProps> = ({ projects, lang = 'de', onSelectProject, theme }) => {
   const isLight = theme === 'light';
-  const textClass = isLight ? 'text-stone-900' : 'text-stone-100';
-  const subTextClass = isLight ? 'text-stone-500' : 'text-stone-400';
-  const bgClass = isLight ? 'bg-white shadow-sm border border-stone-100' : 'bg-[#24211f] shadow-md border border-stone-800';
-  const categoryTextColor = isLight ? 'text-cyan-700' : 'text-cyan-400';
+  const textClass = isLight ? 'text-brand-teal-dark' : 'text-brand-teal-lightAccent';
+  const subTextClass = isLight ? 'text-brand-teal-dark/60' : 'text-brand-teal-lightAccent/60';
+  const bgClass = isLight ? 'bg-white shadow-sm border border-brand-teal-dark/10' : 'bg-brand-teal-dark shadow-md border border-brand-teal-lightAccent/10';
+  const categoryTextColor = isLight ? 'text-brand-pink' : 'text-brand-pink-light';
 
   return (
     <div className="w-full h-full overflow-y-auto overscroll-y-none pb-32 pt-28 px-4 sm:px-8">
@@ -49,7 +49,7 @@ export const PortfolioGridMobile: React.FC<PortfolioGridMobileProps> = ({ projec
               }}
             >
               {/* Image Container */}
-              <div className={`relative w-full aspect-square overflow-hidden ${isLight ? 'bg-stone-100' : 'bg-stone-900'}`}>
+              <div className={`relative w-full aspect-square overflow-hidden ${isLight ? 'bg-brand-teal-dark/5' : 'bg-black/40'}`}>
                 <img
                   src={project.optimizedSrc || project.image}
                   srcSet={project.optimizedSrcSet}

@@ -49,20 +49,20 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
 
   if (!shouldRender || !originRect) return null;
 
-  const bgClass = theme === 'light' ? 'bg-[#A1E4ED]' : 'bg-[#1C1917]';
-  const textClass = theme === 'light' ? 'text-stone-900' : 'text-stone-100';
-  const subTextClass = theme === 'light' ? 'text-stone-500' : 'text-stone-400';
-  const borderClass = theme === 'light' ? 'border-stone-200' : 'border-stone-800';
-  const cardBg = theme === 'light' ? 'bg-white' : 'bg-stone-900';
+  const bgClass = theme === 'light' ? 'bg-brand-teal-light' : 'bg-brand-teal-dark';
+  const textClass = theme === 'light' ? 'text-brand-teal-dark' : 'text-brand-teal-lightAccent';
+  const subTextClass = theme === 'light' ? 'text-brand-teal-dark/60' : 'text-brand-teal-lightAccent/60';
+  const borderClass = theme === 'light' ? 'border-brand-teal-dark/20' : 'border-brand-teal-lightAccent/20';
+  const cardBg = theme === 'light' ? 'bg-white' : 'bg-brand-teal-dark shadow-md';
 
-  // Aqua Accents
-  const activeLangClass = theme === 'light' ? 'text-cyan-900 font-medium' : 'text-cyan-200 font-medium';
-  const hoverTextAccent = theme === 'light' ? 'hover:text-cyan-700' : 'hover:text-cyan-200';
-  const hoverBorderAccent = theme === 'light' ? 'hover:border-cyan-900/30' : 'hover:border-cyan-500/30';
-  const buttonIconGroupHover = theme === 'light' ? 'group-hover:bg-cyan-900 group-hover:text-white' : 'group-hover:bg-cyan-200 group-hover:text-stone-900';
+  // Brand Accents
+  const activeLangClass = theme === 'light' ? 'text-brand-pink font-medium' : 'text-brand-pink-light font-medium';
+  const hoverTextAccent = theme === 'light' ? 'hover:text-brand-pink' : 'hover:text-brand-pink-light';
+  const hoverBorderAccent = theme === 'light' ? 'hover:border-brand-pink/30' : 'hover:border-brand-pink-light/30';
+  const buttonIconGroupHover = theme === 'light' ? 'group-hover:bg-brand-pink group-hover:text-white' : 'group-hover:bg-brand-pink-light group-hover:text-brand-teal-dark';
   
   // Specific word highlight color
-  const highlightWordClass = theme === 'light' ? 'text-cyan-700 font-medium' : 'text-cyan-300 font-medium';
+  const highlightWordClass = theme === 'light' ? 'text-brand-pink font-medium' : 'text-brand-pink-light font-medium';
 
   // Contact Button Shadow (Blue Tint)
   const contactShadow = theme === 'light' 
@@ -184,13 +184,13 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
                   onClick={() => handleNavClick('work')}
                   className={`text-4xl md:text-6xl text-left font-light tracking-tighter hover:tracking-wide transition-all duration-500 whitespace-nowrap group ${textClass}`}
                 >
-                  <span className={`${theme === 'light' ? 'group-hover:text-cyan-900' : 'group-hover:text-cyan-200'} transition-colors`}>Selected</span> Work
+                  <span className={`${theme === 'light' ? 'group-hover:text-brand-pink' : 'group-hover:text-brand-pink-light'} transition-colors`}>Selected</span> Work
                 </button>
                 <button 
                   onClick={() => handleNavClick('services')}
                   className={`text-4xl md:text-6xl text-left font-light tracking-tighter hover:tracking-wide transition-all duration-500 whitespace-nowrap group ${textClass}`}
                 >
-                  Studio <span className={`${theme === 'light' ? 'group-hover:text-cyan-900' : 'group-hover:text-cyan-200'} transition-colors`}>Services</span>
+                  Studio <span className={`${theme === 'light' ? 'group-hover:text-brand-pink' : 'group-hover:text-brand-pink-light'} transition-colors`}>Services</span>
                 </button>
               </nav>
             </section>
@@ -220,11 +220,11 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
                   >
                     <div className="aspect-[16/9] overflow-hidden relative">
                       <img src={p.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={title} />
-                      {/* Random blue line overlay on hover */}
-                      <div className={`absolute bottom-0 left-0 h-1 bg-cyan-500 transition-all duration-500 w-0 group-hover:w-full`} />
+                      {/* Brand pink line overlay on hover */}
+                      <div className={`absolute bottom-0 left-0 h-1 bg-brand-pink transition-all duration-500 w-0 group-hover:w-full`} />
                     </div>
                     <div className="p-4">
-                      <h4 className={`text-sm font-medium ${textClass} group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors`}>{title}</h4>
+                      <h4 className={`text-sm font-medium ${textClass} group-hover:text-brand-pink dark:group-hover:text-brand-pink-light transition-colors`}>{title}</h4>
                       <p className={`text-xs mt-1 ${subTextClass}`}>{category}</p>
                     </div>
                   </div>
@@ -243,7 +243,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
                >
                   <div className="flex items-start justify-between">
                      <div>
-                        <h4 className={`text-2xl md:text-3xl font-light mb-2 ${textClass} group-hover:text-cyan-900 dark:group-hover:text-cyan-100 transition-colors`}>Start a Project</h4>
+                        <h4 className={`text-2xl md:text-3xl font-light mb-2 ${textClass} group-hover:text-brand-pink dark:group-hover:text-brand-pink-light transition-colors`}>Start a Project</h4>
                         <p className={`text-sm md:text-base max-w-md ${subTextClass}`}>
                            Have an idea? Let's discuss how we can bring it to life with <span className={highlightWordClass}>precision</span> and <span className={highlightWordClass}>quiet luxury</span>.
                         </p>

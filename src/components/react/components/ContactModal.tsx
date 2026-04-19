@@ -91,18 +91,18 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
   if (!shouldRender || !originRect) return null;
 
   // Styles
-  const bgClass = theme === 'light' ? 'bg-white' : 'bg-[#1C1917]';
-  const textClass = theme === 'light' ? 'text-stone-900' : 'text-stone-100';
-  const subTextClass = theme === 'light' ? 'text-stone-500' : 'text-stone-400';
+  const bgClass = theme === 'light' ? 'bg-brand-teal-light' : 'bg-brand-teal-dark';
+  const textClass = theme === 'light' ? 'text-brand-teal-dark' : 'text-brand-teal-lightAccent';
+  const subTextClass = theme === 'light' ? 'text-brand-teal-dark/70' : 'text-brand-teal-lightAccent/70';
 
   // Accents
   const inputClass = theme === 'light'
-    ? 'text-stone-900 border-stone-300 focus:border-cyan-600 placeholder-stone-400 text-base'
-    : 'text-stone-100 border-stone-700 focus:border-cyan-400 placeholder-stone-600 text-base';
+    ? 'text-brand-teal-dark border-brand-teal-dark/30 focus:border-brand-pink placeholder-brand-teal-dark/40 text-base'
+    : 'text-brand-teal-lightAccent border-brand-teal-lightAccent/30 focus:border-brand-pink-light placeholder-brand-teal-lightAccent/40 text-base';
 
   const buttonClass = theme === 'light'
-    ? 'bg-stone-900 text-white hover:bg-cyan-900 shadow-[0_10px_20px_-5px_rgba(8,145,178,0.2)]'
-    : 'bg-white text-stone-900 hover:bg-cyan-200 shadow-[0_10px_20px_-5px_rgba(34,211,238,0.15)]';
+    ? 'bg-brand-teal-dark text-white hover:bg-brand-teal-dark/90 shadow-xl'
+    : 'bg-brand-teal-lightAccent text-brand-teal-dark hover:bg-white shadow-xl';
 
   // Responsive Styles
   const expandedStyle = isMobile ? {
@@ -135,7 +135,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
       {/* Backdrop */}
       <div
         className={`absolute inset-0 backdrop-blur-md transition-opacity duration-700 ease-in-out pointer-events-auto ${isExpanded && !isClosing ? 'opacity-100' : 'opacity-0'
-          } ${theme === 'light' ? 'bg-[#A1E4ED]/80' : 'bg-black/80'}`}
+          } ${theme === 'light' ? 'bg-brand-teal-light/80' : 'bg-black/80'}`}
         onClick={handleClose}
       />
 
@@ -147,7 +147,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className={`absolute top-4 right-4 md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-500 ${theme === 'light' ? 'bg-stone-100 hover:bg-stone-200 text-stone-900' : 'bg-stone-800 hover:bg-stone-700 text-stone-100'
+          className={`absolute top-4 right-4 md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-500 ${theme === 'light' ? 'bg-white/50 hover:bg-white text-brand-teal-dark' : 'bg-black/50 hover:bg-brand-teal-dark text-white'
             } ${showContent ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -168,7 +168,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
               </p>
               <button
                 onClick={handleClose}
-                className={`mt-12 px-8 py-3 rounded-full text-xs uppercase tracking-widest border transition-all hover:scale-105 ${theme === 'light' ? 'border-stone-900 text-stone-900' : 'border-stone-100 text-stone-100'
+                className={`mt-12 px-8 py-3 rounded-full text-xs uppercase tracking-widest border transition-all hover:scale-105 ${theme === 'light' ? 'border-brand-teal-dark text-brand-teal-dark' : 'border-brand-teal-lightAccent text-brand-teal-lightAccent'
                   }`}
               >
                 Close
@@ -193,7 +193,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, ori
                       onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                       className={`w-full bg-transparent border-b py-3 pr-8 appearance-none outline-none cursor-pointer rounded-none transition-colors ${inputClass}`}
                     >
-                      <option value="" disabled className="bg-stone-100 text-stone-500">Select a Service...</option>
+                      <option value="" disabled className={`bg-brand-teal-light text-brand-teal-dark/50`}>Select a Service...</option>
                       {(services ?? []).map((s, index) => {
                         const row = (s ?? {}) as unknown as Record<string, unknown>;
                         const label = String(row.name ?? row.title ?? row.slug ?? `Service ${index + 1}`);

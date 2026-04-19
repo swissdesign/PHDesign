@@ -110,7 +110,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, 
 
   // Update body bg color to match theme for overscroll areas
   useEffect(() => {
-    document.body.style.backgroundColor = theme === 'light' ? '#A1E4ED' : '#1C1917';
+    document.body.style.backgroundColor = theme === 'light' ? '#A1E4ED' : '#0A191E';
   }, [theme]);
 
   const syncStateFromUrl = useCallback(() => {
@@ -171,7 +171,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, 
         className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-[2000ms] ease-in-out ${theme === 'dark' ? 'opacity-100' : 'opacity-0'
           }`}
       >
-        <div className="absolute inset-0 bg-[#1C1917]" />
+        <div className="absolute inset-0 bg-brand-teal-dark" />
         {/* Deep Aqua Aurora - More visible (opacity 0.3) */}
         <div className="absolute top-[-20%] left-[-10%] w-[90vw] h-[90vh] bg-cyan-900/30 rounded-full blur-[100px] animate-aurora-1 mix-blend-screen" />
         {/* Teal/Purple Aurora - More visible */}
@@ -185,7 +185,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, 
         className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-[2000ms] ease-in-out ${theme === 'light' ? 'opacity-100' : 'opacity-0'
           }`}
       >
-        <div className="absolute inset-0 bg-[#A1E4ED]" />
+        <div className="absolute inset-0 bg-brand-teal-light" />
         {/* Aqua Sky Hint - More visible */}
         <div className="absolute top-[10%] right-[20%] w-[70vw] h-[70vw] bg-cyan-100/70 rounded-full blur-[120px] animate-cloud mix-blend-multiply" />
         {/* White Cloud Fog */}

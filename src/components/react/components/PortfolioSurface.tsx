@@ -168,10 +168,10 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ projects, la
     const repetitions = 15; // Slightly reduced for performance
 
     const frameGradient = theme === 'light'
-      ? 'bg-gradient-to-tr from-stone-200 via-cyan-200 to-stone-300'
-      : 'bg-gradient-to-tr from-stone-700 via-cyan-800 to-stone-700';
+      ? 'bg-gradient-to-tr from-brand-teal-dark/10 via-brand-pink/20 to-brand-teal-dark/10'
+      : 'bg-gradient-to-tr from-brand-teal-lightAccent/10 via-brand-pink-light/20 to-brand-teal-lightAccent/10';
 
-    const categoryTextColor = theme === 'light' ? 'text-cyan-700' : 'text-cyan-300';
+    const categoryTextColor = theme === 'light' ? 'text-brand-pink' : 'text-brand-pink-light';
 
     for (let i = 0; i < repetitions; i++) {
       projects.forEach((project, index) => {
@@ -204,7 +204,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ projects, la
               className={`w-full h-full rounded-xl p-[1px] shadow-sm transition-all duration-500 group-hover:shadow-xl ${frameGradient}`}
             >
               <div
-                className={`w-full h-full relative overflow-hidden rounded-[calc(0.75rem-1px)] transition-colors duration-500 ${theme === 'light' ? 'bg-[#A1E4ED]' : 'bg-[#292524]'
+                className={`w-full h-full relative overflow-hidden rounded-[calc(0.75rem-1px)] transition-colors duration-500 ${theme === 'light' ? 'bg-brand-teal-light' : 'bg-brand-teal-dark'
                   }`}
               >
                 <div className="w-full h-full overflow-hidden flex items-center justify-center">
@@ -225,7 +225,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ projects, la
                     decoding="async"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-900/80 via-cyan-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className={`absolute inset-0 bg-gradient-to-t ${theme === 'light' ? 'from-brand-teal-dark/80 via-brand-pink/10' : 'from-black/80 via-brand-pink-light/10'} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
                 <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0 z-10">
                   <div className={`transition-transform duration-[1500ms] ${theme === 'dark' ? 'rotate-[-45deg] origin-bottom-left translate-x-4 -translate-y-2' : ''}`}>
@@ -242,7 +242,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ projects, la
     return items;
   };
 
-  const hintColor = theme === 'light' ? 'text-cyan-900/60' : 'text-cyan-200/60';
+  const hintColor = theme === 'light' ? 'text-brand-teal-dark/40' : 'text-brand-teal-lightAccent/40';
 
   return (
     <div

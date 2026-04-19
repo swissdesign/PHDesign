@@ -87,18 +87,18 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
   ];
 
   // Theme styling constants
-  const bgClass = theme === 'light' ? 'bg-white' : 'bg-[#1C1917]';
-  const textClass = theme === 'light' ? 'text-stone-900' : 'text-stone-100';
-  const subTextClass = theme === 'light' ? 'text-stone-600' : 'text-stone-400';
-  const borderClass = theme === 'light' ? 'border-stone-100' : 'border-stone-800';
+  const bgClass = theme === 'light' ? 'bg-white' : 'bg-brand-teal-dark';
+  const textClass = theme === 'light' ? 'text-brand-teal-dark' : 'text-brand-teal-lightAccent';
+  const subTextClass = theme === 'light' ? 'text-brand-teal-dark/70' : 'text-brand-teal-lightAccent/70';
+  const borderClass = theme === 'light' ? 'border-brand-teal-dark/10' : 'border-brand-teal-lightAccent/10';
   const isDark = theme === 'dark';
 
   // Accents
-  const linkHoverClass = theme === 'light' ? 'hover:text-cyan-800 hover:border-cyan-800' : 'hover:text-cyan-200 hover:border-cyan-200';
+  const linkHoverClass = theme === 'light' ? 'hover:text-brand-pink hover:border-brand-pink' : 'hover:text-brand-pink-light hover:border-brand-pink-light';
   const tagClass = theme === 'light'
-    ? 'bg-stone-50 text-stone-600 border-stone-100 hover:border-cyan-900/20 hover:text-cyan-900'
-    : 'bg-stone-900 text-stone-300 border-stone-800 hover:border-cyan-500/30 hover:text-cyan-200';
-  const dotActive = theme === 'light' ? 'bg-cyan-600 h-3' : 'bg-cyan-400 h-3';
+    ? 'bg-brand-teal-dark/5 text-brand-teal-dark/70 border-brand-teal-dark/10 hover:border-brand-pink/20 hover:text-brand-pink'
+    : 'bg-black/30 text-brand-teal-lightAccent/70 border-brand-teal-lightAccent/10 hover:border-brand-pink-light/30 hover:text-brand-pink-light';
+  const dotActive = theme === 'light' ? 'bg-brand-pink h-3' : 'bg-brand-pink-light h-3';
 
   // Animation Transforms for Dark Mode (Diamond -> Square transition)
   const initialRotate = isDark && !isMobile ? 45 : 0;
@@ -147,7 +147,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
       {/* Backdrop */}
       <div
         className={`absolute inset-0 backdrop-blur-md transition-all duration-700 ease-in-out ${isExpanded && !isClosing ? 'opacity-100' : 'opacity-0'
-          } ${theme === 'light' ? 'bg-[#A1E4ED]/90' : 'bg-black/90'}`}
+          } ${theme === 'light' ? 'bg-brand-teal-light/90' : 'bg-black/90'}`}
         onClick={handleClose}
       ></div>
 
@@ -168,7 +168,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
           {/* Close Button */}
           <button
             onClick={handleClose}
-            className={`absolute md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-500 delay-300 ${theme === 'light' ? 'bg-white/50 hover:bg-white text-black' : 'bg-black/50 hover:bg-stone-800 text-white'
+            className={`absolute md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-500 delay-300 ${theme === 'light' ? 'bg-white/50 hover:bg-white text-black' : 'bg-black/50 hover:bg-brand-teal-dark text-white'
               } ${showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-4 scale-75'}`}
             style={needsTopSpacing ? { top: 'calc(env(safe-area-inset-top, 0px) + 18px)', right: '18px', position: 'fixed' } : undefined}
           >
@@ -209,8 +209,8 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
               {projectCategory}
             </div>
 
-            {/* Blue accented scroll indicator */}
-            <div className={`absolute bottom-6 right-6 text-cyan-200 text-[10px] uppercase tracking-widest animate-pulse transition-opacity duration-500 pointer-events-none z-20 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
+            {/* Brand pink scroll indicator */}
+            <div className={`absolute bottom-6 right-6 ${theme === 'light' ? 'text-brand-pink' : 'text-brand-pink-light'} text-[10px] uppercase tracking-widest animate-pulse transition-opacity duration-500 pointer-events-none z-20 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
               Scroll / Swipe
             </div>
           </div>
@@ -222,7 +222,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
           >
             <div className={`w-full h-full overflow-y-auto p-8 md:p-12 flex flex-col transition-opacity duration-300 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
               <div className="flex-1">
-                <span className="text-xs text-stone-400 font-mono mb-4 block">{projectId.toUpperCase()} — {projectDate}</span>
+                <span className={`text-xs ${theme === 'light' ? 'text-brand-teal-dark/50' : 'text-brand-teal-lightAccent/50'} font-mono mb-4 block`}>{projectId.toUpperCase()} — {projectDate}</span>
                 <h2 className={`text-3xl md:text-5xl font-light tracking-tight mb-8 ${textClass}`}>{projectTitle}</h2>
 
                 <div className={`space-y-6 text-sm md:text-lg leading-relaxed font-light max-w-md ${subTextClass}`}>
@@ -238,7 +238,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
                     href={project.clientUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`inline-block mt-12 text-xs uppercase tracking-widest border-b pb-1 transition-all ${theme === 'light' ? 'border-stone-900 text-stone-900' : 'border-stone-100 text-stone-100'} ${linkHoverClass}`}
+                    className={`inline-block mt-12 text-xs uppercase tracking-widest border-b pb-1 transition-all ${theme === 'light' ? 'border-brand-teal-dark text-brand-teal-dark' : 'border-brand-teal-lightAccent text-brand-teal-lightAccent'} ${linkHoverClass}`}
                   >
                     Visit Live Site ↗
                   </a>
@@ -246,7 +246,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
               </div>
 
               <div className={`mt-12 pt-6 border-t ${borderClass}`}>
-                <h4 className="text-[10px] uppercase tracking-widest text-stone-400 mb-3">Deliverables</h4>
+                <h4 className={`text-[10px] uppercase tracking-widest ${theme === 'light' ? 'text-brand-teal-dark/50' : 'text-brand-teal-lightAccent/50'} mb-3`}>Deliverables</h4>
                 <div className="flex flex-wrap gap-2">
                   {(projectTags ?? []).map((tag, idx) => (
                     <span

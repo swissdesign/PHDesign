@@ -14,7 +14,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ theme, onToggle }) => 
       <button 
         onClick={onToggle}
         className={`relative w-10 h-10 flex items-center justify-center transition-all duration-500 opacity-40 hover:opacity-100 active:scale-90 ${
-          isDark ? 'text-white' : 'text-stone-900'
+          isDark ? 'text-brand-teal-lightAccent' : 'text-brand-teal-dark'
         }`}
         aria-label="Toggle Theme"
       >
