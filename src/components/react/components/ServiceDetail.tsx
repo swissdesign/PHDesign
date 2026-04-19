@@ -117,7 +117,7 @@ export const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, originRec
       {/* Backdrop */}
       <div
         className={`absolute inset-0 backdrop-blur-md transition-opacity duration-700 ease-in-out ${isExpanded && !isClosing ? 'opacity-100' : 'opacity-0'
-          } ${theme === 'light' ? 'bg-[#FAFAF9]/80' : 'bg-black/80'}`}
+          } ${theme === 'light' ? 'bg-[#EAF3F4]/80' : 'bg-black/80'}`}
         onClick={handleClose}
       />
 

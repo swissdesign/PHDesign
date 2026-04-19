@@ -49,7 +49,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({ isOpen, onClose, onNavigat
 
   if (!shouldRender || !originRect) return null;
 
-  const bgClass = theme === 'light' ? 'bg-[#FAFAF9]' : 'bg-[#1C1917]';
+  const bgClass = theme === 'light' ? 'bg-[#EAF3F4]' : 'bg-[#1C1917]';
   const textClass = theme === 'light' ? 'text-stone-900' : 'text-stone-100';
   const subTextClass = theme === 'light' ? 'text-stone-500' : 'text-stone-400';
   const borderClass = theme === 'light' ? 'border-stone-200' : 'border-stone-800';

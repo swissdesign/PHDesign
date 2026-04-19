@@ -114,7 +114,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
 
   // Cinematic Gradient
   const gradientClass = theme === 'light' 
-    ? 'from-[#FAFAF9]/90 via-[#FAFAF9]/40 to-transparent' 
+    ? 'from-[#EAF3F4]/90 via-[#EAF3F4]/40 to-transparent' 
     : 'from-[#1C1917]/90 via-[#1C1917]/40 to-transparent';
   const shouldHideMenuButton = isMenuOpen || (isAnyModalOpen && isCoarsePointer) || (isServiceDetailOpen && isTabletOrBelow);
 
