@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Brand Theme Palettes ─────────────────────────────────────────────────── */
+/* Variables stored as RGB channels so Tailwind opacity modifiers work:        */
+/* e.g. bg-brand-teal-light/50 → rgb(var(--brand-teal-light) / 0.5)           */
+
+/* 1. ORIGINAL: Teal & Pink */
+:root,
+[data-brand-theme="teal"] {
+  --brand-teal-light:        161 228 237;   /* #A1E4ED */
+  --brand-teal-lightAccent:  224 247 250;   /* #E0F7FA */
+  --brand-teal-dark:          10  25  30;   /* #0A191E */
+  --brand-pink:              194  24  91;   /* #C2185B */
+  --brand-pink-light:        244 143 177;   /* #F48FB1 */
+}
+
+/* 2. AUBERGINE & ACID GREEN — +120° HSL rotation */
+[data-brand-theme="aubergine"] {
+  --brand-teal-light:        237 161 228;   /* #EDA1E4 */
+  --brand-teal-lightAccent:  250 224 247;   /* #FAE0F7 */
+  --brand-teal-dark:          30  10  25;   /* #1E0A19 */
+  --brand-pink:               91 194  24;   /* #5BC218 */
+  --brand-pink-light:        177 244 143;   /* #B1F48F */
+}
+
+/* 3. PINE & RUST — -120° HSL rotation */
+[data-brand-theme="pine"] {
+  --brand-teal-light:        161 237 187;   /* #A1EDBB */
+  --brand-teal-lightAccent:  224 250 235;   /* #E0FAEB */
+  --brand-teal-dark:          10  30  17;   /* #0A1E11 */
+  --brand-pink:              194  64  24;   /* #C24018 */
+  --brand-pink-light:        244 164 143;   /* #F4A48F */
+}
+
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: #fafaf9;

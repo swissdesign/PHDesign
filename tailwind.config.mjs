@@ -6,13 +6,13 @@ export default {
       colors: {
         brand: {
           teal: {
-            light: '#A1E4ED', // Light mode background
-            lightAccent: '#E0F7FA', // Used for text in dark mode
-            dark: '#0A191E', // Dark mode background & light mode text
+            light:       'rgb(var(--brand-teal-light) / <alpha-value>)',
+            lightAccent: 'rgb(var(--brand-teal-lightAccent) / <alpha-value>)',
+            dark:        'rgb(var(--brand-teal-dark) / <alpha-value>)',
           },
           pink: {
-            DEFAULT: '#C2185B', // Deep, professional pink (Light Mode use)
-            light: '#F48FB1', // Highly visible pink (Dark mode use)
+            DEFAULT: 'rgb(var(--brand-pink) / <alpha-value>)',
+            light:   'rgb(var(--brand-pink-light) / <alpha-value>)',
           }
         }
       }

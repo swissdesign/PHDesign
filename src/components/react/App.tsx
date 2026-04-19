@@ -78,6 +78,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [originRect, setOriginRect] = useState<TransitionRect | null>(null);
   const [theme, setTheme] = useState<Theme>('light');
+  const [brandTheme, setBrandTheme] = useState<'teal' | 'aubergine' | 'pine'>('teal');
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
 
   // Contact Modal State
@@ -125,6 +126,14 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, 
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  const cycleBrandTheme = () => {
+    const themes = ['teal', 'aubergine', 'pine'] as const;
+    const nextIndex = (themes.indexOf(brandTheme) + 1) % themes.length;
+    const nextTheme = themes[nextIndex];
+    setBrandTheme(nextTheme);
+    document.documentElement.setAttribute('data-brand-theme', nextTheme);
   };
 
   const isAnyModalOpen = Boolean(selectedProject || isContactOpen || isServiceModalOpen);
@@ -295,7 +304,7 @@ const App: React.FC<AppProps> = ({ lang = 'de', projects, services, categories, 
       )}
 
       {/* Theme Toggle */}
-      <ThemeToggle theme={theme} onToggle={toggleTheme} />
+      <ThemeToggle theme={theme} onToggle={toggleTheme} brandTheme={brandTheme} onCycleBrand={cycleBrandTheme} />
 
       {/* Creative Cookie Banner */}
       <CookieConsent theme={theme} />
