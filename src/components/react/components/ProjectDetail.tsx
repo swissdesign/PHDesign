@@ -168,7 +168,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
           {/* Close Button */}
           <button
             onClick={handleClose}
-            className={`absolute md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-500 delay-300 ${theme === 'light' ? 'bg-white/50 hover:bg-white text-black' : 'bg-black/50 hover:bg-brand-teal-dark text-white'
+            className={`absolute md:top-6 md:right-6 z-30 w-11 h-11 flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-500 delay-300 ${theme === 'light' ? 'bg-white/50 hover:bg-white text-black' : 'bg-black/50 hover:bg-brand-teal-dark text-white'
               } ${showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-4 scale-75'}`}
             style={needsTopSpacing ? { top: 'calc(env(safe-area-inset-top, 0px) + 18px)', right: '18px', position: 'fixed' } : undefined}
           >

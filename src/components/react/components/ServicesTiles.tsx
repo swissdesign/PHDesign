@@ -14,6 +14,16 @@ interface ServicesTilesProps {
 
 const DEFAULT_ICON = 'M12 2v20M2 12h20';
 
+/**
+ * Converts an internal CMS slug or key to a human-readable label.
+ * e.g. 'brand-systems' → 'Brand Systems', 'web_design' → 'Web Design'
+ */
+const prettifyLabel = (raw: string): string =>
+  raw
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
+
 export const ServicesTiles: React.FC<ServicesTilesProps> = ({ services, categories, lang = 'de', theme, onModalToggle }) => {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [originRect, setOriginRect] = useState<TransitionRect | null>(null);
@@ -80,7 +90,7 @@ export const ServicesTiles: React.FC<ServicesTilesProps> = ({ services, categori
                
                {service.categoryLabel && (
                  <span className={`text-[10px] md:text-xs uppercase font-semibold tracking-widest px-2.5 md:px-3 py-1 md:py-1.5 rounded-md ${badgeBg}`}>
-                    {service.categoryLabel}
+                    {prettifyLabel(service.categoryLabel)}
                  </span>
                )}
             </div>
