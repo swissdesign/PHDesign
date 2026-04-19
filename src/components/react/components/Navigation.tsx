@@ -137,12 +137,11 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
           {/* Brand Name */}
           <div className="pointer-events-auto">
             <h1 
-              className={`text-sm font-semibold tracking-tight uppercase cursor-pointer transition-colors duration-500 group ${textColor}`}
+              className={`text-sm font-semibold tracking-tight uppercase cursor-pointer transition-colors duration-300 group ${textColor} hover:text-brand-pink`}
               onClick={() => onNavigate('work')}
             >
               P. Heiniger
-              {/* The subtitle is now subtly colored */}
-              <span className={`block font-normal text-xs mt-1 transition-colors duration-500 opacity-80 ${subTextColor}`}>
+              <span className={`block font-normal text-xs mt-1 transition-colors duration-300 opacity-80 ${subTextColor} group-hover:text-brand-pink/60`}>
                 Design Studio
               </span>
             </h1>

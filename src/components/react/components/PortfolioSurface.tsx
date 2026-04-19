@@ -162,7 +162,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ projects, la
 
     const frameGradient = theme === 'light'
       ? 'bg-gradient-to-tr from-brand-teal-dark/10 via-brand-pink/20 to-brand-teal-dark/10'
-      : 'bg-gradient-to-tr from-brand-teal-lightAccent/10 via-brand-pink-light/20 to-brand-teal-lightAccent/10';
+      : 'bg-gradient-to-tr from-brand-teal-lightAccent/10 via-brand-pink-light/30 to-brand-teal-lightAccent/10';
 
     const categoryTextColor = theme === 'light' ? 'text-brand-pink' : 'text-brand-pink-light';
 
@@ -218,7 +218,7 @@ export const PortfolioSurface: React.FC<PortfolioSurfaceProps> = ({ projects, la
                     decoding="async"
                   />
                 </div>
-                <div className={`absolute inset-0 bg-gradient-to-t ${theme === 'light' ? 'from-brand-teal-dark/80 via-brand-pink/10' : 'from-black/80 via-brand-pink-light/10'} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                <div className={`absolute inset-0 bg-gradient-to-t ${theme === 'light' ? 'from-brand-teal-dark/80 via-brand-pink/25' : 'from-black/80 via-brand-pink-light/20'} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
                 <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0 z-10">
                   <div className={`transition-transform duration-[1500ms] ${theme === 'dark' ? 'rotate-[-45deg] origin-bottom-left translate-x-4 -translate-y-2' : ''}`}>

@@ -18,8 +18,9 @@ export const PortfolioGridMobile: React.FC<PortfolioGridMobileProps> = ({ projec
     ? 'bg-white/90 shadow-sm border border-brand-teal-dark/10'
     : 'bg-brand-teal-dark/80 shadow-md border border-brand-teal-lightAccent/10';
 
-  // Feature card: first project gets a wide spotlight treatment
-  const [featured, ...rest] = projects;
+  // First 3 = featured (single column, full-width), rest = 2-column grid
+  const featured = projects.slice(0, 3);
+  const grid = projects.slice(3);
 
   const makeClickHandler = (project: Project) => (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -36,7 +37,7 @@ export const PortfolioGridMobile: React.FC<PortfolioGridMobileProps> = ({ projec
       <div className="max-w-3xl mx-auto">
 
         {/* Section header */}
-        <div className="pb-6">
+        <div className="pb-5">
           <h2 className={`text-3xl font-light tracking-tight ${textClass}`}>
             {lang === 'de' ? 'Ausgewählte Arbeiten' : 'Selected Work'}
           </h2>
@@ -47,71 +48,78 @@ export const PortfolioGridMobile: React.FC<PortfolioGridMobileProps> = ({ projec
           </p>
         </div>
 
-        {/* Featured first project — full width, taller image */}
-        {featured && (
-          <div
-            className={`w-full rounded-2xl overflow-hidden cursor-pointer mb-4 sm:mb-6 active:scale-[0.99] transition-transform ${bgClass}`}
-            onClick={makeClickHandler(featured)}
-          >
-            <div className={`relative w-full aspect-[16/9] overflow-hidden ${isLight ? 'bg-brand-teal-dark/5' : 'bg-black/40'}`}>
-              <img
-                src={featured.optimizedSrc || featured.image}
-                srcSet={featured.optimizedSrcSet}
-                sizes="(max-width: 768px) 100vw, 768px"
-                alt={featured.title}
-                loading="eager"
-                decoding="async"
-                className="w-full h-full object-cover"
-              />
-              {/* Gradient for text legibility */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
-              {/* Overlay text */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                <span className={`text-[10px] sm:text-xs uppercase font-semibold tracking-widest block mb-1 ${categoryTextColor}`}>
-                  {featured.category}
-                </span>
-                <h3 className="text-white text-lg sm:text-2xl font-medium tracking-tight leading-tight">
-                  {featured.title}
-                </h3>
+        {/* Featured: first 3 projects — full width, 16:9, bigger impact */}
+        {featured.length > 0 && (
+          <div className="flex flex-col gap-3 sm:gap-4 mb-3 sm:mb-4">
+            {featured.map((project, idx) => (
+              <div
+                key={project.id}
+                className={`w-full rounded-2xl overflow-hidden cursor-pointer active:scale-[0.99] transition-transform ${bgClass}`}
+                onClick={makeClickHandler(project)}
+              >
+                <div className={`relative w-full aspect-[16/9] overflow-hidden ${isLight ? 'bg-brand-teal-dark/5' : 'bg-black/40'}`}>
+                  <img
+                    src={project.optimizedSrc || project.image}
+                    srcSet={project.optimizedSrcSet}
+                    sizes="(max-width: 768px) 100vw, 768px"
+                    alt={project.title}
+                    loading={idx === 0 ? 'eager' : 'lazy'}
+                    decoding={idx === 0 ? 'sync' : 'async'}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Gradient for title overlay readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent pointer-events-none" />
+                  {/* Overlaid title */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+                    <span className={`text-[10px] sm:text-xs uppercase font-semibold tracking-widest block mb-1 ${categoryTextColor}`}>
+                      {project.category}
+                    </span>
+                    <h3 className="text-white text-base sm:text-xl font-medium tracking-tight leading-tight">
+                      {project.title}
+                    </h3>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         )}
 
-        {/* Remaining projects — 1 column on phones, 2 columns on sm+ */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-          {rest.map((project) => (
-            <div
-              key={project.id}
-              className={`w-full rounded-2xl overflow-hidden cursor-pointer flex flex-col active:scale-[0.98] transition-transform ${bgClass}`}
-              onClick={makeClickHandler(project)}
-            >
-              {/* Image — 4:3 ratio, better for design/photo work */}
-              <div className={`relative w-full aspect-[4/3] overflow-hidden ${isLight ? 'bg-brand-teal-dark/5' : 'bg-black/40'}`}>
-                <img
-                  src={project.optimizedSrc || project.image}
-                  srcSet={project.optimizedSrcSet}
-                  sizes="(max-width: 640px) 100vw, 50vw"
-                  alt={project.title}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
-              </div>
+        {/* Remaining projects — 2 columns, 4:3 ratio, less scrolling */}
+        {grid.length > 0 && (
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {grid.map((project) => (
+              <div
+                key={project.id}
+                className={`w-full rounded-2xl overflow-hidden cursor-pointer flex flex-col active:scale-[0.98] transition-transform ${bgClass}`}
+                onClick={makeClickHandler(project)}
+              >
+                {/* Image — 4:3 ratio */}
+                <div className={`relative w-full aspect-[4/3] overflow-hidden ${isLight ? 'bg-brand-teal-dark/5' : 'bg-black/40'}`}>
+                  <img
+                    src={project.optimizedSrc || project.image}
+                    srcSet={project.optimizedSrcSet}
+                    sizes="(max-width: 640px) 50vw, 33vw"
+                    alt={project.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                </div>
 
-              {/* Content */}
-              <div className="p-4 sm:p-5 flex flex-col gap-1">
-                <span className={`text-[10px] sm:text-xs uppercase font-semibold tracking-widest ${categoryTextColor}`}>
-                  {project.category}
-                </span>
-                <h3 className={`text-sm sm:text-base font-medium tracking-tight leading-snug ${textClass}`}>
-                  {project.title}
-                </h3>
+                {/* Content */}
+                <div className="p-3 sm:p-4 flex flex-col gap-0.5">
+                  <span className={`text-[9px] sm:text-[10px] uppercase font-semibold tracking-widest ${categoryTextColor}`}>
+                    {project.category}
+                  </span>
+                  <h3 className={`text-xs sm:text-sm font-medium tracking-tight leading-snug ${textClass}`}>
+                    {project.title}
+                  </h3>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
       </div>
     </div>

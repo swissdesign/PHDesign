@@ -71,7 +71,7 @@ export const ServicesTiles: React.FC<ServicesTilesProps> = ({ services, categori
           <div
             key={service.id}
             onClick={(e) => handleSelect(service, e)}
-            className={`w-full rounded-2xl p-6 md:p-8 flex flex-col gap-4 cursor-pointer transition-transform hover:-translate-y-1 active:scale-[0.98] ${cardBg}`}
+            className={`group w-full rounded-2xl p-6 md:p-8 flex flex-col gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-brand-pink/40 active:scale-[0.98] ${cardBg}`}
           >
             <div className="flex justify-between items-start">
                <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full ${isLight ? 'bg-brand-pink/10' : 'bg-brand-pink-light/10'} flex items-center justify-center shrink-0`}>
@@ -96,7 +96,7 @@ export const ServicesTiles: React.FC<ServicesTilesProps> = ({ services, categori
             </div>
 
             <div className="mt-2 md:mt-4">
-              <h3 className={`text-xl md:text-3xl font-medium tracking-tight mb-2 md:mb-4 ${textClass}`}>
+              <h3 className={`text-xl md:text-3xl font-medium tracking-tight mb-2 md:mb-4 transition-colors duration-300 group-hover:text-brand-pink ${textClass}`}>
                 {service.name}
               </h3>
               <p className={`text-sm md:text-base leading-relaxed font-light line-clamp-3 md:line-clamp-4 ${subTextClass}`}>
@@ -105,7 +105,7 @@ export const ServicesTiles: React.FC<ServicesTilesProps> = ({ services, categori
             </div>
 
             <div className="mt-auto pt-4 md:pt-6 flex items-center justify-between border-t border-brand-teal-dark/10 dark:border-brand-teal-lightAccent/10 transition-colors">
-              <span className={`text-[11px] md:text-xs uppercase tracking-widest font-semibold ${isLight ? 'text-brand-teal-dark/40' : 'text-brand-teal-lightAccent/50'}`}>
+              <span className={`text-[11px] md:text-xs uppercase tracking-widest font-semibold transition-colors duration-300 group-hover:text-brand-pink ${isLight ? 'text-brand-teal-dark/40' : 'text-brand-teal-lightAccent/50'}`}>
                 {lang === 'de' ? 'Details ansehen' : 'View Details'} &rarr;
               </span>
               

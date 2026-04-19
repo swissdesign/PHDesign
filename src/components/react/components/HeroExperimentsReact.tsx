@@ -260,17 +260,17 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
 
                     {/* Prominent Explore Nav at Top */}
                     <div 
-                        className="absolute top-6 right-6 md:top-12 md:right-12 xl:right-24 flex flex-col sm:flex-row items-center gap-4 z-50 pointer-events-auto will-change-transform"
+                        className="absolute top-6 right-6 md:top-12 md:right-12 xl:right-24 flex flex-row items-center gap-2 sm:gap-4 z-50 pointer-events-auto will-change-transform"
                         style={{ 
                             opacity: p_Explore,
                             transform: `translate3d(0, ${lerp(-20, 0, p_Explore)}px, 0)`,
                             pointerEvents: p_Explore > 0.1 ? 'auto' : 'none'
                         }}
                     >
-                        <a href={`/${lang}/work`} onClick={(e) => handleRevealAppView(e, 'work')} className="w-full sm:w-auto text-center text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-white bg-brand-teal-dark hover:bg-cyan-900 transition-colors px-6 py-3 shadow-md rounded-none md:rounded-full">
+                        <a href={`/${lang}/work`} onClick={(e) => handleRevealAppView(e, 'work')} className="text-center text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-white bg-brand-teal-dark hover:bg-cyan-900 transition-colors px-4 sm:px-6 py-2.5 sm:py-3 shadow-md rounded-full">
                             Portfolio
                         </a>
-                        <a href={`/${lang}/services`} onClick={(e) => handleRevealAppView(e, 'services')} className="w-full sm:w-auto text-center text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-brand-teal-dark bg-white border border-brand-teal-dark/20 hover:border-cyan-200 transition-colors px-6 py-3 shadow-md rounded-none md:rounded-full">
+                        <a href={`/${lang}/services`} onClick={(e) => handleRevealAppView(e, 'services')} className="text-center text-[10px] sm:text-xs uppercase tracking-widest font-semibold text-brand-teal-dark bg-white border border-brand-teal-dark/20 hover:border-cyan-200 transition-colors px-4 sm:px-6 py-2.5 sm:py-3 shadow-md rounded-full">
                             Services
                         </a>
                     </div>
@@ -355,13 +355,13 @@ export default function HeroExperimentsReact({ items = [], lang = 'de' }: HeroEx
                         <div
                             className="absolute inset-0 max-w-[1400px] mx-auto w-full px-6 md:px-12 xl:px-24 flex flex-col justify-center z-30 pointer-events-none"
                         >
-                            <div className="w-full flex flex-col lg:flex-row items-center justify-end relative h-full pt-[5vh] sm:pt-4 lg:pt-0 pb-[15vh]">
+                            <div className="w-full flex flex-col lg:flex-row items-center justify-end relative h-full pt-0 lg:pt-0 pb-[8vh]">
 
                                 <div className="lg:w-4/12 xl:w-5/12 hidden lg:block"></div>
 
                                 <div className="lg:w-8/12 xl:w-7/12 w-full flex flex-col relative" style={{ opacity: ap > 0.01 ? 1 : 0 }}>
 
-                                    <div className="relative min-h-[380px] sm:min-h-[460px] pointer-events-auto">
+                                    <div className="relative min-h-[440px] sm:min-h-[480px] pointer-events-auto">
                                         {clientItems.map((item, index) => {
                                             const isActive = index === activeIndex;
 
