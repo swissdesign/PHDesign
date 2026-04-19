@@ -18,6 +18,47 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
   const [showContent, setShowContent] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(false);
+  const [isCoarsePointer, setIsCoarsePointer] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+
+    const mql = window.matchMedia('(pointer: coarse)');
+    const handlePointerChange = (e: MediaQueryListEvent) => setIsCoarsePointer(e.matches);
+    setIsCoarsePointer(mql.matches);
+    if (mql.addEventListener) {
+      mql.addEventListener('change', handlePointerChange);
+    } else {
+      // @ts-ignore Safari
+      mql.addListener(handlePointerChange);
+    }
+
+    // Start animation immediately after mount
+    const timer1 = setTimeout(() => setIsExpanded(true), 20);
+    const timer2 = setTimeout(() => setShowContent(true), 500);
+
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+    };
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (mql.removeEventListener) {
+        mql.removeEventListener('change', handlePointerChange);
+      } else {
+        // @ts-ignore Safari
+        mql.removeListener(handlePointerChange);
+      }
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
+
   const projectTitle = pickLang(project, 'title', lang) || project.title || 'Untitled Project';
   const projectDescription = pickLang(project, 'description', lang) || project.description || '';
   const projectCategory = pickLang(project, 'category', lang) || String(project.category ?? '').trim();
@@ -36,22 +77,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
     { src: projectImage, srcSet: projectSrcSet, className: '' }
   ];
 
-  useEffect(() => {
-    // Start animation immediately after mount
-    const timer1 = setTimeout(() => setIsExpanded(true), 20);
-    const timer2 = setTimeout(() => setShowContent(true), 500);
 
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleClose();
-    };
-    window.addEventListener('keydown', handleEsc);
-
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      window.removeEventListener('keydown', handleEsc);
-    };
-  }, []);
 
   const handleClose = () => {
     if (isClosing) return;
@@ -78,16 +104,46 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
   const dotActive = theme === 'light' ? 'bg-cyan-600 h-3' : 'bg-cyan-400 h-3';
 
   // Animation Transforms for Dark Mode (Diamond -> Square transition)
-  const initialRotate = isDark ? 45 : 0;
-  const initialScale = isDark ? 0.707 : 1;
+  const initialRotate = isDark && !isMobile ? 45 : 0;
+  const initialScale = isDark && !isMobile ? 0.707 : 1;
 
   const outerTransform = (isExpanded && !isClosing)
-    ? 'rotate(0deg) scale(1)'
+    ? 'none'
     : `rotate(${initialRotate}deg) scale(${initialScale})`;
 
   const innerTransform = (isExpanded && !isClosing)
-    ? 'rotate(0deg) scale(1)'
-    : `rotate(${-initialRotate}deg) scale(${isDark ? 1.42 : 1})`;
+    ? 'none'
+    : `rotate(${-initialRotate}deg) scale(${isDark && !isMobile ? 1.42 : 1})`;
+
+  const expandedStyle = isMobile ? {
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100dvh', // Use dvh for robust mobile height
+    borderRadius: '0px',
+    transform: outerTransform,
+    transformOrigin: 'center center'
+  } : {
+    top: '5%',
+    left: '5%',
+    width: '90%',
+    height: '90%',
+    borderRadius: '0px',
+    transform: outerTransform,
+    transformOrigin: 'center center'
+  };
+
+  const initialStyle = {
+    top: `${originRect.top}px`,
+    left: `${originRect.left}px`,
+    width: `${originRect.width}px`,
+    height: `${originRect.height}px`,
+    borderRadius: '1.5rem',
+    transform: outerTransform,
+    transformOrigin: 'center center'
+  };
+
+  const needsTopSpacing = isCoarsePointer || isMobile;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto">
@@ -102,14 +158,8 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
       <div
         className={`fixed shadow-2xl overflow-hidden transition-all duration-700 cubic-bezier(0.76, 0, 0.24, 1) ${bgClass}`}
         style={{
-          top: isExpanded ? '5%' : `${originRect.top}px`,
-          left: isExpanded ? '5%' : `${originRect.left}px`,
-          width: isExpanded ? '90%' : `${originRect.width}px`,
-          height: isExpanded ? '90%' : `${originRect.height}px`,
-          borderRadius: isExpanded ? '0px' : '1.5rem',
-          zIndex: 60,
-          transform: outerTransform,
-          transformOrigin: 'center center'
+          ...((isExpanded && !isClosing) ? expandedStyle : initialStyle),
+          zIndex: 60
         }}
       >
         {/* Inner Content Wrapper - Counter Rotation */}
@@ -121,8 +171,9 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
           {/* Close Button */}
           <button
             onClick={handleClose}
-            className={`absolute top-6 right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-500 delay-300 ${theme === 'light' ? 'bg-white/50 hover:bg-white text-black' : 'bg-black/50 hover:bg-stone-800 text-white'
-              } ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
+            className={`absolute md:top-6 md:right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-500 delay-300 ${theme === 'light' ? 'bg-white/50 hover:bg-white text-black' : 'bg-black/50 hover:bg-stone-800 text-white'
+              } ${showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-4 scale-75'}`}
+            style={needsTopSpacing ? { top: 'calc(env(safe-area-inset-top, 0px) + 18px)', right: '18px', position: 'fixed' } : undefined}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" strokeWidth="1.5" />
@@ -130,7 +181,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
           </button>
 
           {/* Media Side (Left) */}
-          <div className={`relative group transition-all duration-700 bg-stone-100 dark:bg-stone-900 ${isExpanded ? 'w-full md:w-3/5 h-1/2 md:h-full' : 'w-full h-full'}`}>
+          <div className={`relative group transition-all duration-700 bg-stone-100 dark:bg-stone-900 ${isExpanded ? 'w-full md:w-3/5 h-[40vh] md:h-full shrink-0' : 'w-full h-full'}`}>
             <div className={`w-full h-full ${isExpanded ? 'overflow-y-auto snap-y snap-mandatory scroll-smooth' : 'overflow-hidden'}`} style={{ scrollbarWidth: 'none' }}>
               {galleryImages.map((imgDef, index) => (
                 <div key={index} className="w-full h-full snap-start relative aspect-[4/3] md:aspect-auto">
@@ -169,7 +220,8 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, originRec
 
           {/* Info Side (Right) */}
           <div
-            className={`transition-all duration-500 flex flex-col ${isExpanded ? 'w-full md:w-2/5 h-1/2 md:h-full opacity-100' : 'w-0 h-0 opacity-0 overflow-hidden'} ${bgClass}`}
+            className={`transition-all duration-500 flex flex-col ${isExpanded ? 'w-full md:w-2/5 flex-1 md:h-full opacity-100' : 'w-0 h-0 opacity-0 overflow-hidden'} ${bgClass}`}
+            style={needsTopSpacing && isExpanded ? { paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' } : undefined}
           >
             <div className={`w-full h-full overflow-y-auto p-8 md:p-12 flex flex-col transition-opacity duration-300 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
               <div className="flex-1">
