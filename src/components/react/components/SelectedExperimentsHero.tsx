@@ -5,26 +5,26 @@ interface SelectedExperimentsHeroProps {
   items: HeroExperimentRow[];
   lang: string;
   reducedMotion: boolean;
-  /** "Selected Experiments" label copy */
   sectionLabel: string;
+  /** The fixed scrollable overlay — used as IO root for scroll-triggered reveals */
+  containerRef?: React.RefObject<HTMLDivElement>;
 }
 
 /**
  * Scene 4 — Selected Experiments.
  *
  * Editorial hero-style carousel.
- * - Full-width typographic card layout
- * - Keyboard + pointer navigation
- * - Touch swipe on mobile (no library)
- * - Progress dots
- * - Each card reveals with stagger on first enter (IntersectionObserver)
- * - CTA link preserved from item.ctaHref
+ * - IntersectionObserver scoped to overlay container
+ * - Keyboard + touch swipe navigation
+ * - Dot indicators
+ * - Staggered card reveal on each slide change
  */
 export function SelectedExperimentsHero({
   items,
   lang,
   reducedMotion,
   sectionLabel,
+  containerRef,
 }: SelectedExperimentsHeroProps) {
   const isEn = lang === 'en';
   const hasItems = items.length > 0;
@@ -36,55 +36,47 @@ export function SelectedExperimentsHero({
     ctaLabel: isEn ? item.cta_label_en : item.cta_label_de,
     ctaHref: item.cta_href,
     accent: item.accent || '#1c1917',
-    question: isEn ? item.question_en : item.question_de,
   }));
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [headerVisible, setHeaderVisible] = useState(false);
-  const [cardVisible, setCardVisible] = useState(false);
+  const [sectionVisible, setSectionVisible] = useState(reducedMotion);
+  const [cardVisible, setCardVisible] = useState(reducedMotion);
 
-  const headerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const touchStartX = useRef<number | null>(null);
-
   const total = clientItems.length;
 
   const goTo = (index: number) => setActiveIndex((index + total) % total);
   const next = () => goTo(activeIndex + 1);
   const prev = () => goTo(activeIndex - 1);
 
-  // Header intersection reveal
+  // Section header reveal via IO scoped to overlay
   useEffect(() => {
-    if (!headerRef.current) return;
-    if (reducedMotion) {
-      setHeaderVisible(true);
-      setCardVisible(true);
-      return;
-    }
-
+    if (reducedMotion || !headerRef.current) return;
+    const root = containerRef?.current ?? null;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setHeaderVisible(true);
-          // Small delay so card content stagger feels intentional
-          setTimeout(() => setCardVisible(true), 300);
+          setSectionVisible(true);
+          setTimeout(() => setCardVisible(true), 280);
           observer.disconnect();
         }
       },
-      { threshold: 0.2 }
+      { root, threshold: 0.15 }
     );
     observer.observe(headerRef.current);
     return () => observer.disconnect();
-  }, [reducedMotion]);
+  }, [reducedMotion, containerRef]);
 
-  // Reset card visible state on slide change so stagger re-triggers
+  // Re-stagger card on slide change
   useEffect(() => {
-    if (!headerVisible) return;
+    if (!sectionVisible || reducedMotion) return;
     setCardVisible(false);
     const t = setTimeout(() => setCardVisible(true), 60);
     return () => clearTimeout(t);
-  }, [activeIndex, headerVisible]);
+  }, [activeIndex, sectionVisible, reducedMotion]);
 
-  // Keyboard accessibility
+  // Keyboard navigation
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') prev();
@@ -94,215 +86,157 @@ export function SelectedExperimentsHero({
     return () => window.removeEventListener('keydown', onKey);
   }, [activeIndex]);
 
-  const reveal = (delay = 0): React.CSSProperties => ({
-    opacity: cardVisible ? 1 : 0,
-    transform: cardVisible ? 'translateY(0)' : 'translateY(20px)',
-    transition: reducedMotion
-      ? 'none'
-      : `opacity 600ms ${delay}ms cubic-bezier(0.4,0,0.2,1), transform 600ms ${delay}ms cubic-bezier(0.4,0,0.2,1)`,
-  });
-
   const headerReveal: React.CSSProperties = {
-    opacity: headerVisible ? 1 : 0,
-    transform: headerVisible ? 'translateY(0)' : 'translateY(16px)',
+    opacity: sectionVisible ? 1 : 0,
+    transform: sectionVisible ? 'translateY(0)' : 'translateY(16px)',
     transition: reducedMotion ? 'none' : 'opacity 700ms cubic-bezier(0.4,0,0.2,1), transform 700ms cubic-bezier(0.4,0,0.2,1)',
   };
+
+  const cardReveal = (delay = 0): React.CSSProperties => ({
+    opacity: cardVisible ? 1 : 0,
+    transform: cardVisible ? 'translateY(0)' : 'translateY(18px)',
+    transition: reducedMotion
+      ? 'none'
+      : `opacity 550ms ${delay}ms cubic-bezier(0.4,0,0.2,1), transform 550ms ${delay}ms cubic-bezier(0.4,0,0.2,1)`,
+  });
 
   const activeItem = clientItems[activeIndex];
 
   return (
     <section
+      ref={headerRef}
       style={{
         width: '100%',
         backgroundColor: '#fafaf9',
-        borderTop: '1px solid rgba(28,25,23,0.08)',
-        padding: 'clamp(64px, 10vh, 120px) clamp(24px, 6vw, 96px)',
+        borderTop: '1px solid rgba(28,25,23,0.07)',
+        padding: 'clamp(56px, 9vh, 104px) clamp(24px, 6vw, 96px) clamp(72px, 11vh, 120px)',
       }}
       aria-label={sectionLabel}
     >
-      {/* Section header */}
+      {/* Header row */}
       <div
-        ref={headerRef}
         style={{
           ...headerReveal,
           display: 'flex',
-          alignItems: 'baseline',
+          alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: '16px',
-          marginBottom: 'clamp(48px, 8vh, 80px)',
+          gap: 16,
+          marginBottom: 'clamp(40px, 7vh, 72px)',
         }}
       >
-        <h2
-          style={{
-            fontSize: 'clamp(10px, 1vw, 12px)',
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            fontWeight: 500,
-            color: '#1c1917',
-            opacity: 0.4,
-            margin: 0,
-            fontFamily: 'inherit',
-          }}
-        >
+        <h2 style={{
+          fontSize: 'clamp(9px, 0.9vw, 11px)',
+          letterSpacing: '0.25em',
+          textTransform: 'uppercase',
+          fontWeight: 500,
+          color: '#1c1917',
+          opacity: 0.38,
+          margin: 0,
+          fontFamily: 'inherit',
+        }}>
           {sectionLabel}
         </h2>
 
-        {/* Navigation controls — desktop */}
         {hasItems && total > 1 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-            <button
-              onClick={prev}
-              aria-label="Previous experiment"
-              style={navBtnStyle}
-              onMouseEnter={(e) => Object.assign((e.currentTarget as HTMLElement).style, navBtnHover)}
-              onMouseLeave={(e) => Object.assign((e.currentTarget as HTMLElement).style, navBtnStyle)}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <polyline points="10 4 6 8 10 12" />
-              </svg>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <button onClick={prev} aria-label="Previous experiment" style={navBtn}
+              onMouseEnter={e => Object.assign((e.currentTarget as HTMLElement).style, navBtnActive)}
+              onMouseLeave={e => Object.assign((e.currentTarget as HTMLElement).style, navBtn)}>
+              <ChevronLeft />
             </button>
-
-            <span style={{
-              fontSize: 11,
-              letterSpacing: '0.18em',
-              color: '#1c1917',
-              opacity: 0.3,
-              fontFamily: 'inherit',
-            }}>
+            <span style={{ fontSize: 11, letterSpacing: '0.18em', color: '#1c1917', opacity: 0.28, fontFamily: 'inherit' }}>
               {String(activeIndex + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
             </span>
-
-            <button
-              onClick={next}
-              aria-label="Next experiment"
-              style={navBtnStyle}
-              onMouseEnter={(e) => Object.assign((e.currentTarget as HTMLElement).style, navBtnHover)}
-              onMouseLeave={(e) => Object.assign((e.currentTarget as HTMLElement).style, navBtnStyle)}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <polyline points="6 4 10 8 6 12" />
-              </svg>
+            <button onClick={next} aria-label="Next experiment" style={navBtn}
+              onMouseEnter={e => Object.assign((e.currentTarget as HTMLElement).style, navBtnActive)}
+              onMouseLeave={e => Object.assign((e.currentTarget as HTMLElement).style, navBtn)}>
+              <ChevronRight />
             </button>
           </div>
         )}
       </div>
 
-      {/* Card content */}
+      {/* Card */}
       {hasItems && activeItem && (
         <div
-          onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
-          onTouchEnd={(e) => {
+          onTouchStart={e => { touchStartX.current = e.touches[0].clientX; }}
+          onTouchEnd={e => {
             if (touchStartX.current === null) return;
             const delta = e.changedTouches[0].clientX - touchStartX.current;
             if (Math.abs(delta) > 48) delta < 0 ? next() : prev();
             touchStartX.current = null;
           }}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(12, 1fr)',
-            gap: 'clamp(32px, 4vw, 64px)',
-            alignItems: 'start',
-          }}
         >
-          {/* Left: keyword + number */}
-          <div style={{ gridColumn: 'span 12', display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
-            <span
-              style={{
-                ...reveal(0),
-                display: 'inline-block',
-                fontSize: 'clamp(10px, 1vw, 12px)',
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                color: activeItem.accent,
-                fontWeight: 500,
-                fontFamily: 'inherit',
-              }}
-            >
+          {/* Keyword tag */}
+          <div style={{ marginBottom: 'clamp(16px, 2.5vh, 28px)' }}>
+            <span style={{
+              ...cardReveal(0),
+              display: 'inline-block',
+              fontSize: 'clamp(9px, 0.9vw, 11px)',
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: activeItem.accent,
+              fontWeight: 500,
+              fontFamily: 'inherit',
+            }}>
               {activeItem.keyword}
             </span>
           </div>
 
-          {/* Centre: large title */}
-          <div
-            style={{
-              gridColumn: 'span 12',
-              paddingBottom: 'clamp(24px, 4vh, 48px)',
-              borderBottom: '1px solid rgba(28,25,23,0.08)',
-            }}
-          >
-            <h3
-              style={{
-                ...reveal(80),
-                fontSize: 'clamp(32px, 5.5vw, 88px)',
-                lineHeight: 1.0,
-                letterSpacing: '-0.025em',
-                fontWeight: 500,
-                color: '#1c1917',
-                margin: 0,
-                fontFamily: 'inherit',
-              }}
-            >
+          {/* Large title */}
+          <div style={{
+            paddingBottom: 'clamp(20px, 3.5vh, 40px)',
+            borderBottom: '1px solid rgba(28,25,23,0.07)',
+            marginBottom: 'clamp(20px, 3.5vh, 40px)',
+          }}>
+            <h3 style={{
+              ...cardReveal(70),
+              fontSize: 'clamp(30px, 5.2vw, 84px)',
+              lineHeight: 1.0,
+              letterSpacing: '-0.025em',
+              fontWeight: 500,
+              color: '#1c1917',
+              margin: 0,
+              fontFamily: 'inherit',
+            }}>
               {activeItem.title}
             </h3>
           </div>
 
-          {/* Bottom: result + CTA */}
-          <div
-            style={{
-              gridColumn: 'span 12',
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: 'clamp(24px, 3vw, 48px)',
-              alignItems: 'end',
-            }}
-          >
-            {/* Result text — wrapped so reveal opacity and text opacity don't conflict */}
-            <div style={reveal(160)}>
-              <p
-                style={{
-                  fontSize: 'clamp(15px, 1.4vw, 20px)',
-                  lineHeight: 1.6,
-                  color: '#1c1917',
-                  opacity: 0.5,
-                  margin: 0,
-                  fontWeight: 400,
-                  fontFamily: 'inherit',
-                  maxWidth: '52ch',
-                }}
-              >
+          {/* Result + CTA */}
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            gap: 'clamp(20px, 3vw, 40px)',
+          }}>
+            <div style={{ ...cardReveal(140), flex: '1 1 280px' }}>
+              <p style={{
+                fontSize: 'clamp(14px, 1.3vw, 19px)',
+                lineHeight: 1.65,
+                color: '#1c1917',
+                opacity: 0.5,
+                margin: 0,
+                fontWeight: 400,
+                fontFamily: 'inherit',
+                maxWidth: '52ch',
+              }}>
                 {activeItem.result}
               </p>
             </div>
 
             {activeItem.ctaHref && (
-              <div style={{ ...reveal(240), display: 'flex', justifyContent: 'flex-end' }}>
+              <div style={{ ...cardReveal(210), flexShrink: 0 }}>
                 <a
                   href={activeItem.ctaHref}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    fontSize: 'clamp(10px, 1vw, 12px)',
-                    letterSpacing: '0.18em',
-                    textTransform: 'uppercase',
-                    fontWeight: 500,
-                    color: '#fafaf9',
-                    backgroundColor: '#1c1917',
-                    padding: '14px 28px',
-                    textDecoration: 'none',
-                    transition: 'background-color 200ms ease',
-                    fontFamily: 'inherit',
-                    whiteSpace: 'nowrap',
-                  }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = '#3a3630')}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = '#1c1917')}
+                  style={ctaLink}
+                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#3a3630')}
+                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#1c1917')}
                 >
                   {activeItem.ctaLabel || (isEn ? 'View experiment' : 'Experiment ansehen')}
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                    <line x1="2" y1="10" x2="10" y2="2" />
-                    <polyline points="4 2 10 2 10 8" />
-                  </svg>
+                  <ArrowDiagonal />
                 </a>
               </div>
             )}
@@ -310,32 +244,20 @@ export function SelectedExperimentsHero({
         </div>
       )}
 
-      {/* Dot indicators — mobile/compact */}
+      {/* Dot indicators */}
       {hasItems && total > 1 && (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 8,
-            marginTop: 'clamp(40px, 6vh, 64px)',
-          }}
-          aria-hidden="true"
-        >
+        <div style={{
+          display: 'flex', justifyContent: 'center', gap: 8,
+          marginTop: 'clamp(36px, 6vh, 56px)',
+        }} aria-hidden="true">
           {clientItems.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              aria-label={`Go to experiment ${i + 1}`}
+            <button key={i} onClick={() => goTo(i)} aria-label={`Experiment ${i + 1}`}
               style={{
-                width: i === activeIndex ? 24 : 6,
-                height: 6,
-                borderRadius: 3,
+                width: i === activeIndex ? 22 : 6, height: 6, borderRadius: 3,
                 backgroundColor: '#1c1917',
-                opacity: i === activeIndex ? 0.7 : 0.2,
-                border: 'none',
-                cursor: 'pointer',
-                padding: 0,
-                transition: reducedMotion ? 'none' : 'all 300ms cubic-bezier(0.4,0,0.2,1)',
+                opacity: i === activeIndex ? 0.65 : 0.18,
+                border: 'none', cursor: 'pointer', padding: 0,
+                transition: reducedMotion ? 'none' : 'all 280ms cubic-bezier(0.4,0,0.2,1)',
               }}
             />
           ))}
@@ -345,25 +267,47 @@ export function SelectedExperimentsHero({
   );
 }
 
-// ─── Inline style constants ───────────────────────────────────────────────────
-const navBtnStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: 36,
-  height: 36,
-  border: '1px solid rgba(28,25,23,0.15)',
-  backgroundColor: 'transparent',
-  color: '#1c1917',
-  cursor: 'pointer',
-  borderRadius: '50%',
-  transition: 'all 200ms ease',
-  padding: 0,
+// ─── Style constants ──────────────────────────────────────────────────────────
+const navBtn: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  width: 34, height: 34, borderRadius: '50%',
+  border: '1px solid rgba(28,25,23,0.14)',
+  backgroundColor: 'transparent', color: '#1c1917',
+  cursor: 'pointer', padding: 0, transition: 'all 180ms ease',
+};
+const navBtnActive: React.CSSProperties = {
+  ...navBtn, backgroundColor: '#1c1917', borderColor: '#1c1917', color: '#fafaf9',
+};
+const ctaLink: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 9,
+  fontSize: 'clamp(9px, 0.9vw, 11px)', letterSpacing: '0.2em',
+  textTransform: 'uppercase', fontWeight: 500,
+  color: '#fafaf9', backgroundColor: '#1c1917',
+  padding: '13px 26px', textDecoration: 'none',
+  transition: 'background-color 180ms ease', fontFamily: 'inherit',
+  whiteSpace: 'nowrap',
 };
 
-const navBtnHover: React.CSSProperties = {
-  ...navBtnStyle,
-  backgroundColor: '#1c1917',
-  borderColor: '#1c1917',
-  color: '#fafaf9',
-};
+// ─── Micro icons ──────────────────────────────────────────────────────────────
+function ChevronLeft() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <polyline points="9 3 5 7 9 11" />
+    </svg>
+  );
+}
+function ChevronRight() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <polyline points="5 3 9 7 5 11" />
+    </svg>
+  );
+}
+function ArrowDiagonal() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="2" y1="9" x2="9" y2="2" />
+      <polyline points="4 2 9 2 9 7" />
+    </svg>
+  );
+}
