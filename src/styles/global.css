@@ -45,8 +45,25 @@ body {
   transition: background-color 1s ease;
 }
 
+/* Intro — ensure the full-screen logo overlay never causes a white flash */
+#intro-root {
+  background-color: #fafaf9;
+}
+
 #app-mount {
   cursor: crosshair;
+}
+
+/* Logo scene keyframe (also declared inline per-instance for portability) */
+@keyframes ph-logo-fadein {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scroll arrow keyframe */
+@keyframes ph-arrow-bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(5px); }
 }
 
 ::-webkit-scrollbar {
